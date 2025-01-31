@@ -1,94 +1,92 @@
-<style>
-        body {
-            background-color: #f8f9fa;
-        }
+body {
+    background-color: #f8f9fa;
+}
 
-        /* Scoped Bootstrap styles */
-        .bootstrap-modal .modal.show {
-            display: flex !important;
-        }
+/* Scoped Bootstrap styles */
+.bootstrap-modal .modal.show {
+    display: flex !important;
+}
 
-        .bootstrap-toast .toast {
-            display: none;
-        }
+.bootstrap-toast .toast {
+    display: none;
+}
 
-        .bootstrap-toast .toast.show {
-            display: block;
-        }
+.bootstrap-toast .toast.show {
+    display: block;
+}
 
-        .preview-container {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-        }
+.preview-container {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
 
-        .star-rating {
-            cursor: pointer;
-        }
+.star-rating {
+    cursor: pointer;
+}
 
-        .star {
-            color: lightgray;
-        }
+.star {
+    color: lightgray;
+}
 
-        .star.filled {
-            color: gold;
-        }
+.star.filled {
+    color: gold;
+}
 
-        .comment-box {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+.comment-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
 
-        .comment-box textarea {
-            flex: 1;
-        }
+.comment-box textarea {
+    flex: 1;
+}
 
-        .comment-box button {
-            white-space: nowrap;
-        }
+.comment-box button {
+    white-space: nowrap;
+}
 
-        .comment .comment-body {
-            padding: 10px;
-            background-color: #f3f4f6;
-            border-radius: 5px;
-            position: relative;
-        }
+.comment .comment-body {
+    padding: 10px;
+    background-color: #f3f4f6;
+    border-radius: 5px;
+    position: relative;
+}
 
-        .comment .comment-body.admin {
-            background-color: #e0f7fa;
-        }
+.comment .comment-body.admin {
+    background-color: #e0f7fa;
+}
 
-        .comment .comment-actions {
-            margin-top: 5px;
-        }
+.comment .comment-actions {
+    margin-top: 5px;
+}
 
-        .comment .comment-actions button {
-            margin-right: 10px;
-        }
+.comment .comment-actions button {
+    margin-right: 10px;
+}
 
-        .like-dislike {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
+.like-dislike {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
 
-        .like-dislike button {
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: #007bff;
-        }
+.like-dislike button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #007bff;
+}
 
-        .like-dislike button:disabled {
-            color: #6c757d;
-        }
+.like-dislike button:disabled {
+    color: #6c757d;
+}
 
-        .comment-divider {
-            border-top: 1px solid #e5e7eb;
-            margin: 10px 0;
-        }
-    </style>
+.comment-divider {
+    border-top: 1px solid #e5e7eb;
+    margin: 10px 0;
+}
