@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marka Sıralaması | Şikayet Yönetim Sistemi</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" integrity="sha512-c42qTSw/wPZ3/5LBzD+Bw5f7bSF2oxou6wEb+I/lqeaKV5FDIfMvvRp772y4jcJLKuGUOpbJMdg/BTl50fJYAw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Navbar - Ana sayfadaki ile aynı -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="fas fa-exclamation-triangle me-2"></i><span>Şikayet Sistemi</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Navigasyonu aç/kapat">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Anasayfa</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/markalar"><i class="fas fa-building me-1"></i> Markalar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#explore"><i class="fas fa-search me-1"></i> Keşfet</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#how-it-works"><i class="fas fa-question-circle me-1"></i> Nasıl Çalışır?</a></li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-lg-2 mb-2 mb-lg-0">
+                        <button type="button" class="btn modern-btn-primary w-100 w-lg-auto" data-bs-toggle="modal" data-bs-target="#createComplaintModal">
+                            <i class="fas fa-plus me-1"></i> Şikayet Yaz
+                        </button>
+                    </li>
+                    <li class="nav-item me-lg-2 mb-2 mb-lg-0">
+                        <button id="adminPanelBtn" type="button" class="btn modern-btn-secondary w-100 w-lg-auto" data-bs-toggle="modal" data-bs-target="#adminModal">
+                            <i class="fas fa-user-shield me-1"></i> Admin Paneli
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="themeToggle" class="btn theme-toggle-btn" aria-label="Tema değiştir">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Marka Sıralaması Başlık -->
+    <section class="ranking-header" style="padding-top: 100px; padding-bottom: 40px;">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h1 class="display-5 fw-bold">Marka Sıralaması ve Karşılaştırması</h1>
+                <p class="lead">Markaların performansını karşılaştırın ve en iyi markaları keşfedin</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marka Sıralaması Özet İstatistikler -->
+    <section class="ranking-summary section-divider-bottom-diagonal">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Top 5 Kart -->
+                <div class="col-lg-7">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4"><i class="fas fa-trophy me-2 text-warning"></i>En İyi Markalar</h4>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle" id="topBrandsTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 60px;">Sıra</th>
+                                            <th>Marka</th>
+                                            <th style="width: 100px;" class="text-center">Skor</th>
+                                            <th style="width: 100px;" class="text-center">Çözüm %</th>
+                                            <th style="width: 100px;" class="text-center">Yanıt</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">
+                                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                                    <span class="visually-hidden">Yükleniyor...</span>
+                                                </div>
+                                                Markalar yükleniyor...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Genel İstatistikler -->
+                <div class="col-lg-5">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4"><i class="fas fa-chart-pie me-2 text-primary"></i>Sektörel Durum</h4>
+                            <div class="px-2">
+                                <div class="mb-4">
+                                    <h6 class="small text-muted fw-bold mb-2">En İyi Çözüm Oranına Sahip Kategori</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 id="bestCategoryName" class="mb-0 fw-bold">Yükleniyor...</h5>
+                                        <span id="bestCategoryRate" class="badge bg-success">-%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h6 class="small text-muted fw-bold mb-2">En Hızlı Yanıt Veren Sektör</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 id="fastestSectorName" class="mb-0 fw-bold">Yükleniyor...</h5>
+                                        <span id="fastestSectorRate" class="badge bg-primary">- gün</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h6 class="small text-muted fw-bold mb-2">En Çok Şikayet Edilen Konu</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 id="topComplaintCategoryName" class="mb-0 fw-bold">Yükleniyor...</h5>
+                                        <span id="topComplaintCategoryCount" class="badge bg-warning text-dark">-</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h6 class="small text-muted fw-bold mb-2">Ortalama Çözüm Oranı</h6>
+                                    <div class="progress" style="height: 25px;">
+                                        <div id="avgResolutionRateProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marka Sıralama Tablosu -->
+    <section class="brand-rankings section-divider-bottom-diagonal">
+        <div class="container">
+            <h2 class="section-title mb-4">Marka Performans Sıralaması</h2>
+            
+            <!-- Filtreler -->
+            <div class="row mb-4">
+                <div class="col-lg-8">
+                    <div class="d-flex flex-wrap gap-2">
+                        <select id="categoryFilter" class="form-select form-select-sm" style="max-width: 180px;">
+                            <option value="all" selected>Tüm Kategoriler</option>
+                            <option value="Teslimat Sorunu">Teslimat Sorunu</option>
+                            <option value="Ürün Kalitesi">Ürün Kalitesi</option>
+                            <option value="Müşteri Hizmetleri">Müşteri Hizmetleri</option>
+                            <option value="İade/Değişim Süreci">İade/Değişim Süreci</option>
+                            <option value="Fiyatlandırma/Fatura">Fiyatlandırma/Fatura</option>
+                            <option value="Diğer">Diğer</option>
+                        </select>
+                        
+                        <select id="complaintCountFilter" class="form-select form-select-sm" style="max-width: 200px;">
+                            <option value="0">Tüm Markalar</option>
+                            <option value="5">En Az 5 Şikayet</option>
+                            <option value="10">En Az 10 Şikayet</option>
+                            <option value="20">En Az 20 Şikayet</option>
+                            <option value="50">En Az 50 Şikayet</option>
+                        </select>
+                        
+                        <select id="sortMethod" class="form-select form-select-sm" style="max-width: 200px;">
+                            <option value="overallScore">Genel Skor</option>
+                            <option value="resolveRate">Çözüm Oranı</option>
+                            <option value="responseTime">Yanıt Süresi</option>
+                            <option value="avgRating">Ortalama Puan</option>
+                            <option value="complaintCount">Şikayet Sayısı</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-4 mt-3 mt-lg-0">
+                    <div class="input-group">
+                        <input type="text" id="brandSearchInput" class="form-control form-control-sm" placeholder="Marka adı ara...">
+                        <button class="btn btn-outline-primary btn-sm" id="brandSearchButton">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ana Sıralama Tablosu -->
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="brandRankingsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;" class="ps-3">Sıra</th>
+                                    <th>Marka</th>
+                                    <th style="width: 100px;" class="text-center">Skor</th>
+                                    <th style="width: 120px;" class="text-center">Şikayet Sayısı</th>
+                                    <th style="width: 90px;" class="text-center">Puan</th>
+                                    <th style="width: 100px;" class="text-center">Çözüm %</th>
+                                    <th style="width: 100px;" class="text-center">Yanıt Süresi</th>
+                                    <th style="width: 90px;" class="text-end pe-3">Detay</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Yükleniyor...</span>
+                                        </div>
+                                        <p class="mt-3">Marka verileri yükleniyor...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sayfalama -->
+            <nav class="mt-4">
+                <ul id="rankingPagination" class="pagination justify-content-center">
+                    <!-- JS ile doldurulacak -->
+                </ul>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Karşılaştırma Grafikleri -->
+    <section class="comparison-charts">
+        <div class="container">
+            <h2 class="section-title mb-4">Kategorilere Göre Karşılaştırma</h2>
+            
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4"><i class="fas fa-tasks me-2 text-primary"></i>Kategori Bazlı Çözüm Oranları</h4>
+                            <div class="chart-container" style="position: relative; height: 350px;">
+                                <canvas id="categoryResolutionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4"><i class="fas fa-star-half-alt me-2 text-warning"></i>Kategori Bazlı Puanlar</h4>
+                            <div class="chart-container" style="position: relative; height: 350px;">
+                                <canvas id="categoryRatingChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                                <h4 class="card-title mb-0"><i class="fas fa-trophy me-2 text-primary"></i>Kategori Liderleri</h4>
+                                <div class="mt-2 mt-sm-0">
+                                    <select id="categoryLeadersSelector" class="form-select form-select-sm">
+                                        <option value="Teslimat Sorunu">Teslimat Sorunu</option>
+                                        <option value="Ürün Kalitesi">Ürün Kalitesi</option>
+                                        <option value="Müşteri Hizmetleri" selected>Müşteri Hizmetleri</option>
+                                        <option value="İade/Değişim Süreci">İade/Değişim Süreci</option>
+                                        <option value="Fiyatlandırma/Fatura">Fiyatlandırma/Fatura</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle" id="categoryLeadersTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 60px;">Sıra</th>
+                                            <th>Marka</th>
+                                            <th style="width: 100px;" class="text-center">Kategori Skoru</th>
+                                            <th style="width: 100px;" class="text-center">Şikayet</th>
+                                            <th style="width: 100px;" class="text-center">Çözüm %</th>
+                                            <th style="width: 100px;" class="text-center">Puan</th>
+                                            <th style="width: 90px;" class="text-end">Detay</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4">
+                                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                                    <span class="visually-hidden">Yükleniyor...</span>
+                                                </div>
+                                                Liderler yükleniyor...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Markalara Katılım CTA -->
+    <section class="brand-cta section-divider-bottom-diagonal">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h2 class="fw-bold mb-3">Markanız İçin Şikayet Yönetimi</h2>
+                    <p class="lead mb-4">Şikayet Sistemi'nde markanızı temsil edin, müşteri şikayetlerini doğrudan yönetin ve marka güvenilirliğinizi artırın.</p>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Şikayetlere resmi cevap verin</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Gelişmiş istatistik ve analiz araçlarına erişin</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Müşteri memnuniyetini takip edin</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Rakiplerinizle karşılaştırmalı raporlara erişin</li>
+                    </ul>
+                    <a href="#" class="modern-btn modern-btn-primary">
+                        <i class="fas fa-building me-2"></i> Markanızı Ekleyin
+                    </a>
+                </div>
+                <div class="col-lg-5 mt-4 mt-lg-0">
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold mb-3">Yakında Eklenecek Özellikler</h5>
+                            <div class="features-list">
+                                <div class="feature-item d-flex align-items-start mb-3">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-bell text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">Anlık Bildirimler</h6>
+                                        <p class="small text-muted">Yeni şikayetler olduğunda anında haberdar olun</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item d-flex align-items-start mb-3">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-comments text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">Toplu Cevaplama</h6>
+                                        <p class="small text-muted">Benzer şikayetleri tek seferde yanıtlayın</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item d-flex align-items-start">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-chart-bar text-success"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">Duygu Analizi</h6>
+                                        <p class="small text-muted">Şikayetlerin duygusal tonunu analiz edin</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer - Ana sayfa ile aynı -->
+    <footer>  
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="footer-title">ÜRÜN</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/#features" class="footer-link">Özellikler</a></li>
+                        <li><a href="/#infoAndPricingSection" class="footer-link">Fiyatlandırma</a></li>
+                        <li><a href="#" class="footer-link">Markalar İçin</a></li>
+                        <li><span class="footer-link-placeholder">Güvenlik</span></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="footer-title">ŞİRKET</h5>
+                    <ul class="list-unstyled">
+                        <li><span class="footer-link-placeholder">Hakkımızda</span></li>
+                        <li><span class="footer-link-placeholder">Blog</span></li>
+                        <li><span class="footer-link-placeholder">Kariyer</span></li>
+                        <li><a href="#" class="footer-link">İletişim</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5 class="footer-title">DESTEK</h5>
+                    <ul class="list-unstyled">
+                        <li><span class="footer-link-placeholder">Yardım Merkezi</span></li>
+                        <li><a href="#" class="footer-link">SSS</a></li>
+                        <li><span class="footer-link-placeholder">Topluluk Kuralları</span></li>
+                        <li><span class="footer-link-placeholder">Durum</span></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-title">YASAL</h5>
+                    <ul class="list-unstyled">
+                        <li><span class="footer-link-placeholder">Gizlilik Politikası</span></li>
+                        <li><span class="footer-link-placeholder">Kullanım Koşulları</span></li>
+                        <li><span class="footer-link-placeholder">Çerez Politikası</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mt-4 pt-4 border-top">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <p class="text-muted mb-0">© 2025 Şikayet Sistemi. Tüm hakları saklıdır.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="social-icons">
+                        <a href="#" class="footer-social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer-social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="footer-social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="footer-social-icon" aria-label="Linkedin"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal pencerelerini içe aktar (index.html'deki modallar) -->
+    <div id="modalContainer"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-bell me-2"></i> <strong class="me-auto" id="toastTitle">Bildirim</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastBody">
+                Mesaj içeriği buraya gelecek.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js" integrity="sha512-TW5s0IT/IppJtu76UbysrBH9Hy/5X41OTAbQuffZFU6lQ1rdcLHzpU5BzVvr/YFykoiMYZVWlr/PX1mDcfM9Qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="module" src="/brand-rankings.js"></script>
+</body>
+</html>

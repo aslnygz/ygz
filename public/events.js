@@ -1,688 +1,1008 @@
-// events.js - Olay Dinleyicileri ve Uygulama Başlatma (Güncellenmiş)
+// events.js - Olay Dinleyicileri ve Uygulama Başlatma (Düzeltilmiş)
 
-import { getComplaints, addComplaint, addCommentToComplaint, approveComplaint, rejectComplaint, likeComplaint,  dislikeComplaint,  updateComplaint,   deleteComplaint } from './data.js';
-import { updateComplaintList,  displayComplaintDetail,  updateAdminTable,  displayPopularBrands,  setupBrandAndFilterButtonEvents,  previewImage,  clearComplaintForm,   displayPricingPlans, displaySiteStats,  displayLatestComplaints } from './ui.js';
-import { showToast, autoResizeTextarea, sanitizeHTML } from './utils.js';
+// data.js'den importlar
+import { loadComplaints, getComplaints, addComplaint, updateComplaint, deleteComplaint, approveComplaint, rejectComplaint, addCommentToComplaint, likeComplaint, dislikeComplaint } from './data.js';
+// ui.js'den importlar
+import { displaySiteStats, displayLatestComplaints, displayPopularBrands, displayPricingPlans, updateComplaintList, displayComplaintDetail, clearComplaintForm, previewImage, updateAdminTable, displayBrandStats } from './ui.js';
+// utils.js'den importlar
+import { showToast, autoResizeTextarea, sanitizeHTML, formatDate, capitalizeFirstLetter } from './utils.js';
 
-// Mevcut kullanıcıyı simüle et veya localStorage'dan al
-const currentUserId = localStorage.getItem('currentUser') || (() => {
-    const newId = 'user_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('currentUser', newId);
-    return newId;
-})();
+// DOM elemanları için konteyner (başlangıçta boş)
+let DOMEvents = {};
 
-// State yönetimi
-const state = {
+// State yönetimi (Global scope'da)
+const stateEvents = {
     complaintImageBase64: null,
     isInitialized: false,
-    currentSearchTerm: '',
-    activeComplaintId: null
+    activeComplaintId: null, // Admin işlemleri veya detay modalı için
+    currentUserId: localStorage.getItem('currentUser') || (() => {
+        const newId = 'user_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('currentUser', newId);
+        return newId;
+    })(),
+    activeStep: 1, // Adım adım formda aktif adım
 };
 
-// DOM elemanlarını bir kez al ve sakla
-const DOM = {
-    complaintList: document.getElementById('complaintList'), // Ana şikayet listesi (belki slider?)
-    // searchButton: document.getElementById('searchButton'), // Eski/Kullanılmayan?
-    // companySearch: document.getElementById('companySearch'), // Eski/Kullanılmayan?
-    complaintForm: document.getElementById('complaintForm'),
-    submitComplaintBtn: document.getElementById('submitComplaint'),
-    complaintImage: document.getElementById('complaintImage'),
-    adminTableBody: document.getElementById('adminComplaintTableBody'),
-    adminModal: document.getElementById('adminModal'),
-    createComplaintModal: document.getElementById('createComplaintModal'),
-    previewComplaintBtn: document.getElementById('previewComplaintBtn'),
-    previewComplaintModal: document.getElementById('previewComplaintModal'),
-    complaintDetailModal: document.getElementById('complaintDetailModal'),
-    descriptionTextarea: document.getElementById('complaintDescription'),
-    complaintExplorerSection: document.getElementById('complaint-explorer-section') // Bu ID explore-section ile aynı mı?
-};
+// --- YARDIMCI FONKSİYONLAR ---
 
-// Animasyon fonksiyonu
-const animateCSS = (element, animation, prefix = 'animate__') =>
-    new Promise((resolve, reject) => {
-        const animationName = `${prefix}${animation}`;
-        const node = element;
+/** DOM elementlerini güvenli bir şekilde al */
+function getElements() {
+    console.log("DOM elementleri alınıyor...");
+    try {
+        DOMEvents = {
+            // Listeler ve Konteynerlar
+            latestComplaintListContainer: document.getElementById('latestComplaintList'),
+            searchResultsList: document.getElementById('searchResultsList'),
+            adminTableBody: document.getElementById('adminComplaintTableBody'),
+            popularBrandsListExplore: document.getElementById('popularBrandsListExplore'),
 
-        node.classList.add(`${prefix}animated`, animationName);
+            // Modallar
+            createComplaintModalEl: document.getElementById('createComplaintModal'),
+            previewComplaintModalEl: document.getElementById('previewComplaintModal'),
+            complaintDetailModalEl: document.getElementById('complaintDetailModal'),
+            adminModalEl: document.getElementById('adminModal'),
+            editComplaintModalEl: document.getElementById('editComplaintModal'),
+            adminCommentModalEl: document.getElementById('adminCommentModal'),
+            deleteConfirmModalEl: document.getElementById('deleteConfirmModal'),
 
-        function handleAnimationEnd(event) {
-            event.stopPropagation();
-            node.classList.remove(`${prefix}animated`, animationName);
-            resolve('Animation ended');
-        }
+            // Formlar ve Butonlar
+            complaintForm: document.getElementById('complaintForm'),
+            submitComplaintBtn: document.getElementById('submitComplaint'),
+            complaintImageInput: document.getElementById('complaintImage'),
+            previewComplaintBtn: document.getElementById('previewComplaintBtn'),
+            adminPanelBtn: document.getElementById('adminPanelBtn'),
+            searchInputExplore: document.getElementById('searchInputExplore'),
+            searchButtonExplore: document.getElementById('searchButtonExplore'),
+            categorySelectExplore: document.getElementById('categorySelectExplore'),
+            adminSearchInput: document.getElementById('adminSearchInput'),
+            adminStatusFilter: document.getElementById('adminStatusFilter'),
+            adminApplyFiltersBtn: document.getElementById('adminApplyFilters'),
+            saveEditedComplaintBtn: document.getElementById('saveEditedComplaint'),
+            submitAdminCommentBtn: document.getElementById('submitAdminComment'),
+            confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
+            adminCommentTextarea: document.getElementById('adminCommentText'),
+            editComplaintForm: document.getElementById('editComplaintForm'),
 
-        node.addEventListener('animationend', handleAnimationEnd, {once: true});
-    });
+            // Adım adım modal için yeni referanslar
+            nextStepBtns: document.querySelectorAll('.next-step'),
+            prevStepBtns: document.querySelectorAll('.prev-step'),
+            stepItems: document.querySelectorAll('.step-item'),
+            complaintSteps: document.querySelectorAll('.complaint-step'),
 
-// Hero section animasyonlarını başlat
-const initHeroAnimations = () => {
-    const heroTitle = document.querySelector('.hero-section h1'); // #hero-advanced içindeki h1 daha spesifik olabilir
-    const heroLead = document.querySelector('.hero-section .lead'); // #hero-advanced içindeki .hero-subtitle
-    const heroButtons = document.querySelector('.hero-section .d-flex'); // #hero-advanced içindeki button container
-    const heroStats = document.querySelector('.hero-section .text-muted'); // #hero-advanced içindeki .hero-stats
-
-    if (heroTitle) animateCSS(heroTitle, 'fadeInDown');
-    if (heroLead) animateCSS(heroLead, 'fadeIn');
-    if (heroButtons) animateCSS(heroButtons, 'fadeIn');
-    if (heroStats) animateCSS(heroStats, 'fadeIn');
-};
-
-// Genel durum güncelleme fonksiyonu (Belki sadece arama için?)
-const updateDynamicUI = (searchTerm = undefined, options = { fullUpdate: false }) => {
-    const complaints = getComplaints();
-
-    // Bu fonksiyon hem genel arama hem de explore arama için mi kullanılacak?
-    // Eğer öyleyse, hangi liste güncellenecek? (DOM.complaintList vs searchResultsList)
-    // Şimdilik sadece Explore için updateComplaintList çağrılıyor.
-    if (searchTerm !== undefined) {
-        state.currentSearchTerm = searchTerm;
-        // updateComplaintList çağrısı events.js içinde yapılıyor.
-        // updateComplaintList(complaints, searchTerm, currentUserId);
-    } else {
-        // Belki başlangıç yüklemesi için?
-        // updateComplaintList(complaints, state.currentSearchTerm, currentUserId);
-    }
-
-    if (options.fullUpdate) {
-        updateAdminTable(complaints);
-        displayPopularBrands(5);
-        displaySiteStats();
-        displayLatestComplaints(3);
-    }
-};
-
-// Modal kapatma yardımcı fonksiyonu
-const closeModal = (modalElement) => {
-    if (!modalElement) return;
-    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-    modalInstance?.hide();
-};
-
-// Form doğrulama yardımcı fonksiyonu
-const validateForm = (form, ratings) => {
-    if (!form) return false; // Form yoksa false dön
-
-    let isValid = form.checkValidity(); // HTML5 validasyonunu kontrol et
-
-    // Rating selectlerini kontrol et
-    let ratingValid = true;
-    Object.values(ratings).forEach(select => {
-        if (!select) return; // Select yoksa atla
-        const value = parseInt(select.value, 10);
-        if (!value || value < 1 || value > 5) { // Değer boş, 0 veya geçersizse
-            select.classList.add('is-invalid');
-            const feedback = select.nextElementSibling;
-            if (feedback?.classList.contains('invalid-feedback')) {
-                feedback.style.display = 'block';
-            }
-            ratingValid = false;
-        } else {
-            select.classList.remove('is-invalid');
-            const feedback = select.nextElementSibling;
-            if (feedback?.classList.contains('invalid-feedback')) {
-                feedback.style.display = 'none';
+            // Diğer
+            descriptionTextarea: document.getElementById('complaintDescription'),
+            editDescriptionTextarea: document.getElementById('editComplaintDescription'),
+            themeToggleBtn: document.getElementById('themeToggle'),
+            navbar: document.querySelector('.navbar.fixed-top'),
+            billingToggleContainer: document.querySelector('.billing-toggle-container'),
+        };
+        
+        // Modal elementlerinin kontrol edilmesi
+        const modalIds = ['createComplaintModal', 'previewComplaintModal', 'complaintDetailModal', 'adminModal', 'editComplaintModal', 'adminCommentModal', 'deleteConfirmModal'];
+        
+        for (const id of modalIds) {
+            const element = document.getElementById(id);
+            const elementKey = `${id}El`;
+            
+            if (!element) {
+                console.warn(`Modal element #${id} bulunamadı!`);
+                // DOMEvents[elementKey] = null;
             }
         }
-    });
-
-    if (!isValid || !ratingValid) {
-         form.classList.add('was-validated'); // Bootstrap validasyon stillerini göster
-        if (!ratingValid) {
-            showToast('Lütfen tüm değerlendirme alanlarını 1-5 arasında puanlayın.', 'Eksik Bilgi', 'warning');
-        } else {
-            showToast('Lütfen tüm zorunlu alanları doldurun.', 'Eksik Bilgi', 'warning');
-        }
+        
+        console.log("DOM elementleri başarıyla alındı.");
+        return true;
+    } catch (error) {
+        console.error("DOM elementleri alınırken hata:", error);
         return false;
     }
+}
 
-    form.classList.remove('was-validated'); // Geçerliyse validasyon stillerini kaldır
-    return true;
-};
-
-
-// Puanlama HTML'i oluşturmak için yardımcı fonksiyon (ui.js'de benzeri var, hangisi kullanılacak?)
-const generateRatingsHtml = (ratings) => {
-    if (!ratings || typeof ratings !== 'object') return '<p class="text-muted small">Puanlama bilgisi yok.</p>';
-
-    const validRatings = Object.entries(ratings).filter(([_, rating]) => {
-        const numRating = Number(rating);
-        return !isNaN(numRating) && numRating >= 1 && numRating <= 5;
-    });
-
-    if (validRatings.length === 0) {
-        return '<p class="text-muted small">Henüz geçerli puanlama yapılmamış.</p>';
+/** Modal kapatma yardımcı fonksiyonu - DÜZELTILDI */
+const closeModal = (modalElement) => {
+    if (!modalElement) {
+        console.warn("closeModal: Modal elementi bulunamadı");
+        return;
     }
-
-    return validRatings.map(([category, rating]) => {
-        const percentage = (Number(rating) / 5) * 100;
-        return `
-            <div class="mb-2">
-                <div class="d-flex justify-content-between align-items-center small mb-1">
-                    <span>${sanitizeHTML(category)}</span><span>${Number(rating)}/5</span>
-                </div>
-                <div class="progress" style="height: 8px;">
-                    <div class="progress-bar bg-success"
-                         style="width: ${percentage}%;"
-                         role="progressbar"
-                         aria-valuenow="${Number(rating)}"
-                         aria-valuemin="0"
-                         aria-valuemax="5"></div>
-                </div>
-            </div>`;
-    }).join('');
-};
-
-// Beğeni/Beğenmeme işlemleri için yardımcı fonksiyon (ui.js'de benzeri var, hangisi kullanılacak?)
-const handleLikeDislike = async (complaintId, action) => {
-    if (isNaN(complaintId)) return;
+    
     try {
-        const module = await import('./data.js'); // Dinamik import
-        const success = action === 'like'
-            ? module.likeComplaint(complaintId, currentUserId)
-            : module.dislikeComplaint(complaintId, currentUserId);
-
-        if (success) {
-            showToast(
-                action === 'like' ? 'Beğeni güncellendi.' : 'Beğenmeme güncellendi.',
-                'Başarılı',
-                'success'
-            );
-            // UI güncellemesi ui.js'deki listener içinde yapılıyor. Burada tekrar çağırmaya gerek yok.
-            // updateDynamicUI(document.getElementById('searchInputExplore')?.value); // Veya hangi arama aktifse?
+        // Önce instance'ı almayı dene, yoksa null döner. Hide sadece instance varsa çağrılır.
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
         } else {
-            showToast(
-                action === 'like' ? 'Beğeni işlemi başarısız oldu.' : 'Beğenmeme işlemi başarısız oldu.',
-                'Hata',
-                'error'
-            );
+            console.warn(`Modal instance bulunamadı: ${modalElement.id}`);
         }
     } catch (error) {
-         console.error(`${action} hatası:`, error);
-         showToast('İşlem sırasında bir hata oluştu.', 'Hata', 'error');
+        console.error(`Modal kapatılırken hata: ${error.message}`);
     }
 };
 
+/**
+ * Temayı uygula ve localStorage'a kaydet
+ * @param {string} theme 'dark' veya 'light'
+ */
+const applyTheme = (theme) => {
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.documentElement.dataset.theme = 'dark'; // HTML root elementine data-theme ekle
+        if(DOMEvents.themeToggleBtn) DOMEvents.themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.body.classList.remove('dark-mode');
+        document.documentElement.dataset.theme = 'light'; // HTML root elementine data-theme ekle
+        if(DOMEvents.themeToggleBtn) DOMEvents.themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+        localStorage.setItem('theme', 'light');
+    }
+    
+    // Grafik temasını güncelle (ui.js'deki global fonksiyon)
+    if (typeof window.updateChartsTheme === 'function') {
+        window.updateChartsTheme(theme);
+    }
+    
+    console.log(`Tema '${theme}' olarak ayarlandı`);
+};
 
-// Şikayet gönderme işlemi için yardımcı fonksiyon
-const handleComplaintSubmission = () => {
-    const form = DOM.complaintForm;
-    if (!form) return;
+/** Navbar'ın scroll durumunu yönet */
+const handleNavbarScroll = () => {
+    const navbar = DOMEvents.navbar;
+    if (!navbar) return;
+    const heroSectionHeight = document.getElementById('hero-advanced')?.offsetHeight || 50;
+    const scrollThreshold = Math.min(50, heroSectionHeight / 3);
 
-    const formElements = {
-        title: form.querySelector('#complaintTitle'),
-        category: form.querySelector('#complaintCategory'),
-        brand: form.querySelector('#complaintBrand'),
-        description: form.querySelector('#complaintDescription'),
-        ratings: {
-            hizmet: form.querySelector('#ratingHizmet'),
-            urunKalitesi: form.querySelector('#ratingUrunKalitesi'),
-            iletisim: form.querySelector('#ratingIletisim'),
-            teslimat: form.querySelector('#ratingTeslimat'),
-            fiyat: form.querySelector('#ratingFiyat')
-        }
-    };
+    if (window.scrollY > scrollThreshold) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+};
 
-    // Null check for rating elements
-    const ratingsForValidation = {};
-    Object.entries(formElements.ratings).forEach(([key, element]) => {
-        if (element) ratingsForValidation[key] = element;
+/** Fiyatlandırma Toggle İşlemi */
+const handleBillingToggle = (event) => {
+    const target = event.target.closest('.btn, .billing-option');
+    if (!target || !DOMEvents.billingToggleContainer) return;
+
+    const billingType = target.dataset.billing;
+    if (!billingType) return;
+
+    const monthlyBtn = DOMEvents.billingToggleContainer.querySelector('.btn[data-billing="monthly"]');
+    const yearlyOption = DOMEvents.billingToggleContainer.querySelector('.billing-option[data-billing="yearly"]');
+    const priceElements = document.querySelectorAll('#pricingPlans .price');
+
+    // Aktif sınıfı ayarla
+    if (billingType === 'monthly') {
+        monthlyBtn?.classList.add('active');
+        yearlyOption?.classList.remove('active', 'fw-bold', 'text-primary');
+        yearlyOption?.classList.add('text-muted');
+    } else {
+        monthlyBtn?.classList.remove('active');
+        yearlyOption?.classList.add('active', 'fw-bold', 'text-primary');
+        yearlyOption?.classList.remove('text-muted');
+    }
+
+    // Fiyatları güncelle
+    priceElements.forEach(priceEl => {
+        const monthlyPrice = priceEl.dataset.monthly;
+        const yearlyPrice = priceEl.dataset.yearly;
+        const priceSuffix = billingType === 'monthly' ? '/ay' : '/yıl';
+        priceEl.innerHTML = `${billingType === 'monthly' ? monthlyPrice : yearlyPrice}<span class="small text-muted">${priceSuffix}</span>`;
+    });
+};
+
+
+// --- ADIM ADIM FORM YÖNETİM FONKSİYONLARI ---
+
+/**
+ * Adımlar arası geçişi yönetir - TANIM BURADA
+ * @param {number} currentStep Mevcut adım numarası
+ * @param {number} targetStep Hedef adım numarası
+ */
+function switchStep(currentStep, targetStep) {
+    // Tüm adımları gizle
+    DOMEvents.complaintSteps.forEach(step => {
+        step.style.display = 'none';
     });
 
+    // Hedef adımı göster
+    const targetStepElement = document.getElementById(`complaintStep${targetStep}`);
+    if (targetStepElement) {
+        targetStepElement.style.display = 'block';
+    } else {
+        console.error(`Hedef adım elementi bulunamadı: complaintStep${targetStep}`);
+        // Hata durumunda ilk adıma dön
+        const firstStepElement = document.getElementById('complaintStep1');
+        if (firstStepElement) firstStepElement.style.display = 'block';
+        updateProgressBar(1);
+        stateEvents.activeStep = 1;
+        showToast('Adım geçişinde hata oluştu.', 'Hata', 'error');
+        return;
+    }
 
-    if (!validateForm(form, ratingsForValidation)) return;
+    // İlerleme çubuğunu güncelle
+    updateProgressBar(targetStep);
 
-    const formData = {
-        title: sanitizeHTML(formElements.title?.value?.trim() ?? ''),
-        brand: sanitizeHTML(formElements.brand?.value?.trim() ?? ''),
-        category: formElements.category?.value ?? '',
-        description: sanitizeHTML(formElements.description?.value?.trim() ?? ''),
-        ratings: {
-            Hizmet: parseInt(formElements.ratings.hizmet?.value, 10) || 0, // Default to 0 if NaN or missing
-            "Ürün Kalitesi": parseInt(formElements.ratings.urunKalitesi?.value, 10) || 0,
-            İletişim: parseInt(formElements.ratings.iletisim?.value, 10) || 0,
-            Teslimat: parseInt(formElements.ratings.teslimat?.value, 10) || 0,
-            Fiyat: parseInt(formElements.ratings.fiyat?.value, 10) || 0,
+    // Aktif adımı güncelle
+    stateEvents.activeStep = targetStep;
+
+    // Textarea otomatik yüksekliği (eğer 2. adıma geçiliyorsa)
+    if (targetStep === 2) {
+        const textarea = DOMEvents.descriptionTextarea;
+        if (textarea) {
+            setTimeout(() => autoResizeTextarea(textarea), 50); // Kısa gecikme
         }
-    };
+    }
+}
 
-     // Tekrar kontrol: En az bir zorunlu alan eksikse veya ratinglerden biri 0 ise
-     if (!formData.title || !formData.brand || !formData.category || !formData.description ||
-         Object.values(formData.ratings).some(r => r === 0)) {
-         validateForm(form, ratingsForValidation); // Hataları tekrar göster
-         return;
-     }
+/**
+ * İlerleme çubuğunu günceller
+ * @param {number} activeStep Aktif adım numarası
+ */
+function updateProgressBar(activeStep) {
+    DOMEvents.stepItems.forEach(item => {
+        const stepNum = parseInt(item.dataset.step);
+        item.classList.remove('active', 'completed');
+        if (stepNum === activeStep) {
+            item.classList.add('active');
+        } else if (stepNum < activeStep) {
+            item.classList.add('completed');
+        }
+    });
+}
 
+/**
+ * Kutucukların UI'ını (renklerini) ve kapsayıcı sınıfını güncelle
+ * @param {HTMLElement} ratingBoxesElement Kapsayıcı .rating-boxes div'i
+ * @param {NodeListOf<Element>} boxesNodeList İçindeki .rating-box elementleri
+ * @param {number} rating Seçilen puan (1-5)
+ */
+function updateBoxesUI(ratingBoxesElement, boxesNodeList, rating) {
+    // Önceki rating sınıflarını temizle
+    ratingBoxesElement.className = ratingBoxesElement.className.replace(/current-rating-\d/g, '').trim();
 
-    try {
-        const newComplaint = addComplaint(
-            formData.title,
-            formData.category,
-            formData.description,
-            formData.brand,
-            state.complaintImageBase64,
-            currentUserId,
-            formData.ratings
-        );
+    // Yeni rating sınıfını ekle (eğer rating > 0 ise)
+    if (rating > 0) {
+        ratingBoxesElement.classList.add(`current-rating-${rating}`);
+    }
 
-        if (newComplaint) {
-            showToast('Şikayetiniz admin onayına gönderildi.', 'Başarılı', 'success');
-            clearComplaintForm();
-            state.complaintImageBase64 = null;
-            closeModal(DOM.createComplaintModal);
-             // Tam UI güncellemesi gerekli (admin tablosu, istatistikler vs.)
-             updateDynamicUI(undefined, { fullUpdate: true });
-             // Ayrıca Explore listesini de güncellemek gerekebilir (eğer gösteriliyorsa)
-             const exploreInput = document.getElementById('searchInputExplore');
-             if (exploreInput && exploreInput.value.trim()) {
-                 updateComplaintList(getComplaints(), exploreInput.value.trim(), currentUserId);
+    // Kutuların 'selected' sınıfını ayarla (Fill-up etkisi)
+    boxesNodeList.forEach(box => {
+        const boxRating = parseInt(box.dataset.rating);
+        box.classList.toggle('selected', boxRating <= rating); // `.active` YERİNE `.selected`
+        // box.classList.remove('hover'); // Hover sınıfını temizle (opsiyonel)
+    });
+}
+
+// Hover için kutuları vurgulama (Opsiyonel) - CSS hover'ı yeterli olabilir
+function highlightBoxesUpTo(boxesNodeList, rating) {
+    boxesNodeList.forEach(box => {
+         const boxRating = parseInt(box.dataset.rating);
+         // '.hover' sınıfını CSS'de tanımlayıp burada ekle/kaldır VEYA CSS'deki :hover'ı kullan
+         // box.classList.toggle('hover', boxRating <= rating);
+    });
+}
+
+/**
+ * Kutucuk tabanlı puanlama sistemini başlatır ve olay dinleyicilerini ekler.
+ */
+function initRatingBoxes() {
+    const ratingBoxesElements = document.querySelectorAll('.rating-boxes');
+
+    ratingBoxesElements.forEach(ratingBoxes => {
+        const container = ratingBoxes.querySelector('.rating-boxes-container');
+        const inputElement = ratingBoxes.querySelector('.rating-input');
+        if (!container || !inputElement) return;
+
+        const boxes = container.querySelectorAll('.rating-box');
+
+        // Mevcut değeri yükle
+        const currentValue = parseInt(inputElement.value) || 0;
+        if (currentValue > 0) {
+            updateBoxesUI(ratingBoxes, boxes, currentValue);
+        }
+
+        // Her kutuya tıklama olayı ekle
+        boxes.forEach(box => {
+            box.addEventListener('click', () => {
+                const rating = parseInt(box.dataset.rating);
+                inputElement.value = rating; // Hidden input'u güncelle
+                updateBoxesUI(ratingBoxes, boxes, rating); // Görseli güncelle
+
+                // Validasyon geri bildirimini yönet
+                const feedbackEl = ratingBoxes.querySelector('.invalid-feedback');
+                if (feedbackEl) feedbackEl.style.display = 'none';
+                ratingBoxes.classList.remove('is-invalid');
+                inputElement.setCustomValidity('');
+            });
+
+             // Hover efekti (isteğe bağlı)
+             box.addEventListener('mouseenter', () => highlightBoxesUpTo(boxes, parseInt(box.dataset.rating)));
+             box.addEventListener('mouseleave', () => {
+                 const currentRating = parseInt(inputElement.value) || 0;
+                 highlightBoxesUpTo(boxes, currentRating); // Seçili olana geri dön
+             });
+        });
+
+        // Başlangıç validasyonu
+        if (inputElement.required && parseInt(inputElement.value) < 1) {
+             inputElement.setCustomValidity('Lütfen bir puan seçin');
+        }
+    });
+}
+
+/**
+ * Belirli bir adımın validasyonunu yapar
+ * @param {number} stepNumber Kontrol edilecek adım numarası
+ * @returns {boolean} Adım geçerli mi?
+ */
+function validateStep(stepNumber) {
+    const form = DOMEvents.complaintForm;
+    if (!form) return false;
+
+    let isValid = true;
+    form.classList.add('was-validated'); // Bootstrap validasyonunu tetikle (opsiyonel)
+
+    switch(stepNumber) {
+        case 1:
+            const title = form.querySelector('#complaintTitle');
+            const category = form.querySelector('#complaintCategory');
+            const brand = form.querySelector('#complaintBrand');
+            if (!title.checkValidity()) { title.classList.add('is-invalid'); isValid = false; } else { title.classList.remove('is-invalid'); }
+            if (!category.checkValidity()) { category.classList.add('is-invalid'); isValid = false; } else { category.classList.remove('is-invalid'); }
+            if (!brand.checkValidity()) { brand.classList.add('is-invalid'); isValid = false; } else { brand.classList.remove('is-invalid'); }
+            if (!isValid) showToast('Lütfen Temel Bilgilerdeki zorunlu alanları doldurun.', 'Uyarı', 'warning');
+            break;
+
+        case 2:
+            const description = form.querySelector('#complaintDescription');
+            if (!description.checkValidity()) {
+                description.classList.add('is-invalid');
+                isValid = false;
+                showToast('Lütfen şikayet açıklamasını girin.', 'Uyarı', 'warning');
+            } else {
+                description.classList.remove('is-invalid');
+            }
+            break;
+
+        case 3:
+            const ratingBoxesElements = form.querySelectorAll('#detailedRatings .rating-boxes');
+            const termsCheck = form.querySelector('#termsCheck');
+            let ratingValid = true;
+
+            ratingBoxesElements.forEach(ratingBoxEl => {
+                const input = ratingBoxEl.querySelector('.rating-input');
+                const feedbackEl = ratingBoxEl.querySelector('.invalid-feedback');
+
+                if (input && input.required && parseInt(input.value) < 1) {
+                    ratingValid = false;
+                    input.setCustomValidity('Lütfen bir puan seçin'); // Bootstrap için
+                    ratingBoxEl.classList.add('is-invalid'); // Görsel işaretleme
+                    if(feedbackEl) feedbackEl.style.display = 'block'; // Geri bildirimi göster
+                } else if (input) {
+                    input.setCustomValidity('');
+                    ratingBoxEl.classList.remove('is-invalid');
+                    if(feedbackEl) feedbackEl.style.display = 'none';
+                }
+            });
+
+            if (!ratingValid) {
+                 isValid = false; // Genel validasyonu da false yap
+                 showToast('Lütfen tüm değerlendirme kategorilerini puanlayın.', 'Uyarı', 'warning');
+            }
+
+            if (!termsCheck.checkValidity()) {
+                 isValid = false;
+                 termsCheck.classList.add('is-invalid');
+                 const termsFeedback = termsCheck.closest('.form-check')?.querySelector('.invalid-feedback');
+                 if (termsFeedback) termsFeedback.style.display = 'block';
+                 showToast('Şikayetinizi göndermek için kullanım koşullarını kabul etmelisiniz.', 'Uyarı', 'warning');
              } else {
-                 // Slider'ı güncellemek için? Veya sadece fullUpdate yeterli mi?
-                  displayLatestComplaints(3); // Slider'ı yenile
+                 termsCheck.classList.remove('is-invalid');
+                 const termsFeedback = termsCheck.closest('.form-check')?.querySelector('.invalid-feedback');
+                 if (termsFeedback) termsFeedback.style.display = 'none';
              }
-        } else {
-            throw new Error('Şikayet eklenemedi (data.js null döndürdü).');
-        }
-    } catch (error) {
-        console.error("Şikayet ekleme hatası:", error);
-        showToast(`Şikayet eklenemedi: ${error.message}`, 'Hata', 'error');
+            break;
     }
-};
 
-// Şikayet önizleme için yardımcı fonksiyon
-const showComplaintPreview = () => {
-    const form = DOM.complaintForm;
+    if (!isValid) {
+         form.classList.add('was-validated'); // Genel form için de ekle
+    } else {
+         // Adım geçerliyse was-validated kaldırılabilir veya bırakılabilir
+         // form.classList.remove('was-validated');
+    }
+
+    return isValid;
+}
+
+
+/**
+ * Adım adım şikayet formunu başlatır (listener ekler)
+ */
+function initStepForm() {
+    // Next butonlarına olay dinleyicisi ekle
+    DOMEvents.nextStepBtns?.forEach(button => {
+        button.addEventListener('click', function() {
+            const currentStep = parseInt(this.dataset.step);
+            if (validateStep(currentStep)) { // Önce validasyon
+                switchStep(currentStep, currentStep + 1); // Sonra geçiş
+            }
+        });
+    });
+
+    // Geri butonlarına olay dinleyicisi ekle
+    DOMEvents.prevStepBtns?.forEach(button => {
+        button.addEventListener('click', function() {
+            const currentStep = parseInt(this.dataset.step);
+            switchStep(currentStep, currentStep - 1); // Geri giderken validasyon yok
+        });
+    });
+
+    // Puanlama sistemini başlat
+    initRatingBoxes();
+}
+
+// --- ANA İŞLEMLER VE OLAY YÖNETİCİLERİ ---
+
+/**
+ * Şikayet gönderme işlemini yönetir
+ */
+function handleComplaintSubmission() {
+    const form = DOMEvents.complaintForm;
     if (!form) return;
+
+    // Son adımı ve genel formu kontrol et
+    if (!validateStep(3)) { // Son adımın validasyonu önemli
+        showToast('Lütfen formdaki eksik veya hatalı alanları düzeltin.', 'Form Hatası', 'warning');
+        return;
+    }
+
+    // Form verilerini topla
+    const formData = {
+        title: form.querySelector('#complaintTitle')?.value.trim() ?? '',
+        category: form.querySelector('#complaintCategory')?.value ?? '',
+        brand: form.querySelector('#complaintBrand')?.value.trim() ?? '',
+        description: form.querySelector('#complaintDescription')?.value.trim() ?? '',
+        ratings: {}
+    };
+    form.querySelectorAll('#detailedRatings .rating-input').forEach(input => {
+        const key = input.dataset.ratingKey;
+        const value = parseInt(input.value);
+        if (key && !isNaN(value) && value >= 1 && value <= 5) {
+            formData.ratings[key] = value;
+        }
+    });
+
+    // data.js'den addComplaint fonksiyonunu çağır
+    const newComplaint = addComplaint(
+        formData.title, formData.category, formData.description, formData.brand,
+        stateEvents.complaintImageBase64, stateEvents.currentUserId, formData.ratings
+    );
+
+    if (newComplaint) {
+        showToast('Şikayetiniz başarıyla alındı ve admin onayına gönderildi.', 'Başarılı', 'success');
+        clearComplaintForm(); // ui.js fonksiyonu
+        stateEvents.complaintImageBase64 = null;
+        closeModal(DOMEvents.createComplaintModalEl);
+
+        // UI'ı güncelle
+        updateAdminTable(getComplaints()); // Admin tablosunu yenile
+        displayLatestComplaints(5); // Slider'ı yenile
+        displaySiteStats(); // İstatistikleri yenile
+        displayPopularBrands(5); // Popüler markaları yenile
+
+    } else {
+        showToast('Şikayet gönderilirken bir hata oluştu.', 'Hata', 'danger');
+    }
+}
+
+/**
+ * Şikayet önizleme modalını gösterir - DÜZELTILDI
+ */
+function showComplaintPreview() {
+    const form = DOMEvents.complaintForm;
+    const previewBody = document.getElementById('previewComplaintBody');
+    const previewModalEl = DOMEvents.previewComplaintModalEl;
+    
+    if (!form || !previewBody || !previewModalEl) {
+        showToast('Önizleme gösterilemiyor (Eksik elementler).', 'Hata', 'error');
+        console.error("Önizleme için gerekli elementler bulunamadı:", {
+            form: !!form,
+            previewBody: !!previewBody,
+            previewModalEl: !!previewModalEl
+        });
+        return;
+    }
 
     const formData = {
         title: form.querySelector('#complaintTitle')?.value.trim() ?? '',
         category: form.querySelector('#complaintCategory')?.value ?? '',
         brand: form.querySelector('#complaintBrand')?.value.trim() ?? '',
         description: form.querySelector('#complaintDescription')?.value.trim() ?? '',
-        ratings: {
-            Hizmet: parseInt(form.querySelector('#ratingHizmet')?.value, 10) || 0,
-            "Ürün Kalitesi": parseInt(form.querySelector('#ratingUrunKalitesi')?.value, 10) || 0,
-            İletişim: parseInt(form.querySelector('#ratingIletisim')?.value, 10) || 0,
-            Teslimat: parseInt(form.querySelector('#ratingTeslimat')?.value, 10) || 0,
-            Fiyat: parseInt(form.querySelector('#ratingFiyat')?.value, 10) || 0,
-        }
+        ratings: {}
     };
+    form.querySelectorAll('#detailedRatings .rating-input').forEach(input => {
+        const key = input.dataset.ratingKey;
+        const value = parseInt(input.value);
+        if (key && !isNaN(value) && value >= 1 && value <= 5) formData.ratings[key] = value;
+    });
 
-    // Zorunlu alan kontrolü
     if (!formData.title || !formData.category || !formData.brand || !formData.description) {
-        showToast('Önizleme için lütfen Başlık, Kategori, Marka ve Açıklama alanlarını doldurun.', 'Eksik Bilgi', 'warning');
-        // Hatalı alanları göstermek için validasyon tetiklenebilir
-        form.classList.add('was-validated');
-        // Özellikle boş alanlara is-invalid ekleyebiliriz
-         if (!formData.title) form.querySelector('#complaintTitle')?.classList.add('is-invalid');
-         if (!formData.category) form.querySelector('#complaintCategory')?.classList.add('is-invalid');
-         if (!formData.brand) form.querySelector('#complaintBrand')?.classList.add('is-invalid');
-         if (!formData.description) form.querySelector('#complaintDescription')?.classList.add('is-invalid');
+        return showToast('Önizleme için lütfen zorunlu alanları doldurun.', 'Eksik Bilgi', 'warning');
+    }
+
+    // Puanlama HTML'ini oluştur (ui.js'deki benzer mantık kullanılabilir)
+    const ratingsHtml = Object.entries(formData.ratings)
+        .map(([category, rating]) => {
+            const percentage = (rating / 5) * 100;
+            const progressBarColor = percentage >= 80 ? 'bg-success' : percentage >= 50 ? 'bg-warning' : 'bg-danger';
+            return `
+                <div class="mb-2 rating-detail-row">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small fw-500">${sanitizeHTML(category)}</span>
+                        <span class="small text-muted">${rating}/5</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar ${progressBarColor}" role="progressbar" style="width: ${percentage}%;" aria-valuenow="${rating}" aria-valuemin="0" aria-valuemax="5"></div>
+                    </div>
+                </div>`;
+        }).join('');
+
+    previewBody.innerHTML = `
+        <h4 class="mb-2">${sanitizeHTML(formData.title)}</h4>
+        <p class="mb-1"><strong>Marka:</strong> ${sanitizeHTML(formData.brand)}</p>
+        <p class="mb-2"><strong>Kategori:</strong> <span class="badge bg-secondary">${sanitizeHTML(formData.category)}</span></p>
+        <h6>Açıklama</h6>
+        <p class="border p-2 rounded bg-light mb-3" style="white-space: pre-wrap;">${sanitizeHTML(formData.description)}</p>
+        <h6>Değerlendirmeler</h6>
+        <div class="mb-3 p-2 border rounded bg-light">${ratingsHtml || '<p class="text-muted small mb-0">Puanlama yapılmamış.</p>'}</div>
+        <hr>
+        <h6>Görsel</h6>
+        ${stateEvents.complaintImageBase64
+            ? `<img src="${stateEvents.complaintImageBase64}" alt="Şikayet Görseli Önizlemesi" class="img-fluid img-thumbnail" style="max-height: 250px;">`
+            : '<p class="text-muted small">Görsel eklenmemiş.</p>'}
+    `;
+
+    // Modal Gösterme - DÜZELTILDI
+    try {
+        let previewModal = bootstrap.Modal.getInstance(previewModalEl);
+        if (!previewModal) {
+            previewModal = new bootstrap.Modal(previewModalEl);
+        }
+        previewModal.show();
+        console.log("Önizleme modalı başarıyla gösterildi.");
+    } catch (error) {
+        console.error("Önizleme modalı gösterilirken hata:", error.message);
+        showToast('Önizleme modalı açılamadı: ' + error.message, 'Hata', 'error');
+    }
+}
+
+/** Admin tablosu aksiyonları - DÜZELTILDI */
+const handleAdminTableActions = (e) => {
+    const targetButton = e.target.closest('button[data-id]');
+    if (!targetButton) return;
+
+    const complaintId = parseInt(targetButton.dataset.id);
+    if (isNaN(complaintId)) {
+        console.error("Geçersiz şikayet ID'si:", targetButton.dataset.id);
         return;
     }
 
-    // Puanlama HTML'ini oluştur (events.js içindeki yardımcı fonksiyonu kullan)
-    const ratingsHtml = generateRatingsHtml(formData.ratings);
-    const previewBody = document.getElementById('previewComplaintBody');
-
-    if (previewBody) {
-        previewBody.innerHTML = `
-            <h4 class="mb-2">${sanitizeHTML(formData.title)}</h4>
-            <p class="mb-1"><strong>Marka:</strong> ${sanitizeHTML(formData.brand)}</p>
-            <p class="mb-2"><strong>Kategori:</strong> <span class="badge bg-secondary">${sanitizeHTML(formData.category)}</span></p>
-            <h6>Açıklama</h6>
-            <p class="border p-2 rounded bg-light mb-3">${sanitizeHTML(formData.description).replace(/\n/g, '<br>')}</p>
-            <h6>Değerlendirmeler</h6>
-            <div class="mb-3">${ratingsHtml}</div>
-            <hr>
-            <h6>Görsel</h6>
-            ${state.complaintImageBase64
-                ? `<img src="${state.complaintImageBase64}" alt="Şikayet Görseli Önizlemesi" class="img-fluid img-thumbnail" style="max-height: 300px;">`
-                : '<p class="text-muted small">Görsel eklenmemiş.</p>'}
-        `;
-
-        const previewModalElement = DOM.previewComplaintModal;
-        if (previewModalElement) {
-            const previewModal = bootstrap.Modal.getInstance(previewModalElement) ||
-                               new bootstrap.Modal(previewModalElement);
-             previewModal.show();
-         }
-    }
-};
-
-// Admin tablo aksiyonları için yardımcı fonksiyon
-const handleAdminTableActions = (e) => {
-    // data-id'si olan en yakın butonu bul
-    const target = e.target.closest('button[data-id]');
-    if (!target) return;
-
-    const complaintId = parseInt(target.dataset.id);
-    if (isNaN(complaintId)) return;
-
-    // Şikayeti bul (getComplaints her zaman güncel veriyi döner)
     const complaint = getComplaints().find(c => c.id === complaintId);
     if (!complaint) {
         showToast('Şikayet bulunamadı!', 'Hata', 'error');
         return;
     }
 
-    state.activeComplaintId = complaintId; // Hangi şikayet üzerinde işlem yapıldığını sakla
+    stateEvents.activeComplaintId = complaintId; // Aktif ID'yi sakla
 
-    // Hangi butona tıklandı?
-    if (target.matches('.view-btn')) {
-        displayComplaintDetail(complaint, 'admin', currentUserId); // ui.js'den fonksiyonu çağır
-        const detailModalElement = DOM.complaintDetailModal;
-        if (detailModalElement) {
-             const detailModal = bootstrap.Modal.getInstance(detailModalElement) || new bootstrap.Modal(detailModalElement);
-             detailModal.show();
+    // Güvenli Modal Gösterme Yöntemi - DÜZELTILDI
+    const showSafeModal = (modalElement) => {
+        if(!modalElement) {
+            console.error(`Modal elementi bulunamadı!`);
+            return null;
+        }
+        
+        try {
+            console.log(`Modal açılıyor: ${modalElement.id}`);
+            let modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (!modalInstance) {
+                console.log(`${modalElement.id} için yeni modal instance oluşturuluyor...`);
+                modalInstance = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static', // İsteğe bağlı, dışarı tıklanınca kapanmaması için
+                    keyboard: true // ESC tuşu ile kapanabilir
+                });
+            }
+            modalInstance.show();
+            console.log(`${modalElement.id} modalı başarıyla gösterildi.`);
+            return modalInstance;
+        } catch (error) {
+            console.error(`Modal gösterilirken hata: ${error.message}`);
+            showToast(`Modal açılamadı: ${error.message}`, 'Hata', 'error');
+            return null;
+        }
+    };
+
+    if (targetButton.classList.contains('view-btn')) {
+        displayComplaintDetail(complaint, 'admin', stateEvents.currentUserId);
+        showSafeModal(DOMEvents.complaintDetailModalEl);
+
+    } else if (targetButton.classList.contains('approve-btn')) {
+        if (approveComplaint(complaintId)) {
+            showToast('Şikayet onaylandı.', 'Başarılı', 'success');
+            updateAdminTable(getComplaints());
+            displayLatestComplaints(5);
+            displaySiteStats();
+        } else { showToast('Onaylama başarısız.', 'Hata', 'warning'); }
+
+    } else if (targetButton.classList.contains('reject-btn')) {
+        if (confirm(`"${complaint.title || complaintId}" başlıklı ONAY BEKLEYEN şikayeti reddedip SİLMEK istediğinizden emin misiniz?`)) {
+            if (rejectComplaint(complaintId)) {
+                showToast('Şikayet reddedildi ve silindi.', 'Başarılı', 'success');
+                updateAdminTable(getComplaints());
+                displaySiteStats();
+            } else { showToast('Reddetme başarısız.', 'Hata', 'error'); }
+        }
+
+    } else if (targetButton.classList.contains('edit-btn')) {
+        const form = DOMEvents.editComplaintForm;
+        const modalElement = DOMEvents.editComplaintModalEl;
+        
+        if (!form || !modalElement) {
+            showToast('Düzenleme formu veya modalı bulunamadı.', 'Hata', 'error');
+            return;
+        }
+        
+        form.querySelector('#editComplaintId').value = complaint.id;
+        form.querySelector('#editComplaintTitle').value = complaint.title || '';
+        form.querySelector('#editComplaintCategory').value = complaint.category || '';
+        form.querySelector('#editComplaintBrand').value = complaint.brand || '';
+        form.querySelector('#editComplaintDescription').value = complaint.description || '';
+        const statusSelect = form.querySelector('#editComplaintStatus');
+        if (statusSelect) {
+            statusSelect.value = complaint.status || 'Açık';
+            statusSelect.disabled = !!complaint.pendingApproval; // Onay bekleyeni düzenleme
+        }
+        form.classList.remove('was-validated'); // Önceki validasyonu temizle
+        showSafeModal(modalElement);
+
+    } else if (targetButton.classList.contains('delete-btn')) {
+        const modalElement = DOMEvents.deleteConfirmModalEl;
+        if(!modalElement) {
+            showToast('Silme onay modalı bulunamadı.', 'Hata', 'error');
+            return;
+        }
+        modalElement.querySelector('#deleteComplaintId').value = complaint.id;
+        modalElement.querySelector('#deleteComplaintIdDisplay').textContent = complaint.id;
+        modalElement.querySelector('#deleteComplaintTitleDisplay').textContent = complaint.title || 'Başlıksız';
+        showSafeModal(modalElement);
+
+    } else if (targetButton.classList.contains('comment-btn')) {
+         const modalElement = DOMEvents.adminCommentModalEl;
+         if(!modalElement) {
+            showToast('Yorum modalı bulunamadı.', 'Hata', 'error');
+            return;
          }
-    } else if (target.matches('.approve-btn')) {
-        if (approveComplaint(complaintId)) { // data.js'den fonksiyonu çağır
-            showToast('Şikayet onaylandı ve yayınlandı.', 'Başarılı', 'success');
-            updateDynamicUI(undefined, { fullUpdate: true }); // Tüm UI'ı güncelle
-        } else {
-            showToast('Onaylama başarısız oldu veya şikayet zaten onaylı.', 'Hata', 'warning');
-        }
-    } else if (target.matches('.reject-btn')) {
-        // Kullanıcıdan onay iste
-        if (confirm(`"${complaint.title || complaintId}" başlıklı şikayeti reddedip SİLMEK istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
-            if (rejectComplaint(complaintId)) { // data.js'den fonksiyonu çağır
-                showToast('Şikayet reddedildi ve sistemden silindi.', 'Başarılı', 'success');
-                updateDynamicUI(undefined, { fullUpdate: true }); // Tüm UI'ı güncelle
-            } else {
-                showToast('Reddetme/silme işlemi başarısız oldu veya şikayet onay bekler durumda değil.', 'Hata', 'error');
-            }
-        }
-    } else if (target.matches('.edit-btn')) {
-        // Düzenleme modalını bul ve aç
-        const editModalElement = document.getElementById('editComplaintModal');
-        if (!editModalElement) return;
-        const editModal = bootstrap.Modal.getInstance(editModalElement) || new bootstrap.Modal(editModalElement);
-
-        // Formu şikayet verileriyle doldur
-        document.getElementById('editComplaintTitle').value = complaint.title || '';
-        document.getElementById('editComplaintCategory').value = complaint.category || '';
-        document.getElementById('editComplaintBrand').value = complaint.brand || '';
-        document.getElementById('editComplaintDescription').value = complaint.description || '';
-        // Puanlama düzenleme eklenmedi, sadece metin alanları
-
-        // Kaydet butonuna olay dinleyici ekle (her seferinde yeniden eklemek daha güvenli)
-        const saveBtn = document.getElementById('saveEditedComplaint');
-        const editForm = document.getElementById('editComplaintForm');
-
-        // Önceki listener'ı kaldır (varsa)
-        saveBtn.replaceWith(saveBtn.cloneNode(true));
-        const newSaveBtn = document.getElementById('saveEditedComplaint'); // Yeni butonu al
-
-        newSaveBtn.onclick = () => { // Olay dinleyiciyi doğrudan ata
-             if (!editForm.checkValidity()) {
-                 editForm.classList.add('was-validated');
-                 return;
-             }
-             editForm.classList.remove('was-validated');
-
-            const updatedData = {
-                title: sanitizeHTML(document.getElementById('editComplaintTitle').value.trim()),
-                category: document.getElementById('editComplaintCategory').value,
-                brand: sanitizeHTML(document.getElementById('editComplaintBrand').value.trim()),
-                description: sanitizeHTML(document.getElementById('editComplaintDescription').value.trim())
-                 // Status ve diğer alanlar admin panelinden ayrıca değiştirilebilir
-            };
-
-            if (updateComplaint(state.activeComplaintId, updatedData)) { // data.js'den güncelleme
-                showToast('Şikayet başarıyla güncellendi.', 'Başarılı', 'success');
-                closeModal(editModalElement);
-                updateDynamicUI(undefined, { fullUpdate: true }); // UI'ı güncelle
-            } else {
-                showToast('Güncelleme başarısız oldu.', 'Hata', 'error');
-            }
-        };
-
-        editModal.show();
-
-    } else if (target.matches('.delete-btn')) {
-        // Bu buton admin tablosunda yok ama detayda olabilir. Burada sadece kalıcı silme var.
-        if (confirm(`"${complaint.title || complaintId}" başlıklı şikayeti KALICI olarak silmek istediğinizden emin misiniz? Durumu ne olursa olsun silinecektir ve bu işlem geri alınamaz.`)) {
-            if (deleteComplaint(complaintId)) { // data.js'den silme
-                showToast('Şikayet başarıyla kalıcı olarak silindi.', 'Başarılı', 'success');
-                updateDynamicUI(undefined, { fullUpdate: true }); // UI'ı güncelle
-            } else {
-                showToast('Silme işlemi başarısız oldu.', 'Hata', 'error');
-            }
-        }
-    } else if (target.matches('.comment-btn')) {
-        // Admin yorum/not modalını aç
-        const commentModalElement = document.getElementById('adminCommentModal');
-        if (!commentModalElement) return;
-        const commentModal = bootstrap.Modal.getInstance(commentModalElement) || new bootstrap.Modal(commentModalElement);
-        const commentTextarea = document.getElementById('adminCommentText');
-        const submitCommentBtn = document.getElementById('submitAdminComment');
-
-        commentTextarea.value = ''; // Textarea'yı temizle
-
-        // Gönder butonuna olay dinleyici ekle
-        submitCommentBtn.replaceWith(submitCommentBtn.cloneNode(true)); // Eski listener'ı temizle
-         const newSubmitBtn = document.getElementById('submitAdminComment'); // Yeni butonu al
-
-        newSubmitBtn.onclick = () => {
-            const commentText = commentTextarea.value.trim();
-            if (!commentText) {
-                showToast('Lütfen bir yorum/not yazın.', 'Uyarı', 'warning');
-                return;
-            }
-
-            if (addCommentToComplaint(complaintId, sanitizeHTML(commentText), 'admin')) { // data.js'den yorum ekle
-                showToast('Admin yorumu/notu eklendi.', 'Başarılı', 'success');
-                closeModal(commentModalElement);
-                updateAdminTable(getComplaints()); // Admin tablosunu güncelle
-
-                // Eğer detay modalı açıksa, onu da güncelle
-                const detailModalInstance = bootstrap.Modal.getInstance(DOM.complaintDetailModal);
-                if (detailModalInstance && DOM.complaintDetailModal?.classList.contains('show')) {
-                     const updatedComplaint = getComplaints().find(c => c.id === complaintId);
-                     if (updatedComplaint) {
-                         displayComplaintDetail(updatedComplaint, 'admin', currentUserId); // Detayı yenile
-                     }
-                 }
-            } else {
-                showToast('Yorum eklenemedi (Belki şikayet onay bekliyor?).', 'Hata', 'error');
-            }
-        };
-
-        commentModal.show();
-
-    } else if (target.matches('.status-btn')) {
-         // Durum değiştirme modalı (Admin tablosunda yok, belki başka yerde?)
-         if (complaint.pendingApproval) {
-             showToast('Onay bekleyen şikayetlerin durumu değiştirilemez. Önce onaylayın veya reddedin.', 'Uyarı', 'warning');
-             return;
-         }
-
-        const statusModalElement = document.getElementById('changeStatusModal');
-        if (!statusModalElement) return;
-        const statusModal = bootstrap.Modal.getInstance(statusModalElement) || new bootstrap.Modal(statusModalElement);
-        const statusSelect = document.getElementById('newStatus');
-        const saveStatusBtn = document.getElementById('saveNewStatus');
-
-        statusSelect.value = complaint.status || 'Açık'; // Mevcut durumu seçili getir
-
-        // Kaydet butonuna olay dinleyici
-        saveStatusBtn.replaceWith(saveStatusBtn.cloneNode(true)); // Eski listener'ı temizle
-        const newSaveBtn = document.getElementById('saveNewStatus');
-
-        newSaveBtn.onclick = () => {
-            const newStatus = statusSelect.value;
-            // updateComplaint kullanarak durumu güncelle
-            if (updateComplaint(complaintId, { status: newStatus })) {
-                showToast('Şikayet durumu güncellendi.', 'Başarılı', 'success');
-                closeModal(statusModalElement);
-                 updateDynamicUI(undefined, { fullUpdate: true }); // UI'ı güncelle
-            } else {
-                showToast('Durum güncellenemedi.', 'Hata', 'error');
-            }
-        };
-
-        statusModal.show();
+         const textarea = modalElement.querySelector('#adminCommentText');
+         if (textarea) textarea.value = '';
+         showSafeModal(modalElement);
     }
 };
 
-// Uygulama başlatma fonksiyonu
+/** Admin paneli filtreleme işlemi */
+const applyAdminFilters = () => {
+    const searchTerm = DOMEvents.adminSearchInput?.value || '';
+    const statusFilter = DOMEvents.adminStatusFilter?.value || '';
+    updateAdminTable(getComplaints(), searchTerm, statusFilter); // ui.js fonksiyonu
+};
+
+
+// --- ANA BAŞLATMA VE OLAY DİNLEYİCİLERİ ---
+
+/** Uygulama başlatma fonksiyonu - DÜZELTILDI */
 function init() {
-    if (state.isInitialized) return;
+    if (stateEvents.isInitialized) return;
     console.log("Uygulama başlatılıyor...");
 
-    // Hero section animasyonlarını başlat (Eğer varsa)
-    initHeroAnimations();
-
-    // İlk UI güncellemeleri
-    displaySiteStats();
-    displayLatestComplaints(3); // Slider'ı göster
-    displayPopularBrands(5);    // Popüler markaları göster
-    displayPricingPlans();      // Fiyat planlarını göster
-    // updateComplaintList(getComplaints(), '', currentUserId); // Başlangıçta Explore listesi boş olmalı
-
-    // Etkinlikleri başlat
-    setupBrandAndFilterButtonEvents(); // Explore içindeki buton olayları (arama hariç)
-    initEvents(); // Genel olay dinleyicileri (arama dahil)
-
-    // Scroll etkinlikleri
-    const setupScrollEvent = (selector, targetId, focusElement = null) => {
-        const button = document.querySelector(selector);
-        button?.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetSection = document.getElementById(targetId);
-            targetSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            if (focusElement) {
-                 // Kısa bir gecikme ile focus yap, scroll bitince çalışsın
-                 setTimeout(() => focusElement.focus({ preventScroll: true }), 300);
-            }
-        });
-    };
-
-     // Hero'daki Keşfet butonu
-     setupScrollEvent('#hero-advanced a[href="#explore"]', 'explore', document.getElementById('searchInputExplore'));
-     // Son Eklenenler bölümündeki Tümünü Gör butonu
-     setupScrollEvent('#latest-complaints a[href="#explore"]', 'explore', document.getElementById('searchInputExplore'));
-     // Navbar Keşfet linki
-     setupScrollEvent('.navbar a[href="#explore"]', 'explore', document.getElementById('searchInputExplore'));
-
-
-    state.isInitialized = true;
-    console.log("Uygulama başlatıldı.");
-}
-
-// Olay dinleyicilerini bağlama fonksiyonu
-function initEvents() {
-    // 1. Şikayet Listesi Etkileşimleri (Slider ve Arama Sonuçları için UI.js içinde yapılıyor)
-    // DOM.complaintList?.addEventListener('click', (e) => { ... }); // Bu belki eski yapı içindi
-
-    // 2. ARAMA İŞLEMLERİ (Explore bölümü araması)
-    const searchInputExplore = document.getElementById('searchInputExplore');
-    const searchButtonExplore = document.getElementById('searchButtonExplore');
-    // const currentUserId = localStorage.getItem('currentUser') || 'anonymous'; // Yukarıda zaten tanımlı
-
-    if (searchButtonExplore && searchInputExplore) {
-        searchButtonExplore.addEventListener('click', () => {
-            const searchTerm = searchInputExplore.value.trim();
-            updateComplaintList(getComplaints(), searchTerm, currentUserId);
-        });
-
-        searchInputExplore.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const searchTerm = searchInputExplore.value.trim();
-                updateComplaintList(getComplaints(), searchTerm, currentUserId);
-            }
-        });
-         // Opsiyonel: Arama sırasında öneri gösterme eklenebilir
-         // searchInputExplore.addEventListener('input', () => { ... });
-    } else {
-        console.warn("Explore bölümü arama elementleri (#searchInputExplore veya #searchButtonExplore) initEvents içinde tekrar kontrol edildi, bulunamadı.");
+    // DOM elementlerini al (DOMContentLoaded içinde çağrıldığından emin ol)
+    if (!getElements()) {
+        console.error("DOM elementleri alınamadı! Uygulama başlatılamıyor.");
+        return;
     }
 
-    // 3. Şikayet Formu Gönderimi
-    DOM.submitComplaintBtn?.addEventListener('click', handleComplaintSubmission);
-
-    // 4. Görsel Yükleme ve Önizleme
-    DOM.complaintImage?.addEventListener('change', (e) => {
-        previewImage(e, (base64) => { // ui.js'deki previewImage'i kullan
-            state.complaintImageBase64 = base64; // base64 veriyi state'e kaydet
-        });
-    });
-
-    // 5. Şikayet Önizleme Butonu
-    DOM.previewComplaintBtn?.addEventListener('click', showComplaintPreview); // events.js içindeki helper'ı kullan
-
-    // 6. Admin Paneli Açıldığında Tabloyu Güncelle
-    DOM.adminModal?.addEventListener('show.bs.modal', () => {
-        updateAdminTable(getComplaints()); // ui.js'deki fonksiyon
-    });
-
-    // 7. Admin Tablosu İşlemleri (Onayla, Reddet, Gör, Düzenle, Yorum Ekle)
-    DOM.adminTableBody?.addEventListener('click', handleAdminTableActions); // events.js içindeki helper'ı kullan
-
-    // 8. Şikayet Detay Modalı İçindeki Admin Butonları (Onayla/Reddet - Sadece onay bekleyenler için)
-    DOM.complaintDetailModal?.addEventListener('click', (e) => {
-        const target = e.target.closest('.approve-btn, .reject-btn');
-        if (!target) return;
-
-        const complaintId = parseInt(target.dataset.id);
-        if (isNaN(complaintId)) return;
-
-        // Hangi şikayet üzerinde işlem yapılıyor? Detay modalı açıkken state.activeComplaintId güncel olmalı.
-        // Ancak burada doğrudan butonun data-id'sini kullanmak daha güvenli.
-        const complaint = getComplaints().find(c => c.id === complaintId);
-        if (!complaint || !complaint.pendingApproval) {
-             showToast('Bu işlem sadece onay bekleyen şikayetler için geçerlidir.', 'Uyarı', 'warning');
-             return;
-        }
-
-        if (target.matches('.approve-btn')) {
-            if (approveComplaint(complaintId)) {
-                showToast('Şikayet onaylandı ve yayınlandı.', 'Başarılı', 'success');
-                closeModal(DOM.complaintDetailModal);
-                updateDynamicUI(undefined, { fullUpdate: true });
-            } else {
-                showToast('Onaylama başarısız oldu.', 'Hata', 'error');
+    // Initialize bootstrap components and modals if needed
+    console.log("Bootstrap modalları başlatılıyor...");
+    const modalElements = [
+        'createComplaintModal', 'previewComplaintModal', 'complaintDetailModal', 
+        'adminModal', 'editComplaintModal', 'adminCommentModal', 'deleteConfirmModal'
+    ];
+    
+    modalElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            try {
+                // Just initialize the modal
+                new bootstrap.Modal(element);
+                console.log(`${id} modalı başarıyla başlatıldı.`);
+            } catch (error) {
+                console.warn(`${id} modalı başlatılırken hata: ${error.message}`);
             }
-        } else if (target.matches('.reject-btn')) {
-            if (confirm(`Bu şikayeti reddedip SİLMEK istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
-                if (rejectComplaint(complaintId)) {
-                    showToast('Şikayet reddedildi ve silindi.', 'Başarılı', 'success');
-                    closeModal(DOM.complaintDetailModal);
-                    updateDynamicUI(undefined, { fullUpdate: true });
-                } else {
-                    showToast('Reddetme/silme işlemi başarısız oldu.', 'Hata', 'error');
-                }
-            }
+        } else {
+            console.warn(`${id} modal elementi bulunamadı.`);
         }
     });
 
-    // 9. Şikayet Ekleme Modalı Textarea Boyutlandırma
-    DOM.createComplaintModal?.addEventListener('shown.bs.modal', () => {
-        if (DOM.descriptionTextarea) autoResizeTextarea(DOM.descriptionTextarea);
-    });
-    DOM.descriptionTextarea?.addEventListener('input', () => {
-        if (DOM.descriptionTextarea) autoResizeTextarea(DOM.descriptionTextarea);
-    });
+    loadComplaints();
+    displaySiteStats();
+    displayLatestComplaints(5);
+    displayPopularBrands(5);
+    // displayPricingPlans(); // Bu ui.js'de kalabilir veya burada çağrılabilir
+    initEventListeners();
+    initStepForm(); // Adım adım formu başlat (listener'ları ekler)
 
-    // 10. Düzenleme Modalı Textarea Boyutlandırma
-    const editDescTextarea = document.getElementById('editComplaintDescription');
-    const editModalElement = document.getElementById('editComplaintModal');
-    editModalElement?.addEventListener('shown.bs.modal', () => {
-        if (editDescTextarea) autoResizeTextarea(editDescTextarea);
-    });
-    editDescTextarea?.addEventListener('input', () => {
-        if (editDescTextarea) autoResizeTextarea(editDescTextarea);
-    });
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(currentTheme);
+    handleNavbarScroll();
+    window.addEventListener('scroll', handleNavbarScroll);
+
+    stateEvents.isInitialized = true;
+    console.log("Uygulama başarıyla başlatıldı.");
 }
 
-// Uygulamayı Başlat
-document.addEventListener('DOMContentLoaded', () => {
-    // Animate.css kütüphanesini dinamik olarak yükle (Eğer kullanılmıyorsa kaldırılabilir)
-    const animateCSSLink = document.createElement('link');
-    animateCSSLink.rel = 'stylesheet';
-    animateCSSLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
-    document.head.appendChild(animateCSSLink);
+/** Tüm olay dinleyicilerini bağlama fonksiyonu - DÜZELTILDI */
+function initEventListeners() {
+    console.log("Olay dinleyicileri bağlanıyor...");
 
-    init(); // Ana başlatma fonksiyonunu çağır
+    // Şikayet Ekleme
+    if (DOMEvents.submitComplaintBtn) {
+        DOMEvents.submitComplaintBtn.addEventListener('click', handleComplaintSubmission);
+        console.log("Şikayet gönderme butonu olayı bağlandı.");
+    }
+    
+    if (DOMEvents.complaintImageInput) {
+        DOMEvents.complaintImageInput.addEventListener('change', (e) => {
+            previewImage(e, (base64) => { stateEvents.complaintImageBase64 = base64; });
+        });
+        console.log("Resim yükleme olayı bağlandı.");
+    }
+    
+    if (DOMEvents.previewComplaintBtn) {
+        DOMEvents.previewComplaintBtn.addEventListener('click', () => {
+            console.log("Önizleme butonu tıklandı.");
+            showComplaintPreview();
+        });
+        console.log("Önizleme butonu olayı bağlandı.");
+    }
+    
+    if (DOMEvents.descriptionTextarea) {
+        DOMEvents.descriptionTextarea.addEventListener('input', () => autoResizeTextarea(DOMEvents.descriptionTextarea));
+        console.log("Açıklama alanı auto-resize olayı bağlandı.");
+    }
+
+    // Explore Arama/Filtre
+    if (DOMEvents.searchButtonExplore) {
+        DOMEvents.searchButtonExplore.addEventListener('click', () => {
+            console.log("Arama butonu tıklandı.");
+            updateComplaintList(getComplaints(), DOMEvents.searchInputExplore?.value, DOMEvents.categorySelectExplore?.value, stateEvents.currentUserId);
+        });
+        console.log("Arama butonu olayı bağlandı.");
+    }
+    
+    if (DOMEvents.searchInputExplore) {
+        DOMEvents.searchInputExplore.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                updateComplaintList(getComplaints(), DOMEvents.searchInputExplore.value, DOMEvents.categorySelectExplore?.value, stateEvents.currentUserId);
+            }
+        });
+        console.log("Arama input olayı bağlandı.");
+    }
+    
+    if (DOMEvents.categorySelectExplore) {
+        DOMEvents.categorySelectExplore.addEventListener('change', () => {
+             updateComplaintList(getComplaints(), DOMEvents.searchInputExplore?.value, DOMEvents.categorySelectExplore.value, stateEvents.currentUserId);
+        });
+        console.log("Kategori filtresi olayı bağlandı.");
+    }
+
+    // Admin Paneli
+    if (DOMEvents.adminModalEl) {
+        DOMEvents.adminModalEl.addEventListener('show.bs.modal', () => {
+            console.log("Admin modalı açılıyor, filtreler uygulanıyor.");
+            applyAdminFilters();
+        });
+        console.log("Admin modal show olayı bağlandı.");
+    }
+    
+    if (DOMEvents.adminTableBody) {
+        DOMEvents.adminTableBody.addEventListener('click', (e) => {
+            handleAdminTableActions(e);
+        });
+        console.log("Admin tablo click olayı bağlandı.");
+    }
+    
+    if (DOMEvents.adminApplyFiltersBtn) {
+        DOMEvents.adminApplyFiltersBtn.addEventListener('click', () => {
+            applyAdminFilters();
+        });
+        console.log("Admin filtre butonu olayı bağlandı.");
+    }
+    
+    if (DOMEvents.adminSearchInput) {
+        DOMEvents.adminSearchInput.addEventListener('keypress', (e) => { 
+            if (e.key === 'Enter') { 
+                e.preventDefault(); 
+                applyAdminFilters(); 
+            } 
+        });
+        console.log("Admin arama input olayı bağlandı.");
+    }
+    
+    if (DOMEvents.adminStatusFilter) {
+        DOMEvents.adminStatusFilter.addEventListener('change', () => {
+            applyAdminFilters();
+        });
+        console.log("Admin durum filtresi olayı bağlandı.");
+    }
+
+    // Düzenleme Modalı
+    if (DOMEvents.saveEditedComplaintBtn) {
+        DOMEvents.saveEditedComplaintBtn.addEventListener('click', () => {
+            console.log("Düzenleme kaydet butonu tıklandı.");
+            const form = DOMEvents.editComplaintForm;
+            const complaintId = parseInt(form?.querySelector('#editComplaintId')?.value);
+            if (!form || isNaN(complaintId)) return;
+            form.classList.add('was-validated'); // Validasyonu göster
+            if (!form.checkValidity()) {
+                return showToast('Lütfen düzenleme formundaki zorunlu alanları doldurun.', 'Eksik Bilgi', 'warning');
+            }
+
+            const updatedData = {
+                title: form.querySelector('#editComplaintTitle')?.value.trim(),
+                category: form.querySelector('#editComplaintCategory')?.value,
+                brand: form.querySelector('#editComplaintBrand')?.value.trim(),
+                description: form.querySelector('#editComplaintDescription')?.value.trim(),
+                status: form.querySelector('#editComplaintStatus')?.value
+            };
+
+            if (updateComplaint(complaintId, updatedData)) {
+                showToast('Şikayet başarıyla güncellendi.', 'Başarılı', 'success');
+                closeModal(DOMEvents.editComplaintModalEl);
+                updateAdminTable(getComplaints());
+                // Açık olan detay modalını da güncelle
+                if (DOMEvents.complaintDetailModalEl && 
+                    bootstrap.Modal.getInstance(DOMEvents.complaintDetailModalEl) && 
+                    DOMEvents.complaintDetailModalEl?.classList.contains('show') && 
+                    stateEvents.activeComplaintId === complaintId) {
+                     const updatedComplaint = getComplaints().find(c => c.id === complaintId);
+                     if(updatedComplaint) displayComplaintDetail(updatedComplaint, 'admin', stateEvents.currentUserId);
+                }
+            } else {
+                showToast('Güncelleme başarısız oldu.', 'Hata', 'error');
+            }
+        });
+        console.log("Düzenleme kaydet butonu olayı bağlandı.");
+    }
+    
+    if (DOMEvents.editDescriptionTextarea) {
+        DOMEvents.editDescriptionTextarea.addEventListener('input', () => autoResizeTextarea(DOMEvents.editDescriptionTextarea));
+        console.log("Düzenleme açıklama alanı auto-resize olayı bağlandı.");
+    }
+
+    // Admin Yorum Modalı
+    if (DOMEvents.submitAdminCommentBtn) {
+        DOMEvents.submitAdminCommentBtn.addEventListener('click', () => {
+            console.log("Admin yorum gönder butonu tıklandı.");
+            const commentText = DOMEvents.adminCommentTextarea?.value.trim();
+            const complaintId = stateEvents.activeComplaintId;
+            if (!commentText) return showToast('Lütfen bir yorum/not yazın.', 'Uyarı', 'warning');
+            if (!complaintId) return showToast('Yorum yapılacak şikayet ID bulunamadı.', 'Hata', 'error');
+
+            if (addCommentToComplaint(complaintId, commentText, 'admin')) {
+                showToast('Admin yorumu/notu eklendi.', 'Başarılı', 'success');
+                closeModal(DOMEvents.adminCommentModalEl);
+                // Açık olan detay modalını da güncelle
+                if (DOMEvents.complaintDetailModalEl && 
+                    bootstrap.Modal.getInstance(DOMEvents.complaintDetailModalEl) && 
+                    DOMEvents.complaintDetailModalEl?.classList.contains('show') && 
+                    stateEvents.activeComplaintId === complaintId) {
+                     const updatedComplaint = getComplaints().find(c => c.id === complaintId);
+                     if(updatedComplaint) displayComplaintDetail(updatedComplaint, 'admin', stateEvents.currentUserId);
+                }
+            } else { showToast('Yorum eklenemedi.', 'Hata', 'error'); }
+        });
+        console.log("Admin yorum gönder butonu olayı bağlandı.");
+    }
+
+    // Silme Onay Modalı
+    if (DOMEvents.confirmDeleteBtn) {
+        DOMEvents.confirmDeleteBtn.addEventListener('click', () => {
+            console.log("Sil onay butonu tıklandı.");
+            const complaintId = parseInt(document.getElementById('deleteComplaintId')?.value);
+            if (isNaN(complaintId)) return showToast('Silinecek şikayet ID bulunamadı.', 'Hata', 'error');
+
+            if (deleteComplaint(complaintId)) {
+                showToast('Şikayet başarıyla silindi.', 'Başarılı', 'success');
+                closeModal(DOMEvents.deleteConfirmModalEl);
+                updateAdminTable(getComplaints());
+                displayLatestComplaints(5);
+                displaySiteStats();
+                // Arama sonuçlarını da güncelle (opsiyonel)
+                if (DOMEvents.searchInputExplore?.value) {
+                    updateComplaintList(getComplaints(), DOMEvents.searchInputExplore.value, DOMEvents.categorySelectExplore?.value || '', stateEvents.currentUserId);
+                }
+            } else { showToast('Silme işlemi başarısız oldu.', 'Hata', 'error'); }
+        });
+        console.log("Silme onay butonu olayı bağlandı.");
+    }
+
+    // Tema Değiştirme
+    if (DOMEvents.themeToggleBtn) {
+        DOMEvents.themeToggleBtn.addEventListener('click', () => {
+            const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+        console.log("Tema değiştirme butonu olayı bağlandı.");
+    }
+
+    // Fiyatlandırma Toggle
+    if (DOMEvents.billingToggleContainer) {
+        DOMEvents.billingToggleContainer.addEventListener('click', (e) => handleBillingToggle(e));
+        console.log("Fiyatlandırma toggle olayı bağlandı.");
+    }
+
+    // Smooth Scroll
+    document.querySelectorAll('a.nav-link[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href.length > 1 && href.startsWith('#')) {
+                e.preventDefault();
+                const targetId = href.substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    const navbarHeight = DOMEvents.navbar?.offsetHeight || 70;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+                    window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                    if (targetId === 'explore') {
+                        setTimeout(() => DOMEvents.searchInputExplore?.focus({ preventScroll: true }), 300);
+                    }
+                }
+            }
+        });
+    });
+    console.log("Smooth scroll olayları bağlandı.");
+
+    // Şikayet Ekleme Modalı Kapanınca Sıfırla
+    if (DOMEvents.createComplaintModalEl) {
+        DOMEvents.createComplaintModalEl.addEventListener('hidden.bs.modal', function () {
+            console.log("Şikayet ekleme modalı kapandı, form sıfırlanıyor.");
+            clearComplaintForm(); // ui.js fonksiyonu çağır
+            stateEvents.complaintImageBase64 = null; // Görsel state'i sıfırla
+            // Puanlama kutularını ve state'i de sıfırlamak iyi olur (clearComplaintForm içinde yapılabilir veya burada)
+             const form = DOMEvents.complaintForm;
+             if(form){
+                 form.querySelectorAll('.rating-input').forEach(input => input.value = '0');
+                 form.querySelectorAll('.rating-boxes').forEach(rb => rb.className = rb.className.replace(/current-rating-\d/g, '').trim());
+                 form.querySelectorAll('.rating-box.selected').forEach(box => box.classList.remove('selected'));
+             }
+             switchStep(stateEvents.activeStep, 1); // İlk adıma dön
+        });
+        console.log("Şikayet ekleme modalı kapanma olayı bağlandı.");
+    }
+
+    console.log("Olay dinleyicileri başarıyla bağlandı.");
+}
+
+// --- Uygulamayı Başlat ---
+// DOMContentLoaded event listener'ını burada tutuyoruz
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM içeriği yüklendi, uygulama başlatılıyor...");
+    init();
 });
+
+// Global API'yi dışa aç (gerektiğinde)
+window.appEvents = {
+    init,
+    initEventListeners,
+    showComplaintPreview,
+    handleAdminTableActions
+};

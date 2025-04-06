@@ -1,209 +1,329 @@
-// ui.js - Kullanıcı Arayüzü Yönetimi (Tam, Güncellenmiş ve Düzeltilmiş Hali - 03.04.2025)
+// ui.js - Kullanıcı Arayüzü Yönetimi (Düzeltilmiş)
 
-import { getComplaints, addCommentToComplaint } from './data.js';
-// Dinamik import ile: likeComplaint, dislikeComplaint (gerektiğinde çağrılır)
+// data.js ve utils.js'den fonksiyonları import et (module scope içinde)
+import { getComplaints, addCommentToComplaint, likeComplaint, dislikeComplaint } from './data.js';
 import { showToast, autoResizeTextarea, capitalizeFirstLetter, getDistinctColors, formatDate, sanitizeHTML } from './utils.js';
 
 // Sabitler
-const EXCERPT_LENGTH = 120; // Şikayet özetlerinde gösterilecek karakter sayısı
-const MAX_FILE_SIZE_MB = 2; // Maksimum resim yükleme boyutu (MB)
-const MAX_SUGGESTIONS = 5; // Arama öneri sayısı
-const FEATURED_COMPLAINT_COUNT = 3; // "Öne Çıkan Şikayetler" widget'ında gösterilecek sayı
+const EXCERPT_LENGTH = 120;
+const MAX_FILE_SIZE_MB = 2;
+const FEATURED_COMPLAINT_COUNT = 3; // Öne çıkanlar widget'ı için
 
-// Grafik nesnelerini saklamak için global değişkenler
-let brandChart = null;
+// Grafik nesneleri (Chart.js)
+let brandSentimentChart = null;
 let brandCategoryChart = null;
 
 /**
- * Arama sonuçlarını veya marka bazlı şikayetleri Explore bölümündeki ilgili widget'ta günceller.
- * @param {Array} complaints Gösterilecek şikayetler dizisi.
- * @param {string} filterTerm Arama terimi (marka, başlık veya açıklama).
- * @param {string} currentUserId Mevcut oturumdaki kullanıcı ID'si.
+ * Şikayet derecelendirmelerinin ortalamasını hesaplar.
+ * @param {object} ratings Derecelendirme objesi.
+ * @returns {number} Ortalama değeri (1-5 arası, 1 ondalık).
  */
-export function updateComplaintList(complaints, filterTerm = '', currentUserId = null) {
+function calculateAverageRatingUtil(ratings) {
+    if (!ratings || typeof ratings !== 'object' || Object.keys(ratings).length === 0) {
+        return 0;
+    }
+    
+    let total = 0;
+    let count = 0;
+    
+    for (const key in ratings) {
+        const rating = parseFloat(ratings[key]);
+        if (!isNaN(rating) && rating >= 1 && rating <= 5) {
+            total += rating;
+            count++;
+        }
+    }
+    
+    return count > 0 ? Math.round((total / count) * 10) / 10 : 0;
+}
+
+/**
+ * Durum metnini CSS sınıflarında kullanılabilecek formata dönüştürür.
+ * @param {string} status Durum metni.
+ * @returns {string} CSS sınıfı için uygun durum metni.
+ */
+function normalizeStatusUtil(status) {
+    if (!status) return 'unknown';
+    return status.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Aksanlı karakterleri kaldır
+        .replace(/\s+/g, '') // Boşlukları kaldır
+        .replace(/[^a-z0-9]/g, ''); // Alfanumerik olmayan karakterleri kaldır
+}
+
+/**
+ * HTML içeriğini sanitize eder (utils.js fonksiyonuna wrapper).
+ * @param {string} html Sanitize edilecek HTML.
+ * @returns {string} Sanitize edilmiş HTML.
+ */
+function sanitizeHTMLUtil(html) {
+    return sanitizeHTML(html);
+}
+
+/**
+ * Arama sonuçlarını veya marka bazlı şikayetleri Explore bölümündeki widget'ta günceller.
+ * @param {Array} allComplaints Tüm şikayetler dizisi (getComplaints() sonucu).
+ * @param {string} filterTerm Arama terimi (marka, başlık veya açıklama).
+ * @param {string} categoryFilter Kategori filtresi değeri.
+ * @param {string} currentUserId Mevcut kullanıcı ID'si.
+ */
+export function updateComplaintList(allComplaints, filterTerm = '', categoryFilter = '', currentUserId = null) {
     const searchResultsContainer = document.getElementById('searchResultsContainer');
     const searchResultsList = document.getElementById('searchResultsList');
-    const searchWidgetTitle = document.querySelector('#explore .search-widget .widget-title');
+    const noResultsMsg = document.getElementById('noSearchResults');
+    const searchWidgetTitle = document.querySelector('#explore .search-widget .widget-title'); // Başlığı güncellemek için
 
-    if (!searchResultsContainer || !searchResultsList) {
-        console.error("Arama sonuçları listesi (#searchResultsList) veya konteyneri (#searchResultsContainer) DOM'da bulunamadı!");
+    if (!searchResultsContainer || !searchResultsList || !noResultsMsg || !searchWidgetTitle) {
+        console.error("Arama sonuçları elementleri (#searchResultsContainer, #searchResultsList, #noSearchResults, .search-widget .widget-title) DOM'da bulunamadı!");
         return;
     }
 
-    const approvedComplaints = complaints.filter(c => !c.pendingApproval);
-    let filteredComplaints = [];
-    let isBrandFilter = false;
+    const approvedComplaints = allComplaints.filter(c => !c.pendingApproval); // Sadece onaylanmışları göster
     const lowerCaseFilter = filterTerm.toLowerCase().trim();
 
-    if (!lowerCaseFilter) {
-        searchResultsContainer.style.display = 'none';
-        searchResultsList.innerHTML = '';
-        if (searchWidgetTitle) searchWidgetTitle.innerHTML = '<i class="fas fa-search me-2 text-primary"></i> Şikayet Ara';
-        hideBrandStats();
-        return;
+    let filteredComplaints = approvedComplaints;
+
+    // Kategoriye göre filtrele (eğer seçiliyse)
+    if (categoryFilter) {
+        filteredComplaints = filteredComplaints.filter(c => c.category === categoryFilter);
     }
 
-    searchResultsContainer.style.display = 'block';
-    const brandMatch = approvedComplaints.filter(c => c.brand?.toLowerCase().trim() === lowerCaseFilter);
-
-    if (brandMatch.length > 0) {
-        filteredComplaints = brandMatch;
-        isBrandFilter = true;
-        if (searchWidgetTitle) searchWidgetTitle.innerHTML = `<i class="fas fa-tag me-2"></i> ${capitalizeFirstLetter(filterTerm)} Sonuçları`;
-        displayBrandStats(filterTerm);
-    } else {
-        filteredComplaints = approvedComplaints.filter(c =>
+    // Arama terimine göre filtrele (eğer varsa)
+    if (lowerCaseFilter) {
+        filteredComplaints = filteredComplaints.filter(c =>
             (c.title?.toLowerCase().includes(lowerCaseFilter)) ||
             (c.description?.toLowerCase().includes(lowerCaseFilter)) ||
             (c.brand?.toLowerCase().includes(lowerCaseFilter))
         );
-        if (searchWidgetTitle) searchWidgetTitle.innerHTML = `<i class="fas fa-search me-2"></i> '${filterTerm}' İçin Sonuçlar`;
-        hideBrandStats();
     }
 
-    searchResultsList.innerHTML = '';
+    // Sonuçları göster/gizle
+    if (!lowerCaseFilter && !categoryFilter) { // Filtre yoksa sonuçları gizle
+        searchResultsContainer.style.display = 'none';
+        searchResultsList.innerHTML = '';
+        noResultsMsg.style.display = 'none';
+        searchWidgetTitle.innerHTML = '<i class="fas fa-search me-2 text-primary"></i> Şikayet Ara'; // Başlığı sıfırla
+        hideBrandStats(); // Marka istatistiklerini gizle
+        return;
+    }
+
+    // Sonuçlar varsa konteyneri göster
+    searchResultsContainer.style.display = 'block';
+    searchResultsList.innerHTML = ''; // Önceki sonuçları temizle
+
     if (filteredComplaints.length === 0) {
-        const message = isBrandFilter
-            ? `${capitalizeFirstLetter(filterTerm)} markası için sonuç bulunamadı.`
-            : `'${filterTerm}' ile eşleşen sonuç bulunamadı.`;
-        searchResultsList.innerHTML = `<li class="list-group-item text-center text-muted p-3">${message}</li>`;
-        searchResultsList.className = 'list-group list-group-flush p-0';
+        noResultsMsg.style.display = 'block'; // "Sonuç yok" mesajını göster
+        searchWidgetTitle.innerHTML = `<i class="fas fa-search-minus me-2"></i> Sonuç Bulunamadı`;
+        hideBrandStats(); // Marka istatistiklerini gizle
     } else {
-        searchResultsList.className = 'complaint-list-group p-0';
-        searchResultsList.innerHTML = filteredComplaints
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .map(complaint => createComplaintCard(complaint, currentUserId).outerHTML)
-            .join('');
-        addEventListenersToComplaintCards(searchResultsList, currentUserId);
+        noResultsMsg.style.display = 'none'; // "Sonuç yok" mesajını gizle
+        searchWidgetTitle.innerHTML = `<i class="fas fa-list me-2"></i> Arama Sonuçları (${filteredComplaints.length})`;
+
+        // Sonuçları render et (en yeni en üstte)
+        filteredComplaints
+            .sort((a, b) => b.date - a.date) // Date objesi olarak sırala
+            .forEach(complaint => {
+                const cardElement = createComplaintCard(complaint, currentUserId); // Element olarak oluştur
+                searchResultsList.appendChild(cardElement); // Elementi ekle
+            });
+
+        addEventListenersToComplaintCards(searchResultsList, currentUserId); // Olay dinleyicilerini ekle
+
+        // Eğer sadece marka araması yapıldıysa ve sonuç varsa istatistikleri göster
+        const isBrandSearch = approvedComplaints.some(c => c.brand?.toLowerCase().trim() === lowerCaseFilter);
+        if (isBrandSearch && filteredComplaints.length > 0 && !categoryFilter) { // Sadece marka adı ile arama yapıldıysa
+             displayBrandStats(capitalizeFirstLetter(lowerCaseFilter));
+        } else {
+             hideBrandStats();
+        }
     }
 }
+
 
 /**
  * Belirtilen liste içindeki şikayet kartlarına tıklama ve like/dislike olay dinleyicilerini ekler.
- * @param {HTMLElement} listElement Olay dinleyicisinin ekleneceği liste.
+ * @param {HTMLElement} listElement Olay dinleyicisinin ekleneceği liste (örn: #searchResultsList, #latestComplaintList .slider-track).
  * @param {string|null} currentUserId Mevcut kullanıcı ID'si.
  */
 function addEventListenersToComplaintCards(listElement, currentUserId) {
-     if (!listElement) return;
-     listElement.querySelectorAll('.complaint-card, .complaint-summary-card').forEach(card => {
-         const existingCardListener = card.cardClickListener;
-         if (existingCardListener) card.removeEventListener('click', existingCardListener);
-         const clickListener = (e) => {
-             if (!e.target.closest('.like-btn') && !e.target.closest('.dislike-btn')) {
-                 const complaintId = parseInt(card.dataset.id);
-                 if (!isNaN(complaintId)) {
-                     const complaint = getComplaints().find(c => c.id === complaintId);
-                     if (complaint) {
-                         displayComplaintDetail(complaint, 'user', currentUserId);
-                         const detailModalElement = document.getElementById('complaintDetailModal');
-                         if (detailModalElement) {
-                             const detailModal = bootstrap.Modal.getInstance(detailModalElement) || new bootstrap.Modal(detailModalElement);
-                             detailModal.show();
-                         }
-                     } else { console.warn(`Complaint ID ${complaintId} not found.`); }
-                 }
-             }
-         };
-         card.addEventListener('click', clickListener);
-         card.cardClickListener = clickListener;
+    if (!listElement) return;
 
-         card.querySelectorAll('.like-btn, .dislike-btn').forEach(button => {
-              const existingButtonListener = button.buttonClickListener;
-              if (existingButtonListener) button.removeEventListener('click', existingButtonListener);
-               const buttonClickListener = async (ev) => {
-                   ev.stopPropagation();
-                   const complaintId = parseInt(button.dataset.complaintId);
-                   if (isNaN(complaintId)) return;
-                   const action = button.classList.contains('like-btn') ? 'like' : 'dislike';
-                   try {
-                       const module = await import('./data.js');
-                       const success = action === 'like' ? module.likeComplaint(complaintId, currentUserId) : module.dislikeComplaint(complaintId, currentUserId);
-                       if (success) {
-                           const updatedComplaint = module.getComplaints().find(c => c.id === complaintId);
-                           const likeDislikeSection = button.closest('.like-dislike-section');
-                           const likeCountEl = likeDislikeSection?.querySelector('.like-btn .count');
-                           const dislikeCountEl = likeDislikeSection?.querySelector('.dislike-btn .count');
-                           const likeBtn = likeDislikeSection?.querySelector('.like-btn');
-                           const dislikeBtn = likeDislikeSection?.querySelector('.dislike-btn');
-                           if (updatedComplaint && likeCountEl && dislikeCountEl && likeBtn && dislikeBtn) {
-                               likeCountEl.textContent = updatedComplaint.likes ? Object.keys(updatedComplaint.likes).length : 0;
-                               dislikeCountEl.textContent = updatedComplaint.dislikes ? Object.keys(updatedComplaint.dislikes).length : 0;
-                               likeBtn.classList.toggle('active-like', !!updatedComplaint.likes?.[currentUserId]);
-                               dislikeBtn.classList.toggle('active-dislike', !!updatedComplaint.dislikes?.[currentUserId]);
-                           }
-                       } else { showToast(action === 'like' ? 'Beğeni başarısız.' : 'Beğenmeme başarısız.', 'Hata', 'error'); }
-                   } catch (error) { console.error("Like/Dislike hatası:", error); showToast('İşlem hatası.', 'Hata', 'error'); }
-               };
-               button.addEventListener('click', buttonClickListener);
-               button.buttonClickListener = buttonClickListener;
-         });
-     });
+    // Olay delegasyonu kullanarak ana listeye tek bir listener ekle
+    const listClickHandler = (e) => {
+        const card = e.target.closest('.complaint-card, .complaint-summary-card'); // Kart veya özet kartı
+        const likeBtn = e.target.closest('.like-btn');
+        const dislikeBtn = e.target.closest('.dislike-btn');
+
+        if (likeBtn && card) {
+            e.stopPropagation(); // Kartın tıklama olayını tetikleme
+            const complaintId = parseInt(card.dataset.id);
+            const button = likeBtn;
+            if (!isNaN(complaintId) && currentUserId) {
+                handleLikeDislikeAction(complaintId, 'like', currentUserId, button);
+            } else if (!currentUserId) {
+                 showToast('Beğenmek için giriş yapmalısınız (simüle ediliyor).', 'Uyarı', 'warning');
+            }
+        } else if (dislikeBtn && card) {
+            e.stopPropagation();
+            const complaintId = parseInt(card.dataset.id);
+             const button = dislikeBtn;
+            if (!isNaN(complaintId) && currentUserId) {
+                handleLikeDislikeAction(complaintId, 'dislike', currentUserId, button);
+            } else if (!currentUserId) {
+                 showToast('Beğenmemek için giriş yapmalısınız (simüle ediliyor).', 'Uyarı', 'warning');
+            }
+        } else if (card) {
+            // Kartın kendisine tıklandı (like/dislike değil) -> Detayları aç
+            const complaintId = parseInt(card.dataset.id);
+            if (!isNaN(complaintId)) {
+                const complaint = getComplaints().find(c => c.id === complaintId); // data.js'den al
+                if (complaint) {
+                    displayComplaintDetail(complaint, 'user', currentUserId); // ui.js fonksiyonu
+                    const detailModalElement = document.getElementById('complaintDetailModal');
+                    if (detailModalElement) {
+                        const detailModal = bootstrap.Modal.getInstance(detailModalElement) || new bootstrap.Modal(detailModalElement);
+                        detailModal.show();
+                    }
+                } else {
+                    console.warn(`Şikayet ID ${complaintId} bulunamadı.`);
+                    showToast('Şikayet detayı yüklenemedi.', 'Hata', 'error');
+                }
+            }
+        }
+    };
+
+    // Eski listener'ı kaldırıp yenisini ekle (güvenlik için)
+    const newListElement = listElement.cloneNode(true); // Derin klonlama
+    listElement.parentNode.replaceChild(newListElement, listElement);
+    newListElement.addEventListener('click', listClickHandler);
 }
 
 /**
+ * Like/Dislike buton tıklama işlemini ve UI güncellemesini yönetir.
+ * @param {number} complaintId
+ * @param {'like' | 'dislike'} action
+ * @param {string} currentUserId
+ * @param {HTMLElement} button Tıklanan buton elementi.
+ */
+async function handleLikeDislikeAction(complaintId, action, currentUserId, button) {
+    const likeDislikeSection = button.closest('.like-dislike-section');
+    if (!likeDislikeSection) return;
+
+    const likeBtn = likeDislikeSection.querySelector('.like-btn');
+    const dislikeBtn = likeDislikeSection.querySelector('.dislike-btn');
+    const likeCountEl = likeBtn?.querySelector('.count');
+    const dislikeCountEl = dislikeBtn?.querySelector('.count');
+
+    // Butonları geçici olarak devre dışı bırak
+    if(likeBtn) likeBtn.disabled = true;
+    if(dislikeBtn) dislikeBtn.disabled = true;
+
+    try {
+        // data.js'den ilgili fonksiyonu çağır
+        const success = action === 'like'
+            ? likeComplaint(complaintId, currentUserId)
+            : dislikeComplaint(complaintId, currentUserId);
+
+        if (success) {
+            // Başarılıysa, güncel veriyi al
+            const updatedComplaint = getComplaints().find(c => c.id === complaintId);
+            if (updatedComplaint && likeCountEl && dislikeCountEl && likeBtn && dislikeBtn) {
+                // Sayıları ve buton durumlarını güncelle
+                const likes = updatedComplaint.likes || {};
+                const dislikes = updatedComplaint.dislikes || {};
+                likeCountEl.textContent = Object.keys(likes).length;
+                dislikeCountEl.textContent = Object.keys(dislikes).length;
+                likeBtn.classList.toggle('active-like', !!likes[currentUserId]);
+                dislikeBtn.classList.toggle('active-dislike', !!dislikes[currentUserId]);
+            }
+        } else {
+            showToast(action === 'like' ? 'Beğeni başarısız.' : 'Beğenmeme başarısız.', 'Hata', 'error');
+        }
+    } catch (error) {
+        console.error(`${action} hatası:`, error);
+        showToast('İşlem sırasında bir hata oluştu.', 'Hata', 'error');
+    } finally {
+         // Butonları tekrar etkinleştir
+         if(likeBtn) likeBtn.disabled = false;
+         if(dislikeBtn) dislikeBtn.disabled = false;
+    }
+}
+
+
+/**
  * Tek bir şikayet için HTML kartı oluşturur (div elementi olarak).
- * @param {object} complaint Şikayet verisi.
+ * @param {object} complaint Şikayet verisi (Date objesi ile).
  * @param {string|null} currentUserId Mevcut kullanıcı ID'si.
  * @param {object} options Ekstra seçenekler (örn: { showActions: true }).
  * @returns {HTMLElement} Oluşturulan div elementi.
  */
 function createComplaintCard(complaint, currentUserId, options = { showActions: true }) {
     const cardDiv = document.createElement('div');
-    const status = complaint.status?.toLowerCase() || 'unknown';
-    cardDiv.className = `complaint-card status-${status}`;
-    cardDiv.dataset.id = complaint.id;
+    // Durumu normalize et ve CSS sınıfı oluştur
+    const statusClass = normalizeStatusUtil(complaint.pendingApproval ? 'Beklemede' : complaint.status);
+    cardDiv.className = `complaint-card status-${statusClass}`;
+    cardDiv.dataset.id = complaint.id; // ID'yi data attribute olarak ekle
 
-    const likeCount = complaint.likes ? Object.keys(complaint.likes).length : 0;
-    const dislikeCount = complaint.dislikes ? Object.keys(complaint.dislikes).length : 0;
-    const userLiked = currentUserId && complaint.likes?.[currentUserId];
-    const userDisliked = currentUserId && complaint.dislikes?.[currentUserId];
+    // Like/Dislike sayılarını ve kullanıcının durumunu al
+    const likes = complaint.likes || {};
+    const dislikes = complaint.dislikes || {};
+    const likeCount = Object.keys(likes).length;
+    const dislikeCount = Object.keys(dislikes).length;
+    const userLiked = currentUserId && !!likes[currentUserId];
+    const userDisliked = currentUserId && !!dislikes[currentUserId];
 
+    // Ortalama Puanı Hesapla ve HTML'ini oluştur
     let avgRatingHtml = '<span class="me-3 text-muted small">Puanlanmamış</span>';
-    if (complaint.ratings && Object.keys(complaint.ratings).length > 0) {
-        const ratingsArray = Object.values(complaint.ratings).map(Number).filter(r => !isNaN(r) && r >= 1 && r <= 5);
-        if (ratingsArray.length > 0) {
-            const avgRating = (ratingsArray.reduce((sum, val) => sum + val, 0) / ratingsArray.length).toFixed(1);
-            avgRatingHtml = `<div class="d-flex align-items-center"><span class="me-1 small text-muted">Ortalama:</span><div class="average-box">${avgRating}</div></div>`;
-        }
+    const avgRatingValue = calculateAverageRatingUtil(complaint.ratings);
+    if (avgRatingValue > 0) {
+         avgRatingHtml = `<div class="d-flex align-items-center" title="Ortalama Puan"><div class="average-box">${avgRatingValue}</div></div>`;
     }
 
-    const badgeClass = { 'açık': 'bg-primary', 'çözüldü': 'bg-success', 'kapalı': 'bg-secondary', 'beklemede': 'bg-warning text-dark' }[status] || 'bg-info';
-    const safeBrand = sanitizeHTML(complaint.brand || 'Marka Belirtilmemiş');
-    const safeCategory = sanitizeHTML(complaint.category || 'Kategori Yok');
-    const safeTitle = sanitizeHTML(complaint.title || 'Başlık Yok');
-    let safeDescription = sanitizeHTML(complaint.description || '');
+    // Durum Rozeti için CSS sınıfı belirle
+    const badgeClass = complaint.pendingApproval ? 'bg-warning text-dark' : {
+        'açık': 'bg-primary',
+        'çözüldü': 'bg-success',
+        'kapalı': 'bg-secondary',
+        'beklemede': 'bg-warning text-dark'
+    }[complaint.status?.toLowerCase()] || 'bg-info'; // Bilinmeyen durum için info
+
+    // Güvenli HTML için sanitize et
+    const safeBrand = sanitizeHTMLUtil(complaint.brand || 'Marka Belirtilmemiş');
+    const safeCategory = sanitizeHTMLUtil(complaint.category || 'Kategori Yok');
+    const safeTitle = sanitizeHTMLUtil(complaint.title || 'Başlık Yok');
+    let safeDescription = sanitizeHTMLUtil(complaint.description || '');
+    // Açıklama kısaltma
     if (safeDescription.length > EXCERPT_LENGTH) {
         const lastSpace = safeDescription.lastIndexOf(' ', EXCERPT_LENGTH);
         safeDescription = safeDescription.substring(0, lastSpace > 0 ? lastSpace : EXCERPT_LENGTH) + '...';
     }
-    const safeStatus = sanitizeHTML(complaint.pendingApproval ? 'Onay Bekliyor' : complaint.status || 'Bilinmiyor');
+    const safeStatus = sanitizeHTMLUtil(complaint.pendingApproval ? 'Onay Bekliyor' : complaint.status || 'Bilinmiyor');
+    const formattedDate = formatDate(complaint.date); // utils.js'den formatla
 
+    // Kartın iç HTML'ini oluştur
     cardDiv.innerHTML = `
         <div class="card-content-wrapper">
-            <div class="card-header-info d-flex justify-content-between align-items-start mb-2 flex-wrap">
-                <div class="brand-category mb-1 me-2">
-                    <span class="brand-tag fw-bold">${safeBrand}</span>
-                    <span class="ms-2 badge bg-light text-dark border">${safeCategory}</span>
+            <div class="card-header-info">
+                <div class="brand-info">
+                    <strong class="brand-tag">${safeBrand}</strong>
+                    <span class="badge bg-light text-dark">${safeCategory}</span>
                 </div>
-                <small class="complaint-date text-muted text-nowrap flex-shrink-0">${formatDate(complaint.date)}</small>
+                <span class="complaint-date">${formattedDate}</span>
             </div>
-            <h5 class="mb-2 complaint-title" role="button">${safeTitle}</h5>
-            <p class="mb-3 complaint-excerpt">${safeDescription}</p>
-            <div class="card-footer-info d-flex justify-content-between align-items-center flex-wrap border-top pt-2">
-                <small class="text-muted me-3 mb-1">Durum: <span class="badge ${badgeClass}">${safeStatus}</span></small>
-                <div class="d-flex align-items-center mb-1">
-                    ${avgRatingHtml}
-                    ${options.showActions && currentUserId && !complaint.pendingApproval ? `
-                    <div class="like-dislike-section ms-3">
-                        <button class="btn btn-sm like-btn ${userLiked ? 'active-like' : ''}" data-complaint-id="${complaint.id}" title="Beğen">
-                            <i class="fas fa-thumbs-up"></i> <span class="count">${likeCount}</span>
-                        </button>
-                        <button class="btn btn-sm dislike-btn ${userDisliked ? 'active-dislike' : ''}" data-complaint-id="${complaint.id}" title="Beğenme">
-                            <i class="fas fa-thumbs-down"></i> <span class="count">${dislikeCount}</span>
-                        </button>
-                    </div>` : ''}
-                </div>
-            </div>
+            <h5 class="complaint-title" role="button" title="${safeTitle}">${safeTitle}</h5>
+            <p class="complaint-excerpt">${safeDescription}</p>
+        </div>
+        <div class="card-footer-info">
+            <span class="badge status-badge ${badgeClass}">${safeStatus}</span>
+            ${avgRatingHtml}
+            ${options.showActions && currentUserId && !complaint.pendingApproval ? `
+            <div class="like-dislike-section">
+                <button class="btn btn-sm like-btn ${userLiked ? 'active-like' : ''}" title="Beğen">
+                    <i class="far fa-thumbs-up"></i> <span class="count">${likeCount}</span>
+                </button>
+                <button class="btn btn-sm dislike-btn ${userDisliked ? 'active-dislike' : ''}" title="Beğenme">
+                    <i class="far fa-thumbs-down"></i> <span class="count">${dislikeCount}</span>
+                </button>
+            </div>` : ''}
         </div>
     `;
     return cardDiv;
@@ -215,20 +335,21 @@ function createComplaintCard(complaint, currentUserId, options = { showActions: 
  * @returns {string} HTML string'i.
  */
 function createFeaturedComplaintCard(complaint) {
-    const safeTitle = sanitizeHTML(complaint.title || 'Başlık Yok');
-    const safeBrand = sanitizeHTML(complaint.brand || 'Markasız');
-    const interactionCount = (complaint.likes ? Object.keys(complaint.likes).length : 0) +
-                             (complaint.dislikes ? Object.keys(complaint.dislikes).length : 0) +
-                             (complaint.comments ? complaint.comments.length : 0);
+    const safeTitle = sanitizeHTMLUtil(complaint.title || 'Başlık Yok');
+    const safeBrand = sanitizeHTMLUtil(complaint.brand || 'Markasız');
+    // Etkileşim sayısını hesapla (like + dislike + yorum)
+    const interactionCount = (Object.keys(complaint.likes || {}).length) +
+                             (Object.keys(complaint.dislikes || {}).length) +
+                             (complaint.comments ? complaint.comments.length : 0); // Sadece ana yorumları say şimdilik
 
     return `
-        <div class="complaint-summary-card" data-id="${complaint.id}" role="button" tabindex="0">
-            <h6 class="complaint-summary-title">${safeTitle}</h6>
+        <div class="list-group-item list-group-item-action complaint-summary-card" data-id="${complaint.id}" role="button" tabindex="0">
+            <h6 class="complaint-summary-title mb-1 text-truncate">${safeTitle}</h6>
             <div class="d-flex justify-content-between align-items-center">
-                 <span class="complaint-summary-brand">${safeBrand}</span>
-                 <span class="complaint-summary-interactions small">
-                     <i class="fas fa-eye me-1"></i> ${interactionCount} Etkileşim
-                 </span>
+                <span class="complaint-summary-brand small text-muted">${safeBrand}</span>
+                <span class="complaint-summary-interactions small text-primary">
+                    <i class="fas fa-fire me-1"></i> ${interactionCount} Etkileşim
+                </span>
             </div>
         </div>
     `;
@@ -236,85 +357,92 @@ function createFeaturedComplaintCard(complaint) {
 
 /**
  * Şikayet detaylarını modal içinde gösterir.
- * @param {object} complaint Gösterilecek şikayet.
+ * @param {object} complaint Gösterilecek şikayet (Date objesi ile).
  * @param {string} displayMode 'user' veya 'admin'.
  * @param {string} currentUserId Mevcut kullanıcı ID'si.
  */
 export function displayComplaintDetail(complaint, displayMode = 'user', currentUserId = null) {
     const detailBody = document.getElementById('complaintDetailBody');
     const modalTitle = document.getElementById('complaintDetailModalLabel');
-    const adminActions = document.getElementById('adminActionButtons');
+    const adminActionsContainer = document.getElementById('adminActionButtonsDetail'); // Detay modalındaki admin butonları
 
-    if (!detailBody || !modalTitle || !adminActions) {
-        showToast('Şikayet detayları gösterilemedi.', 'Hata', 'error');
+    if (!detailBody || !modalTitle || !adminActionsContainer) {
+        showToast('Şikayet detayları gösterilemedi (DOM hatası).', 'Hata', 'error');
         return;
     }
 
     modalTitle.textContent = `Şikayet Detayı: #${complaint.id}`;
-    adminActions.innerHTML = '';
-    adminActions.style.display = 'none';
+    adminActionsContainer.innerHTML = ''; // Önceki butonları temizle
+    adminActionsContainer.style.display = 'none'; // Başlangıçta gizle
 
-    // Puanlama HTML'ini oluştur
-    let ratingsHtml = '<h6><i class="fas fa-star me-2 text-warning"></i>Değerlendirmeler</h6>';
-    if (complaint.ratings && Object.keys(complaint.ratings).length > 0) {
-        const validRatingsHtml = Object.entries(complaint.ratings).map(([category, rating]) => {
-            const numericRating = Number(rating);
-            if (isNaN(numericRating) || numericRating < 1 || numericRating > 5) return '';
-            const percentage = (numericRating / 5) * 100;
-            return `
-                <div class="mb-2">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="small">${sanitizeHTML(category)}</span>
-                        <span class="small text-muted">${numericRating}/5</span>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: ${percentage}%;" aria-valuenow="${numericRating}" aria-valuemin="0" aria-valuemax="5"></div>
-                    </div>
-                </div>`;
-        }).filter(Boolean).join('');
+    // --- İçerik Oluşturma ---
 
-        if(validRatingsHtml) {
-             ratingsHtml += `<div class="mb-3">${validRatingsHtml}</div>`;
-        } else {
-             ratingsHtml += '<p class="text-muted small">Geçerli değerlendirme yapılmamış.</p>';
-        }
+    // Puanlama HTML'i
+    let ratingsHtml = `<h6><i class="fas fa-star me-2 text-warning"></i>Değerlendirmeler</h6>`;
+    const avgRating = calculateAverageRatingUtil(complaint.ratings);
+    if (avgRating > 0) {
+        const validRatingsHtml = Object.entries(complaint.ratings)
+            .map(([category, rating]) => {
+                const numericRating = Number(rating);
+                if (isNaN(numericRating) || numericRating < 1 || numericRating > 5) return '';
+                const percentage = (numericRating / 5) * 100;
+                const progressBarColor = percentage >= 80 ? 'bg-success' : percentage >= 50 ? 'bg-warning' : 'bg-danger';
+                return `
+                    <div class="mb-2 rating-detail-row">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-500">${sanitizeHTMLUtil(category)}</span>
+                            <span class="small text-muted">${numericRating}/5</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar ${progressBarColor}" role="progressbar" style="width: ${percentage}%;" aria-valuenow="${numericRating}" aria-valuemin="0" aria-valuemax="5"></div>
+                        </div>
+                    </div>`;
+            }).filter(Boolean).join('');
+         ratingsHtml += `<div class="mb-3 p-2 border rounded bg-light">${validRatingsHtml || '<p class="text-muted small mb-0">Geçerli değerlendirme yok.</p>'}</div>`;
     } else {
         ratingsHtml += '<p class="text-muted small">Değerlendirme yapılmamış.</p>';
     }
 
-    // Yorumlar HTML'ini oluştur
-    let commentsHtml = '<h6><i class="fas fa-comments me-2"></i>Yorumlar</h6>';
-    commentsHtml += generateCommentsHtml(complaint.comments || [], currentUserId, complaint.pendingApproval, complaint.id);
-     if (!complaint.comments || complaint.comments.length === 0) {
-        commentsHtml += '<p class="text-muted small">Henüz yorum yapılmamış.</p>';
-    }
+    // Yorumlar HTML'i
+    let commentsHtml = `<h6><i class="fas fa-comments me-2"></i>Yorumlar (${(complaint.comments || []).length})</h6>`;
+    const renderedComments = generateCommentsHtml(complaint.comments || [], currentUserId, complaint.pendingApproval, complaint.id);
+    commentsHtml += `<div class="comments-container mb-3 border rounded p-2 bg-light" style="max-height: 350px; overflow-y: auto;">${renderedComments || '<p class="text-muted small mb-0">Henüz yorum yapılmamış.</p>'}</div>`;
 
-    const safeTitle = sanitizeHTML(complaint.title || 'Başlık Yok');
-    const safeBrand = sanitizeHTML(complaint.brand || 'Marka Belirtilmemiş');
-    const safeCategory = sanitizeHTML(complaint.category || 'Kategori Yok');
-    const safeDescription = sanitizeHTML(complaint.description || '');
-    const statusClass = complaint.pendingApproval ? 'bg-warning text-dark' : ({ 'çözüldü': 'bg-success', 'açık': 'bg-primary' }[complaint.status?.toLowerCase()] || 'bg-secondary');
-    const safeStatus = sanitizeHTML(complaint.pendingApproval ? 'Onay Bekliyor' : complaint.status || 'Bilinmiyor');
+    // Güvenli Değişkenler
+    const safeTitle = sanitizeHTMLUtil(complaint.title || 'Başlık Yok');
+    const safeBrand = sanitizeHTMLUtil(complaint.brand || 'Marka Belirtilmemiş');
+    const safeCategory = sanitizeHTMLUtil(complaint.category || 'Kategori Yok');
+    const safeDescription = sanitizeHTMLUtil(complaint.description || '');
+    const statusClass = complaint.pendingApproval ? 'bg-warning text-dark' : {
+        'açık': 'bg-primary text-white',
+        'çözüldü': 'bg-success text-white',
+        'kapalı': 'bg-secondary text-white',
+        'beklemede': 'bg-warning text-dark'
+    }[complaint.status?.toLowerCase()] || 'bg-info text-white';
+    const safeStatus = sanitizeHTMLUtil(complaint.pendingApproval ? 'Onay Bekliyor' : complaint.status || 'Bilinmiyor');
+    const formattedDate = formatDate(complaint.date);
 
-    // Modal içeriğini oluştur
+    // Modal İçeriği
     detailBody.innerHTML = `
         <div class="row g-4">
             <div class="col-lg-8">
                 <h4>${safeTitle}</h4>
-                <p class="mb-1">
-                    <span class="detail-brand">${safeBrand}</span>
-                    <span class="detail-category ms-2">${safeCategory}</span>
-                </p>
-                <p class="detail-date text-muted small mb-3">Oluşturulma: ${formatDate(complaint.date)}</p>
-                <p class="detail-description mb-3">${safeDescription.replace(/\n/g, '<br>')}</p>
-                <p class="mb-3"><strong>Durum:</strong> <span class="badge ${statusClass}">${safeStatus}</span></p>
+                <div class="d-flex flex-wrap align-items-center mb-2 text-muted small gap-3">
+                    <span><strong>Marka:</strong> ${safeBrand}</span>
+                    <span><strong>Kategori:</strong> ${safeCategory}</span>
+                    <span><strong>Tarih:</strong> ${formattedDate}</span>
+                    <span><strong>Durum:</strong> <span class="badge ${statusClass}">${safeStatus}</span></span>
+                </div>
+                <hr>
+                <h6><i class="fas fa-file-alt me-2"></i>Açıklama</h6>
+                <p class="detail-description mb-3 p-2 border rounded">${safeDescription.replace(/\n/g, '<br>')}</p>
                 <hr>
                 <div class="ratings-section mb-3">${ratingsHtml}</div>
                 ${!complaint.pendingApproval ? `
                 <hr>
                 <div class="comment-section">
-                     <div class="comments-container mb-3">${commentsHtml}</div> 
-                    <div class="mt-4">
+                    ${commentsHtml}
+                    <div class="mt-3 add-comment-form">
                         <h6><i class="fas fa-pen me-1"></i>Yorum Ekle:</h6>
                         <textarea id="newCommentText" class="form-control form-control-sm" rows="2" placeholder="Yorumunuzu buraya yazın..." maxlength="500"></textarea>
                         <button id="submitCommentBtn" class="btn modern-btn-primary btn-sm mt-2" data-complaint-id="${complaint.id}">
@@ -329,64 +457,93 @@ export function displayComplaintDetail(complaint, displayMode = 'user', currentU
                             <button id="cancelReplyBtn" type="button" class="btn modern-btn-outline-secondary btn-sm ms-2">İptal</button>
                         </div>
                     </div>
-                </div>` : '<p class="mt-4 alert alert-warning small">Bu şikayet henüz onaylanmadığı için yorum yapılamaz veya yorumlar görüntülenemez.</p>'}
+                </div>`
+                : '<p class="mt-4 alert alert-warning small"><i class="fas fa-info-circle me-1"></i> Bu şikayet henüz onaylanmadığı için yorum yapılamaz veya yorumlar görüntülenemez.</p>'}
             </div>
             <div class="col-lg-4">
-                ${complaint.image ? `<img src="${complaint.image}" alt="Şikayet Görseli" class="img-fluid detail-image rounded border">` : '<div class="text-center p-3 border rounded bg-light"><p class="text-muted small my-5">Görsel eklenmemiş.</p></div>'}
+                <h6><i class="fas fa-image me-2"></i>Görsel</h6>
+                ${complaint.image
+                    ? `<a href="${complaint.image}" target="_blank" title="Görseli yeni sekmede aç"><img src="${complaint.image}" alt="Şikayet Görseli" class="img-fluid detail-image rounded border shadow-sm"></a>`
+                    : '<div class="text-center p-3 border rounded bg-light" style="min-height: 200px; display:flex; align-items:center; justify-content:center;"><p class="text-muted small my-auto">Görsel eklenmemiş.</p></div>'}
             </div>
         </div>
     `;
 
+    // Admin ise ve onay bekliyorsa butonları göster
     if (displayMode === 'admin' && complaint.pendingApproval) {
-        adminActions.innerHTML = `
+        adminActionsContainer.innerHTML = `
             <button class="btn modern-btn-success btn-sm approve-btn" data-id="${complaint.id}"> <i class="fas fa-check me-1"></i> Onayla </button>
             <button class="btn modern-btn-danger btn-sm reject-btn ms-2" data-id="${complaint.id}"> <i class="fas fa-times me-1"></i> Reddet (Sil) </button>
         `;
-        adminActions.style.display = 'flex';
+        adminActionsContainer.style.display = 'flex'; // Görünür yap
     }
 
-    setupDetailModalEventListeners(complaint, currentUserId);
+    // Yorum ekleme/yanıtlama olay dinleyicilerini ayarla
+    if (!complaint.pendingApproval) {
+         setupDetailModalEventListeners(complaint, currentUserId);
+    }
 }
 
+
 /**
- * Yorumlar ve yanıtlar için HTML yapısını oluşturur.
- * @param {Array} comments Yorumlar dizisi.
+ * Yorumlar ve yanıtlar için HTML yapısını oluşturur (iç içe).
+ * @param {Array} comments Yorumlar dizisi (Date objeleri ile).
  * @param {string} currentUserId Mevcut kullanıcı ID'si.
  * @param {boolean} isPending Şikayetin onay durumu.
  * @param {number} complaintId Şikayet ID'si.
- * @param {number} depth Yanıt derinliği.
+ * @param {number} depth Yanıt derinliği (iç içe görünüm için).
  * @returns {string} Oluşturulan HTML string'i.
  */
 function generateCommentsHtml(comments, currentUserId, isPending, complaintId, depth = 0) {
     if (!comments || comments.length === 0) return '';
-    const marginLeft = depth * 15;
+
+    const marginLeft = depth * 20; // Yanıtlar için girinti
+
     return `<div class="comment-thread" style="margin-left: ${marginLeft}px;">` +
-        [...comments].sort((a, b) => new Date(a.date) - new Date(b.date))
-        .map(comment => {
-            const isOwnComment = comment.userId === currentUserId;
-            const userDisplay = comment.userId === 'admin' ? '<span class="badge bg-info me-1">Admin</span>' : (isOwnComment ? '<span class="text-primary fw-bold">Siz</span>' : `<span class="text-muted">Kullanıcı ...${comment.userId?.slice(-4) || '????'}</span>`);
-            return `
-                <div class="comment mb-2 border-start border-2 ps-2" data-comment-id="${comment.id}">
-                    <p class="mb-1 small">${sanitizeHTML(comment.text)}</p>
-                    <div class="comment-meta d-flex justify-content-between align-items-center">
-                        <span class="small">${userDisplay} - ${formatDate(comment.date)}</span>
-                        ${!isPending && depth < 3 ? `
-                        <button class="btn btn-link btn-sm reply-btn p-0" data-comment-id="${comment.id}" data-complaint-id="${complaintId}" title="Yanıtla"> <i class="fas fa-reply"></i> </button>` : ''}
-                    </div>
-                    ${comment.replies?.length > 0 ? generateCommentsHtml(comment.replies, currentUserId, isPending, complaintId, depth + 1) : ''}
-                </div>`;
-        }).join('') + '</div>';
+        [...comments] // Orijinal diziyi değiştirmemek için kopyala
+            .sort((a, b) => a.date - b.date) // Eskiden yeniye sırala
+            .map(comment => {
+                const isOwnComment = comment.userId === currentUserId;
+                const isAdminComment = comment.userId === 'admin'; // 'admin' özel kullanıcı adı
+                let userDisplay = '';
+                if (isAdminComment) {
+                    userDisplay = '<span class="badge bg-info me-1">Admin</span>';
+                } else if (isOwnComment) {
+                    userDisplay = '<span class="text-primary fw-bold">Siz</span>';
+                } else {
+                    // Kullanıcı ID'sinin sadece bir kısmını göster (gizlilik)
+                    userDisplay = `<span class="text-muted">Kullanıcı ...${String(comment.userId || '????').slice(-4)}</span>`;
+                }
+                const formattedCommentDate = formatDate(comment.date); // utils.js'den formatla
+
+                // Yanıtlar için HTML'i oluştur (recursive)
+                const repliesHtml = (comment.replies && comment.replies.length > 0)
+                    ? generateCommentsHtml(comment.replies, currentUserId, isPending, complaintId, depth + 1)
+                    : '';
+
+                return `
+                    <div class="comment mb-2 pb-2 ${depth > 0 ? 'border-start border-2 ps-2' : ''}" data-comment-id="${comment.id}">
+                        <p class="mb-1 small">${sanitizeHTMLUtil(comment.text)}</p>
+                        <div class="comment-meta d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">${userDisplay} - ${formattedCommentDate}</span>
+                            ${!isPending && depth < 3 ? `<button class="btn btn-link btn-sm reply-btn p-0" data-comment-id="${comment.id}" data-complaint-id="${complaintId}" title="Yanıtla">
+                                <i class="fas fa-reply"></i>
+                            </button>` : ''}
+                        </div>
+                        ${repliesHtml} </div>`;
+            }).join('') +
+        '</div>';
 }
 
 
 /**
- * Şikayet Detayı modalı içindeki olay dinleyicilerini ayarlar.
- * @param {object} complaint İlgili şikayet objesi.
+ * Şikayet Detayı modalı içindeki olay dinleyicilerini (yorum ekleme, yanıtlama) ayarlar.
+ * @param {object} complaint İlgili şikayet objesi (Date objeleri ile).
  * @param {string} currentUserId Mevcut kullanıcı ID'si.
  */
 function setupDetailModalEventListeners(complaint, currentUserId) {
     const detailBody = document.getElementById('complaintDetailBody');
-    if (!detailBody) return;
+    if (!detailBody || complaint.pendingApproval) return; // Onaylanmamışsa veya body yoksa çık
 
     const submitCommentBtn = detailBody.querySelector('#submitCommentBtn');
     const newCommentText = detailBody.querySelector('#newCommentText');
@@ -399,85 +556,109 @@ function setupDetailModalEventListeners(complaint, currentUserId) {
 
     // Yardımcı fonksiyon: Olay dinleyiciyi temizleyip yeniden ekler
     const cleanAndAddListener = (element, event, handler) => {
-        if (!element) return;
-        const newElement = element.cloneNode(true); // Klonla
-        element.parentNode.replaceChild(newElement, element); // Eskisini yenisiyle değiştir
-        newElement.addEventListener(event, handler); // Yeni elemente dinleyici ekle
-        return newElement; // Yeni elementi döndür
+        if (!element) return null;
+        const newElement = element.cloneNode(true);
+        element.parentNode?.replaceChild(newElement, element);
+        newElement.addEventListener(event, handler);
+        return newElement; // Yeni elementi döndür ki referans güncellensin
     };
 
-    // Yorum Gönderme Butonu
+    // --- Yeni Yorum Ekleme ---
     if (newCommentText) {
-         const currentSubmitBtn = cleanAndAddListener(submitCommentBtn, 'click', async () => {
-             const commentText = newCommentText.value.trim();
-             const complaintId = parseInt(currentSubmitBtn.dataset.complaintId);
-             if (!commentText) { /*...*/ return; }
-             if (isNaN(complaintId)) { /*...*/ return; }
-             try {
-                 const dataModule = await import('./data.js');
-                 if (dataModule.addCommentToComplaint(complaintId, sanitizeHTML(commentText), currentUserId)) {
-                     showToast('Yorumunuz eklendi.', 'Başarılı', 'success');
-                     const updatedComplaint = dataModule.getComplaints().find(c => c.id === complaintId);
-                     if (commentsContainer && updatedComplaint) {
-                          commentsContainer.innerHTML = generateCommentsHtml(updatedComplaint.comments || [], currentUserId, updatedComplaint.pendingApproval, complaintId);
-                          setupDetailModalEventListeners(updatedComplaint, currentUserId); // Yeni reply butonları için
-                     }
-                     newCommentText.value = '';
-                     autoResizeTextarea(newCommentText);
-                     if(replyFormContainer) replyFormContainer.style.display = 'none';
-                 } else { showToast('Yorum eklenirken bir hata oluştu.', 'Hata', 'error'); }
-             } catch(error) { console.error("Yorum ekleme hatası:", error); showToast('Yorum eklenirken bir hata oluştu.', 'Hata', 'error'); }
-         });
-         newCommentText.removeEventListener('input', autoResizeTextarea);
-         newCommentText.addEventListener('input', () => autoResizeTextarea(newCommentText));
-     }
+        const currentSubmitBtn = cleanAndAddListener(submitCommentBtn, 'click', () => {
+            const commentText = newCommentText.value.trim();
+            const complaintId = parseInt(currentSubmitBtn?.dataset.complaintId); // Butondan ID al
+            if (!commentText) { showToast('Lütfen yorumunuzu yazın.', 'Uyarı', 'warning'); return; }
+            if (isNaN(complaintId)) { showToast('Şikayet ID bulunamadı.', 'Hata', 'error'); return; }
 
-    // Yanıtla Butonları
+            // data.js'den yorum ekleme fonksiyonunu çağır
+            if (addCommentToComplaint(complaintId, commentText, currentUserId)) {
+                showToast('Yorumunuz eklendi.', 'Başarılı', 'success');
+                // UI'ı güncelle: Yorum listesini yeniden render et
+                const updatedComplaint = getComplaints().find(c => c.id === complaintId); // Güncel veriyi al
+                if (commentsContainer && updatedComplaint) {
+                    commentsContainer.innerHTML = generateCommentsHtml(updatedComplaint.comments || [], currentUserId, updatedComplaint.pendingApproval, complaintId);
+                    // Yeni eklenen yorumlar için de olay dinleyicilerini tekrar ayarla
+                    setupDetailModalEventListeners(updatedComplaint, currentUserId);
+                }
+                newCommentText.value = ''; // Textarea'yı temizle
+                autoResizeTextarea(newCommentText); // Boyutu sıfırla
+                if (replyFormContainer) replyFormContainer.style.display = 'none'; // Yanıt formunu gizle
+            } else {
+                showToast('Yorum eklenirken bir hata oluştu.', 'Hata', 'error');
+            }
+        });
+        // Textarea için otomatik boyutlandırmayı ayarla
+        newCommentText.removeEventListener('input', () => autoResizeTextarea(newCommentText)); // Önce varsa kaldır
+        newCommentText.addEventListener('input', () => autoResizeTextarea(newCommentText));
+    }
+
+    // --- Yanıtlama İşlemleri ---
     detailBody.querySelectorAll('.reply-btn').forEach(btn => {
         cleanAndAddListener(btn, 'click', (e) => {
             e.preventDefault();
-            const commentId = parseInt(btn.dataset.commentId);
+            const parentCommentId = parseInt(btn.dataset.commentId);
             const complaintId = parseInt(btn.dataset.complaintId);
 
-            if (replyFormContainer && replyingTo && replyCommentText && submitReplyBtn && cancelReplyBtn) {
-                const findComment = (comments, id) => {
-                     if (!comments) return null;
-                     for (const c of comments) {
-                         if (c.id === id) return c;
-                         if (c.replies) { const found = findComment(c.replies, id); if (found) return found; }
-                     } return null;
-                 };
-                const parentComment = findComment(complaint.comments || [], commentId);
-                if (!parentComment) { showToast('Yanıtlanacak yorum bulunamadı.', 'Hata', 'error'); return; }
-
-                replyingTo.textContent = `Yanıtlanan: "${parentComment.text.substring(0, 20)}..."`;
-                replyFormContainer.style.display = 'block';
-                replyCommentText.value = '';
-                replyCommentText.focus();
-
-                 const currentSubmitReplyBtn = cleanAndAddListener(submitReplyBtn, 'click', async () => {
-                     const replyText = replyCommentText.value.trim();
-                     if (!replyText) { showToast('Lütfen yanıtınızı yazın.', 'Uyarı', 'warning'); return; }
-                     try {
-                         const dataModule = await import('./data.js');
-                         if (dataModule.addCommentToComplaint(complaintId, sanitizeHTML(replyText), currentUserId, commentId)) {
-                            showToast('Yanıtınız eklendi.', 'Başarılı', 'success');
-                            const updatedComplaint = dataModule.getComplaints().find(c => c.id === complaintId);
-                            if (commentsContainer && updatedComplaint) {
-                                 commentsContainer.innerHTML = generateCommentsHtml(updatedComplaint.comments || [], currentUserId, updatedComplaint.pendingApproval, complaintId);
-                                 setupDetailModalEventListeners(updatedComplaint, currentUserId);
-                            }
-                            replyFormContainer.style.display = 'none';
-                         } else { showToast('Yanıt eklenirken bir hata oluştu.', 'Hata', 'error'); }
-                     } catch (error) { console.error("Yanıt ekleme hatası:", error); showToast('Yanıt eklenirken bir hata oluştu.', 'Hata', 'error'); }
-                 });
-
-                if(cancelReplyBtn) { cancelReplyBtn.onclick = () => { replyFormContainer.style.display = 'none'; replyCommentText.value = ''; }; }
-                if(replyCommentText) { replyCommentText.removeEventListener('input', autoResizeTextarea); replyCommentText.addEventListener('input', () => autoResizeTextarea(replyCommentText)); }
+            if (isNaN(parentCommentId) || isNaN(complaintId) || !replyFormContainer || !replyingTo || !replyCommentText || !submitReplyBtn || !cancelReplyBtn) {
+                console.error("Yanıt form elementleri eksik veya ID'ler geçersiz.");
+                return;
             }
+
+            // Yanıtlanacak yorumu bul (iç içe arama)
+            const findComment = (comments, id) => {
+                 if (!comments) return null;
+                 for (const c of comments) {
+                     if (c.id === id) return c;
+                     if (c.replies) { const found = findComment(c.replies, id); if (found) return found; }
+                 } return null;
+             };
+            const parentComment = findComment(complaint.comments || [], parentCommentId);
+            if (!parentComment) { showToast('Yanıtlanacak yorum bulunamadı.', 'Hata', 'error'); return; }
+
+            // Yanıt formunu göster ve ayarla
+            replyingTo.textContent = `Yanıtlanan: "${sanitizeHTMLUtil(parentComment.text.substring(0, 30))}..."`;
+            replyFormContainer.style.display = 'block';
+            replyCommentText.value = '';
+            replyCommentText.focus();
+            autoResizeTextarea(replyCommentText); // Boyutu ayarla
+
+            // Yanıt Gönderme Butonu
+            const currentSubmitReplyBtn = cleanAndAddListener(submitReplyBtn, 'click', () => {
+                const replyText = replyCommentText.value.trim();
+                if (!replyText) { showToast('Lütfen yanıtınızı yazın.', 'Uyarı', 'warning'); return; }
+
+                // data.js'den yanıt ekleme fonksiyonunu çağır (parentCommentId ile)
+                if (addCommentToComplaint(complaintId, replyText, currentUserId, parentCommentId)) {
+                    showToast('Yanıtınız eklendi.', 'Başarılı', 'success');
+                    // UI'ı güncelle
+                    const updatedComplaint = getComplaints().find(c => c.id === complaintId);
+                    if (commentsContainer && updatedComplaint) {
+                        commentsContainer.innerHTML = generateCommentsHtml(updatedComplaint.comments || [], currentUserId, updatedComplaint.pendingApproval, complaintId);
+                        setupDetailModalEventListeners(updatedComplaint, currentUserId); // Tekrar ayarla
+                    }
+                    replyFormContainer.style.display = 'none'; // Formu gizle
+                } else {
+                    showToast('Yanıt eklenirken bir hata oluştu.', 'Hata', 'error');
+                }
+            });
+
+            // İptal Butonu
+            if(cancelReplyBtn) {
+                const currentCancelBtn = cleanAndAddListener(cancelReplyBtn, 'click', () => {
+                    replyFormContainer.style.display = 'none';
+                    replyCommentText.value = '';
+                });
+            }
+            // Yanıt Textarea Boyutlandırma
+             if(replyCommentText) {
+                 replyCommentText.removeEventListener('input', () => autoResizeTextarea(replyCommentText));
+                 replyCommentText.addEventListener('input', () => autoResizeTextarea(replyCommentText));
+             }
         });
     });
 }
+
 
 /**
  * Popüler markaları hesaplar ve Explore bölümünde listeler.
@@ -485,25 +666,36 @@ function setupDetailModalEventListeners(complaint, currentUserId) {
 export function displayPopularBrands(count = 5) {
     const popularBrandsListElement = document.getElementById('popularBrandsListExplore');
     if (!popularBrandsListElement) {
-         console.warn("Popüler markalar listesi elementi (#popularBrandsListExplore) bulunamadı!");
-         return;
+        console.warn("Popüler markalar listesi elementi (#popularBrandsListExplore) bulunamadı!");
+        return;
     }
     try {
-        const brandCounts = getComplaints().filter(c => !c.pendingApproval && c.brand?.trim())
-                                         .reduce((acc, { brand }) => {
-                                             const cleanBrand = capitalizeFirstLetter(brand.trim());
-                                             acc[cleanBrand] = (acc[cleanBrand] || 0) + 1;
-                                             return acc;
-                                         }, {});
-        const sortedBrands = Object.entries(brandCounts).sort(([, a], [, b]) => b - a).slice(0, count);
+        // Onaylanmış ve marka adı olan şikayetleri al
+        const brandCounts = getComplaints()
+            .filter(c => !c.pendingApproval && c.brand?.trim())
+            .reduce((acc, { brand }) => {
+                const cleanBrand = capitalizeFirstLetter(brand.trim()); // Marka adını düzelt
+                acc[cleanBrand] = (acc[cleanBrand] || 0) + 1;
+                return acc;
+            }, {});
+
+        // Sayıya göre sırala ve belirtilen adette al
+        const sortedBrands = Object.entries(brandCounts)
+            .sort(([, countA], [, countB]) => countB - countA) // Çoktan aza sırala
+            .slice(0, count);
+
+        // Listeyi oluştur
         popularBrandsListElement.innerHTML = sortedBrands.length === 0
             ? '<p class="text-center text-muted small p-2">Henüz popüler marka yok.</p>'
             : sortedBrands.map(([brandName, complaintCount]) => `
-                <a href="#" class="list-group-item list-group-item-action popular-brand-item" data-brand="${sanitizeHTML(brandName)}">
-                    <span>${sanitizeHTML(brandName)}</span>
-                    <span class="badge">${complaintCount}</span>
+                <a href="#" class="list-group-item list-group-item-action popular-brand-item d-flex justify-content-between align-items-center" data-brand="${sanitizeHTMLUtil(brandName)}">
+                    <span>${sanitizeHTMLUtil(brandName)}</span>
+                    <span class="badge bg-secondary rounded-pill">${complaintCount}</span>
                 </a>`).join('');
+
+        // Tıklama olaylarını ekle
         addEventListenersToPopularBrands(popularBrandsListElement);
+
     } catch (error) {
         console.error("Popüler markalar yüklenirken hata:", error);
         popularBrandsListElement.innerHTML = '<p class="text-center text-danger small p-2">Markalar yüklenirken hata oluştu.</p>';
@@ -515,41 +707,49 @@ export function displayPopularBrands(count = 5) {
  */
 function addEventListenersToPopularBrands(listElement) {
     if (!listElement) return;
-    const newElement = listElement.cloneNode(true); // Listener temizliği için klonla
-    listElement.parentNode.replaceChild(newElement, listElement);
-    newElement.addEventListener('click', (e) => {
-        e.preventDefault();
+    // Olay delegasyonu kullan
+    listElement.addEventListener('click', (e) => {
         const target = e.target.closest('.popular-brand-item');
         if (target?.dataset.brand) {
+            e.preventDefault(); // Linkin varsayılan davranışını engelle
             const brandName = target.dataset.brand;
             const searchInput = document.getElementById('searchInputExplore');
-            if (searchInput) {
-                searchInput.value = brandName;
-                updateComplaintList(getComplaints(), brandName, localStorage.getItem('currentUser'));
-                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const categorySelect = document.getElementById('categorySelectExplore');
+
+            if (searchInput && categorySelect) {
+                searchInput.value = brandName; // Arama kutusunu doldur
+                categorySelect.value = ""; // Kategori filtresini temizle
+                // Arama fonksiyonunu tetikle (ui.js içindeki)
+                updateComplaintList(getComplaints(), brandName, "", localStorage.getItem('currentUser'));
+                // Arama widget'ına scroll yap ve focusla
+                const searchWidget = searchInput.closest('.widget-card');
+                searchWidget?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 searchInput.focus();
             }
         }
     });
 }
 
+
 /**
  * Belirli bir markanın istatistiklerini Explore bölümündeki widget'ta gösterir.
  */
 export function displayBrandStats(brandName) {
-    const contentContainer = document.getElementById('featuredComplaintsContent'); // İçeriğin gösterileceği alan
-    const chartContainer = document.getElementById('brandStatsCharts'); // Grafiklerin parent'ı
-    const statsBrandName = document.getElementById('statsBrandName');
+    const contentContainer = document.getElementById('featuredComplaintsContent');
+    const chartContainer = document.getElementById('brandStatsCharts');
+    const statsBrandNameEl = document.getElementById('statsBrandName'); // Element adı düzeltildi
     const sentimentChartCanvas = document.getElementById('brandSentimentChart');
     const categoryChartCanvas = document.getElementById('brandCategoryChart');
+    const statsInfoEl = document.getElementById('brandStatsInfo'); // Element adı düzeltildi
     const widgetTitle = document.querySelector('#explore .featured-complaints-widget .widget-title');
 
-    if (!contentContainer || !chartContainer || !statsBrandName || !sentimentChartCanvas || !categoryChartCanvas || !widgetTitle) {
+    if (!contentContainer || !chartContainer || !statsBrandNameEl || !sentimentChartCanvas || !categoryChartCanvas || !statsInfoEl || !widgetTitle) {
          console.warn("Marka istatistik widget elementleri bulunamadı!");
          return;
     }
 
     const lowerCaseBrandName = brandName.toLowerCase().trim();
+    // Onaylanmış şikayetleri filtrele
     const brandComplaints = getComplaints().filter(c => !c.pendingApproval && c.brand?.toLowerCase().trim() === lowerCaseBrandName);
 
     if (brandComplaints.length === 0) {
@@ -557,38 +757,91 @@ export function displayBrandStats(brandName) {
         return;
     }
 
+    // Widget başlığını ve görünürlüğü ayarla
     widgetTitle.innerHTML = `<i class="fas fa-chart-pie me-2 text-info"></i> ${capitalizeFirstLetter(brandName)} İstatistikleri`;
     contentContainer.innerHTML = ''; // Öne çıkanları temizle
     chartContainer.style.display = 'block';
-    document.getElementById('brandStatsInfo').style.display = 'none'; // Bilgi yazısını gizle
-    statsBrandName.textContent = capitalizeFirstLetter(brandName);
+    statsInfoEl.style.display = 'none'; // Bilgi yazısını gizle
+    statsBrandNameEl.textContent = capitalizeFirstLetter(brandName);
 
-    // Grafik hesaplama ve çizdirme
-    if (brandChart) brandChart.destroy();
+    // Mevcut grafikleri yok et
+    if (brandSentimentChart) brandSentimentChart.destroy();
     if (brandCategoryChart) brandCategoryChart.destroy();
 
+    // --- Veri Hesaplama ---
     let good = 0, average = 0, bad = 0, unrated = 0;
     const categoryCounts = {};
     brandComplaints.forEach(c => {
-        if (c.ratings && Object.keys(c.ratings).length > 0) {
-            const rArr = Object.values(c.ratings).map(Number).filter(r => !isNaN(r) && r >= 1 && r <= 5);
-            if (rArr.length > 0) { const avg = rArr.reduce((s, v) => s + v, 0) / rArr.length; if (avg >= 4.0) good++; else if (avg >= 2.5) average++; else bad++; } else { unrated++; }
-        } else { unrated++; }
-        if (c.category?.trim()) { const cat = capitalizeFirstLetter(c.category.trim()); categoryCounts[cat] = (categoryCounts[cat] || 0) + 1; }
+        // Duygu Analizi (Ortalama Puana Göre)
+        const avgRating = calculateAverageRatingUtil(c.ratings);
+        if (avgRating > 0) {
+            if (avgRating >= 4.0) good++;
+            else if (avgRating >= 2.5) average++;
+            else bad++;
+        } else {
+            unrated++;
+        }
+        // Kategori Sayımı
+        if (c.category?.trim()) {
+            const cat = capitalizeFirstLetter(c.category.trim());
+            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        }
     });
 
-    brandChart = new Chart(sentimentChartCanvas, {
-        type: 'doughnut', data: { labels: [`İyi (${good})`, `Orta (${average})`, `Kötü (${bad})`, `Puansız (${unrated})`], datasets: [{ data: [good, average, bad, unrated], backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#6c757d'], borderColor: '#fff', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw}` } } }, cutout: '60%' } });
+    // --- Grafik Çizdirme ---
+    // Duygu Analizi Grafiği (Doughnut)
+    brandSentimentChart = new Chart(sentimentChartCanvas, {
+        type: 'doughnut',
+        data: {
+            labels: [`İyi (${good})`, `Orta (${average})`, `Kötü (${bad})`, `Puansız (${unrated})`],
+            datasets: [{
+                data: [good, average, bad, unrated].filter(v => v > 0), // Sadece 0'dan büyük değerleri al
+                 backgroundColor: ['#198754', '#ffc107', '#dc3545', '#6c757d'].filter((_, i) => [good, average, bad, unrated][i] > 0), // Renkleri de filtrele
+                borderColor: getComputedStyle(document.body).getPropertyValue('--card-bg') || '#ffffff', // Tema uyumlu kenarlık
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false, cutout: '60%',
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}` } } } // Tooltip'te sadece etiket
+        }
+    });
 
-    const categoryLabels = Object.keys(categoryCounts); const categoryData = Object.values(categoryCounts);
+    // Kategori Dağılımı Grafiği (Pie)
+    const categoryLabels = Object.keys(categoryCounts);
+    const categoryData = Object.values(categoryCounts);
     const categoryChartContainer = categoryChartCanvas.closest('.chart-container');
-    const existingMsg = categoryChartContainer?.querySelector('.no-category-data'); if(existingMsg) existingMsg.remove();
+    const existingMsg = categoryChartContainer?.querySelector('.no-category-data');
+    if (existingMsg) existingMsg.remove(); // Eski mesajı kaldır
+
     if (categoryLabels.length > 0) {
         categoryChartCanvas.style.display = 'block';
-        brandCategoryChart = new Chart(categoryChartCanvas, { type: 'pie', data: { labels: categoryLabels.map(cat => `${cat} (${categoryCounts[cat]})`), datasets: [{ data: categoryData, backgroundColor: getDistinctColors(categoryLabels.length), borderColor: '#fff', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 15 } }, tooltip: { callbacks: { label: c => ` ${c.label.split('(')[0].trim()}: ${c.raw}` } } } } });
+        brandCategoryChart = new Chart(categoryChartCanvas, {
+            type: 'pie',
+            data: {
+                labels: categoryLabels, //.map(cat => `${cat} (${categoryCounts[cat]})`), // Etikete sayıyı ekleme
+                datasets: [{
+                    data: categoryData,
+                    backgroundColor: getDistinctColors(categoryLabels.length),
+                    borderColor: getComputedStyle(document.body).getPropertyValue('--card-bg') || '#ffffff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: categoryLabels.length <= 6, position: 'bottom', labels: { font: { size: 10 }, boxWidth: 15 } }, // Az kategori varsa göster
+                    tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw}` } }
+                }
+            }
+        });
     } else {
+        // Kategori verisi yoksa mesaj göster
         categoryChartCanvas.style.display = 'none';
-        const p = document.createElement('p'); p.className = 'text-muted small text-center mt-2 no-category-data'; p.textContent = 'Kategori verisi yok.'; categoryChartContainer?.appendChild(p);
+        const p = document.createElement('p');
+        p.className = 'text-muted small text-center mt-2 no-category-data';
+        p.textContent = 'Bu marka için kategori verisi bulunamadı.';
+        categoryChartContainer?.appendChild(p);
     }
 }
 
@@ -598,19 +851,20 @@ export function displayBrandStats(brandName) {
 function hideBrandStats() {
     const contentContainer = document.getElementById('featuredComplaintsContent');
     const chartContainer = document.getElementById('brandStatsCharts');
-    const statsInfo = document.getElementById('brandStatsInfo');
+    const statsInfoEl = document.getElementById('brandStatsInfo');
     const widgetTitle = document.querySelector('#explore .featured-complaints-widget .widget-title');
 
     if(widgetTitle) widgetTitle.innerHTML = `<i class="fas fa-star me-2 text-warning"></i> Öne Çıkan Şikayetler`;
     if(chartContainer) chartContainer.style.display = 'none';
-    if(statsInfo) statsInfo.style.display = 'none'; // Başlangıçta bilgi yazısını da gizle
+    if(statsInfoEl) statsInfoEl.style.display = 'block'; // Bilgi yazısını tekrar göster
 
+    // Grafikleri yok et
     try {
-        if (brandChart) { brandChart.destroy(); brandChart = null; }
+        if (brandSentimentChart) { brandSentimentChart.destroy(); brandSentimentChart = null; }
         if (brandCategoryChart) { brandCategoryChart.destroy(); brandCategoryChart = null; }
     } catch (e) { console.warn("Grafik silme hatası:", e); }
 
-    // Varsayılan olarak öne çıkan şikayetleri göster
+    // Öne çıkan şikayetleri tekrar yükle
     displayFeaturedComplaints('featuredComplaintsContent', FEATURED_COMPLAINT_COUNT);
 }
 
@@ -619,82 +873,40 @@ function hideBrandStats() {
  */
 function displayFeaturedComplaints(containerId, count) {
     const container = document.getElementById(containerId);
-    if (!container) { console.warn(`Featured complaints container (#${containerId}) not found.`); return; }
+    if (!container) { console.warn(`Öne çıkan şikayetler konteyneri (#${containerId}) bulunamadı.`); return; }
 
     try {
-        const complaints = getComplaints().filter(c => !c.pendingApproval);
-        if (complaints.length === 0) { container.innerHTML = '<p class="text-center text-muted small p-2">Gösterilecek şikayet yok.</p>'; return; }
+        const complaints = getComplaints().filter(c => !c.pendingApproval); // Onaylanmışları al
+        if (complaints.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted small p-2">Gösterilecek şikayet yok.</p>';
+            return;
+        }
 
+        // Etkileşime göre sırala (like + dislike + yorum)
         const sortedComplaints = complaints.sort((a, b) => {
-            const interactionsA = (a.likes ? Object.keys(a.likes).length : 0) + (a.dislikes ? Object.keys(a.dislikes).length : 0) + (a.comments ? a.comments.length : 0);
-            const interactionsB = (b.likes ? Object.keys(b.likes).length : 0) + (b.dislikes ? Object.keys(b.dislikes).length : 0) + (b.comments ? b.comments.length : 0);
-            return interactionsB - interactionsA; // Çoktan aza
-        }).slice(0, count);
+            const interactionsA = (Object.keys(a.likes || {}).length) + (Object.keys(a.dislikes || {}).length) + (a.comments ? a.comments.length : 0);
+            const interactionsB = (Object.keys(b.likes || {}).length) + (Object.keys(b.dislikes || {}).length) + (b.comments ? b.comments.length : 0);
+            // En çok etkileşim alanlar + en yeni olanlar öncelikli
+            if (interactionsB !== interactionsA) {
+                return interactionsB - interactionsA;
+            } else {
+                return b.date - a.date; // Eşitse yeni olan üste gelsin
+            }
+        }).slice(0, count); // Belirtilen sayıda al
 
-        if (sortedComplaints.length === 0) { container.innerHTML = '<p class="text-center text-muted small p-2">Öne çıkan şikayet bulunamadı.</p>'; return; }
+        if (sortedComplaints.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted small p-2">Öne çıkan şikayet bulunamadı.</p>';
+            return;
+        }
 
-        container.innerHTML = sortedComplaints.map(createFeaturedComplaintCard).join('');
-        addEventListenersToComplaintCards(container, localStorage.getItem('currentUser')); // Tıklama olayı ekle
+        // Listeyi oluştur ve olay dinleyicilerini ekle
+        container.innerHTML = `<div class="list-group list-group-flush">${sortedComplaints.map(createFeaturedComplaintCard).join('')}</div>`;
+        addEventListenersToComplaintCards(container.querySelector('.list-group'), localStorage.getItem('currentUser')); // Tıklama olayı ekle
 
     } catch (error) {
         console.error("Öne çıkan şikayetler yüklenirken hata:", error);
         container.innerHTML = '<p class="text-center text-danger small p-2">Şikayetler yüklenirken hata oluştu.</p>';
     }
-}
-
-
-/**
- * Popüler markalar, arama ve filtreleme buton olaylarını ayarlar (Yeni Explore yapısı için).
- */
-export function setupBrandAndFilterButtonEvents() {
-    const popularBrandsListExplore = document.getElementById('popularBrandsListExplore'); // Bu zaten displayPopularBrands içinde handle ediliyor
-    const searchInputExplore = document.getElementById('searchInputExplore');
-    const searchButtonExplore = document.getElementById('searchButtonExplore');
-    // const suggestionDropdown = document.getElementById('suggestionDropdown'); // Öneri DOM'da yok, eklenirse seçilir
-
-    // Arama Butonu Tıklama
-    if (searchButtonExplore && searchInputExplore) {
-         const newBtn = searchButtonExplore.cloneNode(true);
-         searchButtonExplore.parentNode.replaceChild(newBtn, searchButtonExplore);
-        newBtn.addEventListener('click', () => {
-            const searchTerm = searchInputExplore.value.trim();
-            updateComplaintList(getComplaints(), searchTerm, localStorage.getItem('currentUser'));
-        });
-
-        // Enter ile Arama
-        const newInput = searchInputExplore.cloneNode(true);
-        searchInputExplore.parentNode.replaceChild(newInput, searchInputExplore);
-        newInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const searchTerm = newInput.value.trim();
-                updateComplaintList(getComplaints(), searchTerm, localStorage.getItem('currentUser'));
-            }
-        });
-    }
-}
-
-/**
- * Arama terimine göre şikayet/marka önerileri getirir.
- */
-function getComplaintSuggestions(filterTerm) {
-    const lowerCaseFilter = filterTerm.toLowerCase().trim();
-    if (lowerCaseFilter.length < 2) return [];
-    const approvedComplaints = getComplaints().filter(c => !c.pendingApproval);
-    const suggestions = []; const addedBrands = new Set(); const addedTitles = new Set();
-    approvedComplaints.forEach(c => { if (suggestions.length >= MAX_SUGGESTIONS) return; const brandLower = c.brand?.toLowerCase().trim(); if (brandLower && brandLower.includes(lowerCaseFilter) && !addedBrands.has(brandLower)) { suggestions.push({ type: 'brand', text: c.brand.trim() }); addedBrands.add(brandLower); } });
-    approvedComplaints.forEach(c => { if (suggestions.length >= MAX_SUGGESTIONS) return; const titleLower = c.title?.toLowerCase().trim(); if (titleLower && titleLower.includes(lowerCaseFilter) && !addedTitles.has(titleLower)) { const shortTitle = c.title.trim().length > 50 ? c.title.trim().substring(0, 47) + '...' : c.title.trim(); suggestions.push({ type: 'title', text: shortTitle, brand: c.brand?.trim() || '' }); addedTitles.add(titleLower); } });
-    return suggestions;
-}
-
-/**
- * Önerileri dropdown içinde gösterir.
- */
-function displaySuggestions(suggestions, dropdown, searchInput) {
-    if (!dropdown || !searchInput) return;
-    if (suggestions.length === 0) { dropdown.style.display = 'none'; return; }
-    dropdown.innerHTML = suggestions.map(suggestion => { const icon = suggestion.type === 'brand' ? 'fa-tag' : 'fa-file-alt'; const displayText = suggestion.type === 'brand' ? `<strong>${sanitizeHTML(suggestion.text)}</strong> <small class='text-muted'>(Marka)</small>` : `${sanitizeHTML(suggestion.text)} ${suggestion.brand ? `<small class='text-muted'>(${sanitizeHTML(suggestion.brand)})</small>` : ''}`; const dataAttribute = `data-search="${sanitizeHTML(suggestion.type === 'brand' ? suggestion.text : suggestion.text)}"`; return `<a href="#" class="dropdown-item complaint-suggestion" ${dataAttribute}><i class="fas ${icon} me-2 text-muted fa-fw"></i> ${displayText}</a>`; }).join('');
-    dropdown.style.display = 'block';
 }
 
 /**
@@ -705,14 +917,50 @@ export function previewImage(event, callback) {
     const file = fileInput?.files?.[0];
     const imagePreview = document.getElementById('imagePreview');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-    const resetPreview = () => { if (imagePreview && imagePreviewContainer) { imagePreview.src = '#'; imagePreviewContainer.style.display = 'none'; } if(fileInput) fileInput.value = ''; callback?.(null); };
-    if (!imagePreview || !imagePreviewContainer) return resetPreview(); if (!file) return resetPreview();
-    if (!file.type.startsWith('image/')) { showToast('Lütfen geçerli bir resim dosyası seçin.', 'Hata', 'warning'); return resetPreview(); }
-    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) { showToast(`Maksimum ${MAX_FILE_SIZE_MB}MB.`, 'Hata', 'warning'); return resetPreview(); }
+    const previewButton = document.getElementById('previewComplaintBtn'); // Önizle butonu
+
+    const resetPreview = () => {
+        if (imagePreview && imagePreviewContainer) {
+            imagePreview.src = '#';
+            imagePreviewContainer.style.display = 'none';
+        }
+        if(fileInput) fileInput.value = ''; // Dosya seçimini temizle
+        if(previewButton) previewButton.disabled = true; // Önizle butonunu pasif yap
+        callback?.(null); // Callback'e null gönder
+    };
+
+    if (!imagePreview || !imagePreviewContainer || !previewButton) return resetPreview();
+    if (!file) return resetPreview(); // Dosya seçilmediyse sıfırla
+
+    // Dosya tipi kontrolü
+    if (!file.type.startsWith('image/')) {
+        showToast('Lütfen geçerli bir resim dosyası seçin (örn: JPG, PNG, GIF).', 'Geçersiz Dosya Tipi', 'warning');
+        return resetPreview();
+    }
+
+    // Dosya boyutu kontrolü
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+        showToast(`Dosya boyutu çok büyük. Maksimum ${MAX_FILE_SIZE_MB}MB olmalıdır.`, 'Dosya Boyutu Aşıldı', 'warning');
+        return resetPreview();
+    }
+
+    // FileReader ile resmi oku
     const reader = new FileReader();
-    reader.onload = (e) => { imagePreview.src = e.target.result; imagePreviewContainer.style.display = 'block'; callback?.(e.target.result); };
-    reader.onerror = () => { showToast('Resim okuma hatası.', 'Hata', 'error'); resetPreview(); };
-    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+        if (e.target?.result) {
+            imagePreview.src = e.target.result;
+            imagePreviewContainer.style.display = 'block';
+            previewButton.disabled = false; // Resim varsa önizle butonu aktif
+            callback?.(e.target.result); // Base64 veriyi callback ile döndür
+        } else {
+             resetPreview();
+        }
+    };
+    reader.onerror = () => {
+        showToast('Resim okunurken bir hata oluştu.', 'Hata', 'error');
+        resetPreview();
+    };
+    reader.readAsDataURL(file); // Resmi Base64 olarak oku
 }
 
 /**
@@ -723,133 +971,307 @@ export function clearComplaintForm() {
     const imagePreview = document.getElementById('imagePreview');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const fileInput = document.getElementById('complaintImage');
-    if (form) { form.reset(); form.classList.remove('was-validated'); form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid')); }
-    if (imagePreview && imagePreviewContainer) { imagePreview.src = '#'; imagePreviewContainer.style.display = 'none'; }
-    if (fileInput) { fileInput.value = ''; }
+    const previewButton = document.getElementById('previewComplaintBtn');
+
+    if (form) {
+        form.reset(); // Formu sıfırla
+        form.classList.remove('was-validated'); // Bootstrap validasyon stillerini kaldır
+        // Tüm 'is-invalid' sınıflarını temizle
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+         // Rating feedback'lerini gizle
+         form.querySelectorAll('.rating-row .invalid-feedback').forEach(el => el.style.display = 'none');
+    }
+    // Görsel önizlemesini sıfırla
+    if (imagePreview && imagePreviewContainer) {
+        imagePreview.src = '#';
+        imagePreviewContainer.style.display = 'none';
+    }
+    if (fileInput) {
+        fileInput.value = ''; // Dosya seçimini temizle
+    }
+     if(previewButton) {
+         previewButton.disabled = true; // Önizle butonunu pasif yap
+     }
 }
 
 /**
- * Fiyatlandırma planlarını ana sayfada gösterir ve toggle işlevselliğini ekler.
+ * Fiyatlandırma planlarını ana sayfada gösterir.
  */
 export function displayPricingPlans() {
     const pricingPlansContainer = document.getElementById('pricingPlans');
-    const monthlyToggle = document.querySelector('.billing-toggle[data-billing="monthly"]');
-    const yearlyToggle = document.querySelector('.billing-option[data-billing="yearly"]');
-
-    if (!pricingPlansContainer || !monthlyToggle || !yearlyToggle) {
-         console.error("Fiyatlandırma planı konteyneri (#pricingPlans) veya toggle butonları bulunamadı!");
-         if(pricingPlansContainer) pricingPlansContainer.innerHTML = '<p class="text-center text-danger">Fiyat planları yüklenemedi.</p>';
-         return;
+    if (!pricingPlansContainer) {
+        console.warn("Fiyatlandırma planı konteyneri (#pricingPlans) bulunamadı!");
+        return;
     }
 
+    // Fiyat verileri (aylık ve yıllık)
     const pricingData = {
-        monthly: [ { title: "Ücretsiz", price: "0₺", features: ["Sınırsız şikayet", "Temel arama", "Topluluk yorumları"], buttonText: "Başla", buttonClass: "modern-btn-primary", popular: false }, { title: "Premium", price: "29.99₺", features: ["Öncelikli yayınlama", "Gelişmiş istatistikler", "Markalarla iletişim", "Reklamsız deneyim"], buttonText: "Premium'a Geç", buttonClass: "modern-btn-success", popular: false }, { title: "Pro", price: "49.99₺", features: ["Premium+", "Detaylı marka analizi", "Özel destek", "API Erişimi (Yakında)"], buttonText: "Pro'ya Geç", buttonClass: "modern-btn-warning", popular: true } ],
-        yearly: [ { title: "Ücretsiz", price: "0₺", features: ["Sınırsız şikayet", "Temel arama", "Topluluk yorumları"], buttonText: "Başla", buttonClass: "modern-btn-primary", popular: false }, { title: "Premium", price: "287.90₺", features: ["Öncelikli yayınlama", "Gelişmiş istatistikler", "Markalarla iletişim", "Reklamsız deneyim"], buttonText: "Premium'a Geç", buttonClass: "modern-btn-success", popular: false }, { title: "Pro", price: "479.90₺", features: ["Premium+", "Detaylı marka analizi", "Özel destek", "API Erişimi (Yakında)"], buttonText: "Pro'ya Geç", buttonClass: "modern-btn-warning", popular: true } ]
+        monthly: [
+            { title: "Ücretsiz", price: "0₺", features: ["Sınırsız şikayet", "Temel arama", "Topluluk yorumları", "<span class='text-muted'>Gelişmiş istatistikler</span>", "<span class='text-muted'>Öncelikli yayınlama</span>"], buttonText: "Başla", buttonClass: "modern-btn-outline-primary", popular: false },
+            { title: "Premium", price: "29.99₺", features: ["<strong>Ücretsiz Plan +</strong>", "Öncelikli yayınlama", "Gelişmiş istatistikler", "Markalarla iletişim (Yakında)", "Reklamsız deneyim"], buttonText: "Premium'a Geç", buttonClass: "modern-btn-warning", popular: true }, // Popüler plan
+            { title: "Pro", price: "49.99₺", features: ["<strong>Premium Plan +</strong>", "Detaylı marka analizi", "Özel destek hattı", "API Erişimi (Yakında)", "Raporlama araçları (Yakında)"], buttonText: "Pro'ya Geç", buttonClass: "modern-btn-primary", popular: false }
+        ],
+        yearly: [
+            { title: "Ücretsiz", price: "0₺", features: ["Sınırsız şikayet", "Temel arama", "Topluluk yorumları", "<span class='text-muted'>Gelişmiş istatistikler</span>", "<span class='text-muted'>Öncelikli yayınlama</span>"], buttonText: "Başla", buttonClass: "modern-btn-outline-primary", popular: false },
+            { title: "Premium", price: "287.90₺", features: ["<strong>Ücretsiz Plan +</strong>", "Öncelikli yayınlama", "Gelişmiş istatistikler", "Markalarla iletişim (Yakında)", "Reklamsız deneyim"], buttonText: "Premium'a Geç", buttonClass: "modern-btn-warning", popular: true },
+            { title: "Pro", price: "479.90₺", features: ["<strong>Premium Plan +</strong>", "Detaylı marka analizi", "Özel destek hattı", "API Erişimi (Yakında)", "Raporlama araçları (Yakında)"], buttonText: "Pro'ya Geç", buttonClass: "modern-btn-primary", popular: false }
+        ]
     };
 
-     const renderPlans = (billingType) => {
-         const plans = pricingData[billingType];
-         pricingPlansContainer.innerHTML = plans.map(plan => `
-            <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
-                <div class="card h-100 shadow-sm ${plan.popular ? 'popular-plan border-warning' : ''} w-100">
-                    ${plan.popular ? '<div class="popular-badge bg-warning text-dark">Popüler</div>' : ''}
+    // Planları render eden fonksiyon
+    const renderPlans = (billingType) => {
+        const plans = pricingData[billingType];
+        pricingPlansContainer.innerHTML = plans.map(plan => `
+            <div class="col-lg-4 col-md-6 mb-4 d-flex"> <div class="card flex-fill ${plan.popular ? 'popular-plan' : ''}"> ${plan.popular ? '<div class="popular-badge">Popüler</div>' : ''}
                     <div class="card-body text-center d-flex flex-column">
-                         <h5 class="card-title">${plan.title}</h5>
-                         <h6 class="card-subtitle display-6 fw-light mb-3">${plan.price}<span class="small text-muted">/${billingType === 'monthly' ? 'ay' : 'yıl'}</span></h6>
-                         <ul class="list-group list-group-flush mb-4 text-start small flex-grow-1">
-                             ${plan.features.map(feature => `<li class="list-group-item border-0 px-0"><i class="fas fa-check text-success me-2"></i> ${feature}</li>`).join('')}
-                         </ul>
-                         <button class="btn ${plan.buttonClass} mt-auto">${plan.buttonText}</button>
-                     </div>
-                 </div>
-             </div>`).join('');
-         document.querySelectorAll('.popular-plan .popular-badge').forEach(badge => { badge.style.borderColor = 'var(--warning)'; });
+                        <h5 class="card-title">${plan.title}</h5>
+                        <h6 class="card-subtitle display-6 fw-light mb-3 price" data-monthly="${pricingData.monthly.find(p=>p.title===plan.title).price}" data-yearly="${pricingData.yearly.find(p=>p.title===plan.title).price}">
+                            ${plan.price}<span class="small text-muted">/${billingType === 'monthly' ? 'ay' : 'yıl'}</span>
+                        </h6>
+                        <ul class="list-group list-group-flush mb-4 text-start small flex-grow-1">
+                            ${plan.features.map(feature => `<li class="list-group-item border-0 px-0"><i class="fas ${feature.includes('text-muted') ? 'fa-times text-muted' : 'fa-check text-success'} me-2"></i> ${feature}</li>`).join('')}
+                        </ul>
+                        <button class="btn ${plan.buttonClass} mt-auto w-100">${plan.buttonText}</button>
+                    </div>
+                </div>
+            </div>`).join('');
     };
 
-    const setActiveToggle = (activeType) => {
-         if (activeType === 'monthly') { newMonthlyToggle.classList.add('active'); newYearlyToggle.classList.remove('active', 'text-primary', 'fw-bold'); newYearlyToggle.classList.add('text-muted'); }
-         else { newMonthlyToggle.classList.remove('active'); newYearlyToggle.classList.add('active', 'text-primary', 'fw-bold'); newYearlyToggle.classList.remove('text-muted'); }
-        renderPlans(activeType);
-    };
-
-    // Olay dinleyicilerini temizleyip yeniden ekle
-    const newMonthlyToggle = monthlyToggle.cloneNode(true);
-    monthlyToggle.parentNode.replaceChild(newMonthlyToggle, monthlyToggle);
-    newMonthlyToggle.addEventListener('click', () => setActiveToggle('monthly'));
-
-    const newYearlyToggle = yearlyToggle.cloneNode(true);
-    yearlyToggle.parentNode.replaceChild(newYearlyToggle, yearlyToggle);
-    newYearlyToggle.addEventListener('click', () => setActiveToggle('yearly'));
-
-    // İlk render
-    try { setActiveToggle('monthly'); }
-    catch (error) { console.error("Fiyat planları render hatası:", error); pricingPlansContainer.innerHTML = '<p class="text-center text-danger">Fiyat planları yüklenemedi.</p>'; }
+    // Başlangıçta aylık planları göster
+    try {
+        renderPlans('monthly');
+    } catch (error) {
+        console.error("Fiyat planları render hatası:", error);
+        pricingPlansContainer.innerHTML = '<p class="text-center text-danger">Fiyat planları yüklenemedi.</p>';
+    }
 }
 
 /**
- * Admin panelindeki onay bekleyen şikayetler tablosunu günceller.
+ * Admin panelindeki şikayetler tablosunu günceller ve filtreleme uygular.
+ * @param {Array} allComplaints Tüm şikayetler dizisi (getComplaints() sonucu).
+ * @param {string} searchTerm Arama terimi.
+ * @param {string} statusFilter Durum filtresi.
  */
-export function updateAdminTable(allComplaints) {
-     const tableBody = document.getElementById('adminComplaintTableBody');
-     const noPendingMsg = document.getElementById('noPendingComplaintsMsg');
-     const adminTable = document.getElementById('adminComplaintTable');
-     if (!tableBody || !noPendingMsg || !adminTable) return;
-     tableBody.innerHTML = '';
-     const pendingComplaints = allComplaints.filter(c => c.pendingApproval);
-     if (pendingComplaints.length === 0) { noPendingMsg.textContent = 'Onay bekleyen yeni şikayet yok.'; noPendingMsg.style.display = 'block'; adminTable.style.display = 'none'; }
-     else { noPendingMsg.style.display = 'none'; adminTable.style.display = 'table'; pendingComplaints.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(complaint => { const row = tableBody.insertRow(); row.innerHTML = `<td>${complaint.id}</td><td class="text-start">${sanitizeHTML(complaint.title)}</td><td class="text-start">${sanitizeHTML(complaint.brand)}</td><td>${formatDate(complaint.date)}</td><td><span class="badge bg-warning text-dark">Onay Bekliyor</span></td><td class="action-buttons"><button class="btn btn-sm modern-btn-info view-btn" data-id="${complaint.id}" title="Gör"><i class="fas fa-eye"></i></button><button class="btn btn-sm modern-btn-success approve-btn" data-id="${complaint.id}" title="Onayla"><i class="fas fa-check"></i></button><button class="btn btn-sm modern-btn-danger reject-btn" data-id="${complaint.id}" title="Reddet"><i class="fas fa-times"></i></button><button class="btn btn-sm modern-btn-warning edit-btn" data-id="${complaint.id}" title="Düzenle"><i class="fas fa-edit"></i></button><button class="btn btn-sm modern-btn-secondary comment-btn" data-id="${complaint.id}" title="Not Ekle"><i class="fas fa-comment-dots"></i></button></td>`; }); }
+export function updateAdminTable(allComplaints, searchTerm = '', statusFilter = '') {
+    const tableBody = document.getElementById('adminComplaintTableBody');
+    const noComplaintsMsg = document.getElementById('noPendingComplaintsMsg'); 
+    const adminTable = document.getElementById('adminComplaintTable');
+    
+    // Kritik elementlerin varlığını kontrol et
+    if (!tableBody || !adminTable) {
+        console.error("Admin tablosu elementleri bulunamadı! (#adminComplaintTableBody veya #adminComplaintTable)");
+        return;
+    }
+    
+    // adminLoadingRow elementi var mı kontrol et - yoksa hata verme
+    const loadingRow = document.getElementById('adminLoadingRow');
+    if (loadingRow) {
+        loadingRow.style.display = 'none'; // Varsa gizle
+    }
+    
+    tableBody.innerHTML = ''; // Tabloyu temizle
+
+    const lowerSearchTerm = searchTerm.toLowerCase().trim();
+
+    // Filtreleme
+    const filteredComplaints = allComplaints.filter(c => {
+        const matchesSearch = !lowerSearchTerm ||
+                              c.title?.toLowerCase().includes(lowerSearchTerm) ||
+                              c.brand?.toLowerCase().includes(lowerSearchTerm) ||
+                              String(c.id) === lowerSearchTerm; // ID ile arama
+        const matchesStatus = !statusFilter || c.status === statusFilter || (statusFilter === 'Beklemede' && c.pendingApproval);
+
+        return matchesSearch && matchesStatus;
+    });
+
+    if (filteredComplaints.length === 0) {
+        if (noComplaintsMsg) {
+            noComplaintsMsg.textContent = 'Filtrelerle eşleşen şikayet bulunamadı.';
+            noComplaintsMsg.style.display = 'block';
+        }
+        adminTable.style.display = 'none'; // Tabloyu gizle
+    } else {
+        if (noComplaintsMsg) {
+            noComplaintsMsg.style.display = 'none';
+        }
+        adminTable.style.display = 'table'; // Tabloyu göster
+
+        // Sırala (en yeni en üstte)
+        filteredComplaints.sort((a, b) => b.date - a.date);
+
+        // Tablo satırlarını oluştur
+        filteredComplaints.forEach(complaint => {
+            const row = tableBody.insertRow();
+            const statusText = complaint.pendingApproval ? 'Beklemede' : complaint.status;
+            const statusClass = normalizeStatusUtil(statusText);
+            const badgeClass = complaint.pendingApproval ? 'bg-warning text-dark' : {
+                 'açık': 'bg-primary text-white',
+                 'çözüldü': 'bg-success text-white',
+                 'kapalı': 'bg-secondary text-white',
+                 'beklemede': 'bg-warning text-dark'
+             }[complaint.status?.toLowerCase()] || 'bg-info text-white';
+
+            row.innerHTML = `
+                <td class="text-center">${complaint.id}</td>
+                <td>${sanitizeHTMLUtil(complaint.title)}</td>
+                <td>${sanitizeHTMLUtil(complaint.brand)}</td>
+                <td>${formatDate(complaint.date)}</td>
+                <td class="text-center"><span class="badge ${badgeClass}">${sanitizeHTMLUtil(statusText)}</span></td>
+                <td class="text-end action-buttons">
+                    <button class="btn btn-sm btn-outline-info view-btn" data-id="${complaint.id}" title="Gör"><i class="fas fa-eye"></i></button>
+                    ${complaint.pendingApproval ? `
+                        <button class="btn btn-sm btn-outline-success approve-btn" data-id="${complaint.id}" title="Onayla"><i class="fas fa-check"></i></button>
+                        <button class="btn btn-sm btn-outline-danger reject-btn" data-id="${complaint.id}" title="Reddet (Sil)"><i class="fas fa-times"></i></button>
+                    ` : `
+                         <button class="btn btn-sm btn-outline-secondary comment-btn" data-id="${complaint.id}" title="Yorum/Not Ekle"><i class="fas fa-comment-dots"></i></button>
+                         <button class="btn btn-sm btn-outline-warning edit-btn" data-id="${complaint.id}" title="Düzenle"><i class="fas fa-edit"></i></button>
+                         <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${complaint.id}" title="Kalıcı Sil"><i class="fas fa-trash-alt"></i></button>
+                         `}
+                </td>
+            `;
+        });
+    }
 }
 
 /**
- * Genel site istatistiklerini (ana bölümdeki) hesaplar ve gösterir.
+ * Genel site istatistiklerini hesaplar ve gösterir.
  */
 export function displaySiteStats() {
     const totalComplaintsEl = document.getElementById('statsTotalComplaints');
     const solvedComplaintsEl = document.getElementById('statsSolvedComplaints');
     const totalBrandsEl = document.getElementById('statsTotalBrands');
+    const avgRatingEl = document.getElementById('statsAvgRating');
 
-    if (!totalComplaintsEl || !solvedComplaintsEl || !totalBrandsEl) { console.warn("Ana istatistik elementleri bulunamadı."); return; }
+    if (!totalComplaintsEl || !solvedComplaintsEl || !totalBrandsEl || !avgRatingEl) {
+        console.warn("Ana istatistik elementleri bulunamadı.");
+        return;
+    }
+
     try {
-        const complaints = getComplaints().filter(c => !c.pendingApproval);
-        const solvedCount = complaints.filter(c => c.status?.toLowerCase() === 'çözüldü').length;
-        const uniqueBrands = new Set(complaints.map(c => c.brand?.trim()).filter(Boolean));
-        totalComplaintsEl.textContent = complaints.length;
+        const complaints = getComplaints(); // Tüm şikayetleri al (onaylı/onaysız)
+        const approvedComplaints = complaints.filter(c => !c.pendingApproval); // Sadece onaylanmışlar
+
+        const totalCount = complaints.length; // Toplam şikayet sayısı (onay bekleyenler dahil)
+        const solvedCount = approvedComplaints.filter(c => c.status?.toLowerCase() === 'çözüldü').length;
+        const uniqueBrands = new Set(complaints.map(c => c.brand?.trim()).filter(Boolean)); // Tüm markalar
+
+        // Ortalama puanı hesapla (sadece onaylanmış ve puanlanmış olanlar)
+        let totalRatingSum = 0;
+        let ratedComplaintsCount = 0;
+        approvedComplaints.forEach(c => {
+            const avg = parseFloat(calculateAverageRatingUtil(c.ratings));
+            if (!isNaN(avg) && avg > 0) {
+                totalRatingSum += avg;
+                ratedComplaintsCount++;
+            }
+        });
+        const overallAvgRating = ratedComplaintsCount > 0 ? (totalRatingSum / ratedComplaintsCount).toFixed(1) : 'N/A';
+
+        // Elementlere değerleri ata
+        totalComplaintsEl.textContent = totalCount;
         solvedComplaintsEl.textContent = solvedCount;
         totalBrandsEl.textContent = uniqueBrands.size;
-    } catch (error) { console.error("Ana İstatistikler hatası:", error); totalComplaintsEl.textContent = "-"; solvedComplaintsEl.textContent = "-"; totalBrandsEl.textContent = "-"; }
+        avgRatingEl.textContent = overallAvgRating;
+
+    } catch (error) {
+        console.error("Ana İstatistikler hatası:", error);
+        totalComplaintsEl.textContent = "-";
+        solvedComplaintsEl.textContent = "-";
+        totalBrandsEl.textContent = "-";
+        avgRatingEl.textContent = "-";
+    }
 }
 
 /**
  * Son eklenen onaylanmış şikayetleri ana sayfada bir slider içinde gösterir.
  */
 export function displayLatestComplaints(count = 5) {
-     const latestListContainer = document.getElementById('latestComplaintList');
-     if (!latestListContainer) { console.warn("Son şikayetler listesi elementi (#latestComplaintList) bulunamadı."); return; }
-     try {
-         const latestComplaints = getComplaints().filter(c => !c.pendingApproval).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, count);
-         latestListContainer.innerHTML = ''; // Önce temizle
-         if (latestComplaints.length === 0) { latestListContainer.innerHTML = '<p class="text-muted text-center">Henüz gösterilecek şikayet yok.</p>'; return; }
+    const latestListContainer = document.getElementById('latestComplaintList');
+    if (!latestListContainer) {
+        console.warn("Son şikayetler listesi elementi (#latestComplaintList) bulunamadı.");
+        return;
+    }
 
-         const sliderContainer = document.createElement('div'); sliderContainer.className = 'slider-container';
-         const sliderTrack = document.createElement('div'); sliderTrack.className = 'slider-track';
+    try {
+        // Onaylanmışları al, tarihe göre sırala ve belirtilen sayıda al
+        const latestComplaints = getComplaints()
+            .filter(c => !c.pendingApproval)
+            .sort((a, b) => b.date - a.date) // En yeni en başa
+            .slice(0, count);
 
-         latestComplaints.forEach(complaint => {
-             const cardElement = createComplaintCard(complaint, localStorage.getItem('currentUser'), { showActions: true }); // Like/dislike görünsün
-             cardElement.style.marginRight = '1.5rem'; cardElement.style.flex = '0 0 300px';
-             sliderTrack.appendChild(cardElement);
-         });
+        latestListContainer.innerHTML = ''; // Önce temizle
 
-         // Klonlama (sonsuz döngü için)
-         if (latestComplaints.length > 0 && latestComplaints.length < 5) { // Sadece az sayıda kart varsa klonla (geniş ekranlar için)
+        if (latestComplaints.length === 0) {
+            latestListContainer.innerHTML = '<p class="text-muted text-center p-5">Henüz gösterilecek şikayet yok.</p>';
+            return;
+        }
+
+        // Slider Track oluştur
+        const sliderTrack = document.createElement('div');
+        sliderTrack.className = 'slider-track';
+
+        // Kartları oluştur ve track'e ekle
+        latestComplaints.forEach(complaint => {
+            const cardElement = createComplaintCard(complaint, localStorage.getItem('currentUser'), { showActions: true });
+            cardElement.style.marginRight = '1.5rem'; // Kartlar arası boşluk (CSS'den de ayarlanabilir)
+            cardElement.style.flex = '0 0 320px'; // Kart genişliği (CSS'den de ayarlanabilir)
+            sliderTrack.appendChild(cardElement);
+        });
+
+        // Sonsuz döngü için kartları klonla (eğer az sayıda kart varsa ve ekran genişse)
+        if (latestComplaints.length > 0 && latestComplaints.length < 5) {
             const cardsToClone = Array.from(sliderTrack.children);
-            cardsToClone.forEach(card => { const clone = card.cloneNode(true); sliderTrack.appendChild(clone); });
-         }
+            cardsToClone.forEach(card => {
+                const clone = card.cloneNode(true);
+                sliderTrack.appendChild(clone);
+            });
+             // CSS animasyonu için track genişliğini iki katına çıkar (opsiyonel)
+             // sliderTrack.style.width = `calc(${sliderTrack.scrollWidth * 2}px)`;
+        }
 
-         sliderContainer.appendChild(sliderTrack);
-         latestListContainer.appendChild(sliderContainer);
-         addEventListenersToComplaintCards(sliderTrack, localStorage.getItem('currentUser')); // Slider içindeki kartlara listener ekle
-     } catch (error) {
-         console.error("Son şikayetler yüklenirken hata:", error);
-         latestListContainer.innerHTML = '<p class="text-danger text-center">Şikayetler yüklenirken bir hata oluştu.</p>';
-     }
+        // Track'i konteynere ekle
+        latestListContainer.appendChild(sliderTrack);
+
+        // Olay dinleyicilerini ekle (tıklama, like/dislike)
+        addEventListenersToComplaintCards(sliderTrack, localStorage.getItem('currentUser'));
+
+        // Opsiyonel: CSS animasyonunu etkinleştir (eğer style.css içinde @keyframes scroll varsa)
+        // sliderTrack.style.animation = 'scroll 40s linear infinite';
+
+    } catch (error) {
+        console.error("Son şikayetler yüklenirken hata:", error);
+        latestListContainer.innerHTML = '<p class="text-danger text-center p-5">Şikayetler yüklenirken bir hata oluştu.</p>';
+    }
 }
+
+// Grafik Temasını Güncelleme Fonksiyonu (events.js'den çağrılabilir)
+window.updateChartsTheme = (theme) => {
+     const chartOptions = {
+         plugins: {
+             legend: { labels: { color: theme === 'dark' ? '#adb5bd' : '#6c757d' } },
+             tooltip: {
+                 bodyColor: theme === 'dark' ? '#e9ecef' : '#212529',
+                 titleColor: theme === 'dark' ? '#e9ecef' : '#212529',
+                 backgroundColor: theme === 'dark' ? 'rgba(40, 50, 70, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+                 borderColor: theme === 'dark' ? '#455474' : '#dee2e6'
+             }
+         },
+         scales: { // Eğer bar/line grafik varsa eksen renkleri
+             x: { ticks: { color: theme === 'dark' ? '#adb5bd' : '#6c757d' }, grid: { color: theme === 'dark' ? '#344767' : '#e9ecef' } },
+             y: { ticks: { color: theme === 'dark' ? '#adb5bd' : '#6c757d' }, grid: { color: theme === 'dark' ? '#344767' : '#e9ecef' } }
+         }
+     };
+
+     if (brandSentimentChart) {
+         // Doughnut/Pie için sadece tooltip ve kenarlık rengi önemli olabilir
+         brandSentimentChart.options.plugins.tooltip = chartOptions.plugins.tooltip;
+         brandSentimentChart.data.datasets[0].borderColor = theme === 'dark' ? '#252f40' : '#ffffff'; // Arka plan rengi
+         brandSentimentChart.update();
+     }
+     if (brandCategoryChart) {
+         brandCategoryChart.options.plugins.legend.labels.color = chartOptions.plugins.legend.labels.color;
+         brandCategoryChart.options.plugins.tooltip = chartOptions.plugins.tooltip;
+         brandCategoryChart.data.datasets[0].borderColor = theme === 'dark' ? '#252f40' : '#ffffff';
+         brandCategoryChart.update();
+     }
+ };

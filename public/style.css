@@ -1,1 +1,2701 @@
-:root{--primary:#007bff;--success:#28a745;--danger:#dc3545;--warning:#ffc107;--info:#17a2b8;--secondary:#6c757d;--brand-color:#1a3c6d;--light-grey:#f8f9fa;--white:#fff;--dark-grey:#343a40;--medium-grey:#6c757d;--border-color:#e9ecef;--border-color-light:#ced4da;--link-color-hover:#0056b3;--transition:all .3s ease;--shadow-sm:0 2px 5px rgba(0,0,0,.08);--shadow-md:0 4px 15px rgba(0,0,0,.1);--shadow-lg:0 8px 25px rgba(0,0,0,.12);--border-radius-sm:.25rem;--border-radius-md:.375rem;--border-radius-lg:.5rem;--border-radius-xl:1rem;--border-radius-pill:50rem;--border-radius-round:50%;--focus-ring-opacity:.25;--focus-ring-color-primary:rgba(0,123,255,var(--focus-ring-opacity));--focus-ring-color-secondary:rgba(108,117,125,var(--focus-ring-opacity));--focus-ring-color-success:rgba(40,167,69,var(--focus-ring-opacity));--focus-ring-color-danger:rgba(220,53,69,var(--focus-ring-opacity));--focus-ring-color-warning:rgba(255,193,7,var(--focus-ring-opacity));--focus-ring-color-info:rgba(23,162,184,var(--focus-ring-opacity));--focus-ring-color-brand:rgba(26,60,109,var(--focus-ring-opacity))}body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:var(--light-grey);color:var(--dark-grey);line-height:1.6;box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}section{padding:4rem 0;position:relative;overflow:hidden}#features,#site-stats,#explore{background-color:var(--light-grey)}#how-it-works,#latest-complaints,#infoAndPricingSection,footer{background-color:var(--white)}#hero-advanced{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:var(--white)}.section-title{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:700;color:var(--brand-color);margin-bottom:1rem;text-align:center}.section-subtitle{font-size:clamp(1rem,2.5vw,1.15rem);line-height:1.6;max-width:700px;margin:0 auto 3rem;text-align:center;color:var(--medium-grey)}.navbar{box-shadow:var(--shadow-md);transition:background var(--transition);z-index:1030;background-color:var(--white);border-bottom:1px solid var(--border-color);padding:.75rem 0}.navbar .navbar-brand{font-weight:700;color:var(--dark-grey);text-transform:uppercase;letter-spacing:1px}.navbar .navbar-brand i{color:var(--primary)}.navbar .navbar-nav .nav-link{color:var(--medium-grey);font-weight:500;padding:8px 15px;border-radius:var(--border-radius-pill);transition:var(--transition);display:inline-flex;align-items:center;margin:0 .25rem}.navbar .navbar-nav .nav-link:is(:hover,:focus),.navbar .navbar-nav .nav-link.active{color:var(--primary);background-color:rgba(0,123,255,.05);outline:0}.navbar .navbar-nav .nav-link i{margin-right:.35rem}.navbar .btn{margin-left:.5rem}.navbar .modern-btn-success,.navbar .modern-btn-secondary{padding:6px 16px;font-size:.9rem}.modern-btn,[class^="modern-btn-"]{border-radius:var(--border-radius-pill);padding:10px 22px;font-weight:600;transition:var(--transition);border:1px solid transparent;box-shadow:var(--shadow-sm);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;text-decoration:none;line-height:1.5;white-space:nowrap}.modern-btn i,[class^="modern-btn-"] i{margin-right:.45rem;font-size:.95em}.modern-btn:hover:not(:disabled),[class^="modern-btn-"]:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--shadow-md)}.modern-btn:focus-visible,[class^="modern-btn-"]:focus-visible{outline:0;box-shadow:var(--shadow-sm),0 0 0 .25rem var(--focus-ring-color-secondary)}.modern-btn:disabled,[class^="modern-btn-"]:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}.modern-btn-primary{background-color:var(--primary);background-image:linear-gradient(to bottom,var(--primary),color-mix(in srgb,var(--primary) 90%,black));border-color:var(--primary);color:var(--white)}.modern-btn-success{background-color:var(--success);background-image:linear-gradient(to bottom,var(--success),color-mix(in srgb,var(--success) 90%,black));border-color:var(--success);color:var(--white)}.modern-btn-danger{background-color:var(--danger);background-image:linear-gradient(to bottom,var(--danger),color-mix(in srgb,var(--danger) 90%,black));border-color:var(--danger);color:var(--white)}.modern-btn-warning{background-color:var(--warning);background-image:linear-gradient(to bottom,var(--warning),color-mix(in srgb,var(--warning) 90%,black));color:#333;border-color:var(--warning)}.modern-btn-info{background-color:var(--info);background-image:linear-gradient(to bottom,var(--info),color-mix(in srgb,var(--info) 90%,black));border-color:var(--info);color:var(--white)}.modern-btn-secondary{background-color:var(--secondary);border-color:var(--secondary);color:var(--white)}.modern-btn-brand{background-color:var(--brand-color);background-image:linear-gradient(to bottom,var(--brand-color),color-mix(in srgb,var(--brand-color) 90%,black));border-color:var(--brand-color);color:var(--white)}.modern-btn-primary:hover:not(:disabled){background-color:var(--link-color-hover);background-image:none;border-color:var(--link-color-hover)}.modern-btn-success:hover:not(:disabled){background-color:#1e7e34;background-image:none;border-color:#1e7e34}.modern-btn-danger:hover:not(:disabled){background-color:#a71d2a;background-image:none;border-color:#a71d2a}.modern-btn-warning:hover:not(:disabled){background-color:#d39e00;background-image:none;border-color:#d39e00}.modern-btn-info:hover:not(:disabled){background-color:#117a8b;background-image:none;border-color:#117a8b}.modern-btn-secondary:hover:not(:disabled){background-color:#545b62;background-image:none;border-color:#545b62}.modern-btn-brand:hover:not(:disabled){background-color:color-mix(in srgb,var(--brand-color) 85%,black);background-image:none;border-color:color-mix(in srgb,var(--brand-color) 85%,black)}[class^="modern-btn-outline-"]{background-color:transparent;background-image:none}[class^="modern-btn-outline-"]:hover:not(:disabled){color:var(--white)}.modern-btn-outline-primary{border-color:var(--primary);color:var(--primary)}.modern-btn-outline-primary:hover:not(:disabled){background-color:var(--primary)}.modern-btn-outline-primary:focus-visible{box-shadow:var(--shadow-sm),0 0 0 .25rem var(--focus-ring-color-primary)}.modern-btn-outline-success{border-color:var(--success);color:var(--success)}.modern-btn-outline-success:hover:not(:disabled){background-color:var(--success)}.modern-btn-outline-success:focus-visible{box-shadow:var(--shadow-sm),0 0 0 .25rem var(--focus-ring-color-success)}.modern-btn-outline-danger{border-color:var(--danger);color:var(--danger)}.modern-btn-outline-danger:hover:not(:disabled){background-color:var(--danger)}.modern-btn-outline-danger:focus-visible{box-shadow:var(--shadow-sm),0 0 0 .25rem var(--focus-ring-color-danger)}.modern-btn-outline-warning{border-color:var(--warning);color:var(--warning)}.modern-btn-outline-warning:hover:not(:disabled){background-color:var(--warning);color:#333}.modern-btn-outline-warning:focus-visible{box-shadow:var(--shadow-sm),0 0 0 .25rem var(--focus-ring-color-warning)}.modern-btn-outline-info{border-color:var(--info);color:var(--info)}.modern-btn-outline-info:hover:not(:disabled){background-color:var(--info)}.modern-btn-outline-info:focus-visible{box-shadow:var(--shadow-sm),0 0 0 .25rem var(--focus-ring-color-info)}.modern-btn-outline-secondary{border-color:var(--secondary);color:var(--secondary)}.modern-btn-outline-secondary:hover:not(:disabled){background-color:var(--secondary);color:var(--white)}.modern-btn-outline-secondary:focus-visible{box-shadow:var(--shadow-sm),0 0 0 .25rem var(--focus-ring-color-secondary)}.modern-btn-outline-brand{border-color:var(--brand-color);color:var(--brand-color)}.modern-btn-outline-brand:hover:not(:disabled){background-color:var(--brand-color);color:var(--white)}.modern-btn-outline-brand:focus-visible{box-shadow:var(--shadow-sm),0 0 0 .25rem var(--focus-ring-color-brand)}.modern-btn-lg,.btn-lg{padding:14px 30px;font-size:1.1rem}.modern-btn-sm,.btn-sm{padding:6px 14px;font-size:.875rem;border-radius:var(--border-radius-md)}.modern-btn-sm i,.btn-sm i{margin-right:.3rem;font-size:.9em}.section-divider-bottom-diagonal{position:relative;padding-bottom:100px}.section-divider-bottom-diagonal::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:100px;background:var(--light-grey);clip-path:polygon(0 100%,100% 0,100% 100%);z-index:1}#features.section-divider-bottom-diagonal::after,#site-stats.section-divider-bottom-diagonal::after,#explore.section-divider-bottom-diagonal::after{background:var(--white)}#how-it-works.section-divider-bottom-diagonal::after,#latest-complaints.section-divider-bottom-diagonal::after,#infoAndPricingSection.section-divider-bottom-diagonal::after{background:var(--light-grey)}#hero-advanced.section-divider-bottom-diagonal::after{background:var(--light-grey)}body>section:last-of-type.section-divider-bottom-diagonal{padding-bottom:4rem}body>section:last-of-type.section-divider-bottom-diagonal::after{display:none}.hero-advanced{position:relative;overflow:hidden;padding:120px 0 120px;background-image:linear-gradient(135deg,var(--secondary) 0%,color-mix(in srgb,var(--brand-color) 80%,black) 100%);color:var(--white);z-index:1}.hero-advanced::before,.hero-advanced::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.08);z-index:0;display:none}.hero-advanced .floating-shapes{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:0;pointer-events:none}.hero-advanced .floating-shape{position:absolute;background-color:rgba(255,255,255,.06);border-radius:50%}.hero-advanced .floating-shape:nth-child(1){width:80px;height:80px;top:10%;left:5%;animation:float 12s ease-in-out infinite}.hero-advanced .floating-shape:nth-child(2){width:120px;height:120px;top:70%;left:80%;animation:float 15s ease-in-out infinite 1s}.hero-advanced .floating-shape:nth-child(3){width:60px;height:60px;top:30%;right:15%;animation:float 18s ease-in-out infinite .5s}.hero-advanced .floating-shape:nth-child(4){width:100px;height:100px;bottom:10%;left:15%;animation:float 20s ease-in-out infinite 1.5s}@keyframes float{0%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(10px,-15px) rotate(5deg)}50%{transform:translate(5px,10px) rotate(-5deg)}75%{transform:translate(-10px,-5px) rotate(3deg)}100%{transform:translate(0,0) rotate(0deg)}}.hero-advanced .hero-title{font-size:clamp(2.8rem,6vw,3.8rem);font-weight:800;line-height:1.1;margin-bottom:1.5rem;background:linear-gradient(90deg,var(--white),#e0e0ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 2px 10px rgba(0,0,0,.2);position:relative}.hero-advanced .hero-title::after{content:'';display:block;width:80px;height:4px;background:var(--primary);margin:1rem auto 0;border-radius:4px}@media (min-width:992px){.hero-advanced .hero-title::after{margin:1rem 0 0}}.hero-advanced .hero-subtitle{font-size:clamp(1rem,2.5vw,1.25rem);font-weight:400;line-height:1.7;margin-bottom:2.5rem;max-width:600px;opacity:.95;color:var(--white);margin-left:auto;margin-right:auto}@media (min-width:992px){.hero-advanced .hero-subtitle{margin-left:0;margin-right:0}}.hero-advanced .hero-buttons{display:flex;flex-direction:column;gap:15px;margin-bottom:2.5rem;align-items:center}@media (min-width:576px){.hero-advanced .hero-buttons{flex-direction:row;justify-content:center}}@media (min-width:992px){.hero-advanced .hero-buttons{justify-content:flex-start}}.hero-advanced .modern-btn{border-radius:var(--border-radius-md);padding:14px 28px;font-weight:600;transition:var(--transition);border:2px solid transparent;box-shadow:var(--shadow-md);color:var(--white);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;text-decoration:none;line-height:1.5;white-space:nowrap;position:relative;overflow:hidden;z-index:1}.hero-advanced .modern-btn::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.1);transform:translateX(-101%);transition:transform .4s ease;z-index:-1}.hero-advanced .modern-btn:hover::before{transform:translateX(0)}.hero-advanced .modern-btn:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}.hero-advanced .modern-btn-primary{background-color:var(--primary);border-color:var(--primary);color:var(--white)}.hero-advanced .modern-btn-primary:hover{background-color:var(--link-color-hover);border-color:var(--link-color-hover)}.hero-advanced .modern-btn-outline{background-color:transparent;color:var(--white);border:2px solid rgba(255,255,255,.6);box-shadow:none}.hero-advanced .modern-btn-outline:hover{border-color:var(--white);background-color:rgba(255,255,255,.1)}.hero-advanced .modern-btn i{margin-right:10px;font-size:1.1em}.hero-advanced .hero-stats{display:flex;flex-direction:row;flex-wrap:wrap;gap:20px;margin-bottom:3rem;justify-content:center;align-items:stretch}@media (min-width:992px){.hero-advanced .hero-stats{justify-content:flex-start}}.hero-advanced .stat-item{display:flex;align-items:center;padding:10px 18px;background-color:rgba(255,255,255,.1);border-radius:var(--border-radius-md);backdrop-filter:blur(5px);transition:var(--transition)}.hero-advanced .stat-item:hover{background-color:rgba(255,255,255,.2);transform:translateY(-5px)}.hero-advanced .stat-icon{width:40px;height:40px;border-radius:50%;background-color:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin-right:15px;flex-shrink:0}.hero-advanced .stat-icon i{font-size:1.2rem;color:var(--white)}.hero-advanced .stat-item:nth-child(1) .stat-icon i{color:#a5d6a7}.hero-advanced .stat-item:nth-child(2) .stat-icon i{color:#90caf9}.hero-advanced .stat-item:nth-child(3) .stat-icon i{color:#ffcc80}.hero-advanced .stat-text{font-size:.9rem;color:rgba(255,255,255,.9)}.hero-advanced .stat-text strong{display:block;font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:2px}.hero-advanced .trust-indicators{display:flex;flex-direction:row;flex-wrap:wrap;gap:15px 25px;margin-bottom:2rem;justify-content:center;align-items:center}@media (min-width:992px){.hero-advanced .trust-indicators{justify-content:flex-start}}.hero-advanced .trust-indicator{font-size:.85rem;display:flex;align-items:center;color:rgba(255,255,255,.9)}.hero-advanced .trust-indicator i{margin-right:8px;color:var(--primary);font-size:1.1em}.hero-advanced .hero-brands{padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.2);margin-top:1.5rem}.hero-advanced .brands-title{font-size:.9rem;font-weight:600;margin-bottom:1rem;color:rgba(255,255,255,.9)}.hero-advanced .brand-logos{display:flex;align-items:center;flex-wrap:wrap;gap:15px}.hero-advanced .brand-logo{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background-color:rgba(255,255,255,.1);border-radius:50%;transition:var(--transition)}.hero-advanced .brand-logo:hover{background-color:rgba(255,255,255,.2);transform:scale(1.1)}.hero-advanced .brand-logo i{font-size:20px;color:var(--white);opacity:.8;transition:opacity .3s ease}.hero-advanced .brand-logo:hover i{opacity:1}.hero-advanced .hero-illustration{position:relative;height:100%;display:flex;align-items:center;justify-content:center;min-height:400px}.hero-advanced .illustration-background{position:absolute;width:90%;height:90%;top:5%;left:5%;border-radius:var(--border-radius-lg);background:rgba(255,255,255,.08);backdrop-filter:blur(5px);transform:rotate(-5deg);z-index:0}.hero-advanced .illustration-foreground{position:relative;z-index:1;width:100%;max-width:500px;border-radius:var(--border-radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);transition:var(--transition)}.hero-advanced .illustration-foreground:hover{transform:translateY(-10px) scale(1.02)}.hero-advanced .hero-image{width:100%;height:auto;display:block}.hero-advanced .wave-divider{position:absolute;bottom:0;left:0;width:100%;overflow:hidden;line-height:0;z-index:2;transform:rotate(180deg)}.hero-advanced .wave-divider svg{position:relative;display:block;width:calc(100% + 1.3px);height:70px}.hero-advanced .wave-divider .shape-fill{fill:var(--light-grey)}.hero-advanced .notification-badge{display:inline-flex;align-items:center;background-color:rgba(255,255,255,.15);border-radius:30px;padding:6px 15px;margin-bottom:1.5rem;backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.2)}.hero-advanced .notification-badge .badge-icon{width:24px;height:24px;background-color:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:10px;flex-shrink:0}.hero-advanced .notification-badge .badge-text{font-size:.85rem;font-weight:600;color:var(--white)}.hero-advanced .fade-in-up{opacity:0;transform:translateY(20px);animation:fadeInUp .7s ease forwards}.hero-advanced .delay-1{animation-delay:.2s}.hero-advanced .delay-2{animation-delay:.4s}.hero-advanced .delay-3{animation-delay:.6s}.hero-advanced .delay-4{animation-delay:.8s}@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.features-section .feature-card{background-color:var(--white);transition:transform var(--transition),box-shadow var(--transition);text-align:center;padding:2rem;border-radius:var(--border-radius-lg);box-shadow:var(--shadow-sm);height:100%;border:1px solid var(--border-color)}.features-section .feature-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}.features-section .feature-card i.fa-3x{font-size:2.5rem;display:inline-flex;align-items:center;justify-content:center;width:70px;height:70px;border-radius:var(--border-radius-round);margin-bottom:1rem}.features-section .feature-card:nth-child(1) i{background-color:rgba(0,123,255,.1);color:var(--primary)}.features-section .feature-card:nth-child(2) i{background-color:rgba(40,167,69,.1);color:var(--success)}.features-section .feature-card:nth-child(3) i{background-color:rgba(23,162,184,.1);color:var(--info)}.features-section .feature-card h4{font-weight:600;margin-bottom:.5rem;font-size:1.15rem}.how-it-works-section h2{margin-bottom:3rem}.how-it-works-section .step-card{position:relative;padding-top:20px;text-align:center;height:100%}.how-it-works-section .step-icon{width:60px;height:60px;background-color:var(--light-grey);border:1px solid var(--border-color);border-radius:var(--border-radius-round);display:inline-flex;align-items:center;justify-content:center;position:relative;margin-bottom:1rem}.how-it-works-section .step-icon i{font-size:1.5rem;color:var(--primary)}.how-it-works-section .step-icon span{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background-color:var(--primary);color:#fff;width:30px;height:30px;border-radius:var(--border-radius-round);font-size:1rem;font-weight:700;line-height:30px;text-align:center;border:2px solid #fff;box-shadow:var(--shadow-sm)}.how-it-works-section .row>.col-md-4:not(:last-child)::after{content:'';position:absolute;width:calc(60% - 15px);height:2px;background-color:var(--border-color);top:calc(30px);left:calc(50% + 30px);display:none;opacity:.8;z-index:-1}.stats-section h2{margin-bottom:3rem}.stats-section .stat-box{background-color:var(--white);margin-bottom:1.5rem;text-align:center;padding:1.5rem;border-radius:var(--border-radius-md);box-shadow:var(--shadow-sm);border:1px solid var(--border-color);height:100%}.stats-section .stat-box h3{margin-bottom:.25rem;font-size:clamp(2rem,6vw,2.5rem);font-weight:700;color:var(--primary)}.stats-section .stat-box h3.text-success{color:var(--success)!important}.stats-section .stat-box h3.text-info{color:var(--info)!important}.stats-section .stat-box p{margin-bottom:0;color:var(--medium-grey)}.latest-complaints-section{overflow:hidden}.latest-complaints-section .section-title{text-align:left}#latestComplaintList.slider-container{position:relative;width:100%;overflow:hidden;padding:1rem 0;background:transparent;display:block!important}#latestComplaintList .slider-track{display:flex;width:fit-content;animation:scroll 40s linear infinite;backface-visibility:hidden;transform-style:preserve-3d;will-change:transform}#latestComplaintList .slider-track:hover{animation-play-state:paused}@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}#latestComplaintList .complaint-card{flex:0 0 360px;width:360px;min-width:360px;max-width:360px;flex-shrink:0;margin-right:1.5rem;transition:transform .3s ease,box-shadow .3s ease;box-shadow:var(--shadow-sm);border-radius:var(--border-radius-md);border-left-width:3px;height:100%;background-color:var(--white);backface-visibility:hidden;display:flex;flex-direction:column;overflow:hidden}#latestComplaintList .complaint-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:var(--shadow-lg);z-index:1}#latestComplaintList::before,#latestComplaintList::after{content:"";position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}#latestComplaintList::before{left:-1px;background:linear-gradient(to right,var(--white),rgba(255,255,255,0))}#latestComplaintList::after{right:-1px;background:linear-gradient(to left,var(--white),rgba(255,255,255,0))}#latestComplaintList.text-center{display:block}#latestComplaintList:not(.text-center)>.spinner-border{display:none}.explore-section .widget-card{background-color:var(--white);border-radius:var(--border-radius-lg);box-shadow:var(--shadow-md);padding:2rem;height:100%;display:flex;flex-direction:column;border:1px solid var(--border-color)}.explore-section .widget-title{font-size:1.5rem;font-weight:600;color:var(--brand-color);margin-bottom:1.5rem;text-align:center;display:flex;align-items:center;justify-content:center}.explore-section .widget-title i{font-size:1.1em;margin-right:.5rem}.search-widget .widget-title i{color:var(--primary)}.popular-brands-widget .widget-title i{color:var(--danger)}.featured-complaints-widget .widget-title i{color:var(--warning)}.search-widget form{display:flex;flex-direction:column;gap:1rem}.search-widget .form-control,.search-widget .form-select{border-radius:var(--border-radius-pill);border:1px solid var(--border-color-light);padding:12px 20px;font-size:1rem;box-shadow:inset 0 1px 3px rgba(0,0,0,.06);transition:border-color var(--transition),box-shadow var(--transition)}.search-widget .form-control:focus,.search-widget .form-select:focus{border-color:var(--primary);box-shadow:0 0 0 .25rem var(--focus-ring-color-primary);outline:0}.search-widget .btn{padding:12px 20px;font-size:1rem}#searchResultsContainer{max-height:450px;overflow-y:auto;margin-top:1.5rem;border-radius:var(--border-radius-md)}.complaint-list-group{list-style:none;padding:0;margin:0}.complaint-list-group .complaint-card{width:100%;margin-bottom:.75rem;cursor:pointer;transition:background-color .2s ease}.complaint-list-group .complaint-card:last-child{margin-bottom:0}.complaint-list-group .complaint-card:hover{background-color:var(--light-grey)}.complaint-list-group .complaint-card .card-content-wrapper{padding:1rem}.popular-brands-widget #popularBrandsListExplore.list-group{list-style:none;padding:0;max-height:300px;overflow-y:auto;margin-bottom:1rem;padding-right:5px}.popular-brands-widget .list-group-item{cursor:pointer;border-radius:var(--border-radius-pill);font-size:.9rem;font-weight:500;background-color:transparent;border:1px solid var(--border-color);color:var(--dark-grey);transition:var(--transition);margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center;padding:.6rem 1.2rem;text-align:left}.popular-brands-widget .list-group-item:last-child{margin-bottom:0}.popular-brands-widget .list-group-item:is(:hover,:focus){background-color:var(--primary);color:var(--white);transform:translateX(3px);outline:0;border-color:var(--primary)}.popular-brands-widget .badge{font-size:.75rem;background-color:var(--secondary);color:var(--white);transition:var(--transition);padding:.3em .6em;border-radius:var(--border-radius-pill);min-width:25px;text-align:center}.popular-brands-widget .list-group-item:is(:hover,:focus) .badge{background-color:var(--white);color:var(--primary)}.popular-brands-widget .view-all-link{display:block;text-align:center;margin-top:auto;padding-top:1rem;font-weight:500;color:var(--primary);text-decoration:none;transition:color var(--transition)}.popular-brands-widget .view-all-link:hover{color:var(--link-color-hover)}#popularBrandsListExplore>p{display:block}#popularBrandsListExplore:not(:has(>p))>p{display:none}.featured-complaints-widget #featuredComplaintsContent{max-height:350px;overflow-y:auto;padding-right:5px}.featured-complaints-widget .complaint-summary-card{background-color:var(--light-grey);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin-bottom:.75rem;border:1px solid var(--border-color);transition:var(--transition);cursor:pointer;display:block;text-decoration:none}.featured-complaints-widget .complaint-summary-card:last-child{margin-bottom:0}.featured-complaints-widget .complaint-summary-card:hover{background-color:var(--border-color);transform:translateX(2px);box-shadow:var(--shadow-sm)}.featured-complaints-widget .complaint-summary-title{font-weight:600;font-size:.95rem;color:var(--dark-grey);margin-bottom:.35rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;line-height:1.3;min-height:calc(1.3em * 2);word-break:break-word}.featured-complaints-widget .complaint-summary-meta{display:flex;justify-content:space-between;align-items:center;margin-top:.25rem}.featured-complaints-widget .complaint-summary-brand{font-size:.85rem;color:var(--medium-grey);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding-right:10px}.featured-complaints-widget .complaint-summary-interactions{font-size:.8rem;color:var(--primary);white-space:nowrap;flex-shrink:0}.featured-complaints-widget .complaint-summary-interactions i{font-size:.9em}.featured-complaints-widget .chart-container{position:relative;width:100%;max-width:220px;height:auto;margin:0 auto .5rem;padding:.5rem;background-color:var(--white);border-radius:var(--border-radius-md);box-shadow:var(--shadow-sm)}.featured-complaints-widget .chart-container canvas{display:block;width:100%!important;height:auto!important;max-height:180px}.featured-complaints-widget .chart-container p{margin-top:5px;font-size:.8rem;line-height:1.2;text-align:center;color:var(--medium-grey)}#brandStatsCharts{margin-top:1rem}#featuredComplaintsContent>p{display:block}#featuredComplaintsContent:not(:has(>p))>p{display:none}#infoAndPricingSection h2{margin-bottom:1.5rem}#infoAndPricingSection .lead{margin-bottom:2.5rem}#infoAndPricingSection .card{border-radius:var(--border-radius-xl);background-color:var(--white);box-shadow:var(--shadow-md);transition:transform var(--transition),box-shadow var(--transition);border:0;height:100%;display:flex;flex-direction:column}#infoAndPricingSection .card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}#infoAndPricingSection .card-body{padding:2rem;flex-grow:1;display:flex;flex-direction:column}#infoAndPricingSection .card-title{font-size:1.5rem;font-weight:600;color:var(--brand-color)}#infoAndPricingSection .card-subtitle{font-size:1.2rem;font-weight:500;color:var(--dark-grey)}#infoAndPricingSection .list-group{margin-top:1.5rem;margin-bottom:1.5rem;list-style:none;padding-left:0}#infoAndPricingSection .list-group-item{border:0;padding:.6rem 0;text-align:left;font-size:.95rem;color:#333;background-color:transparent}#infoAndPricingSection .list-group-item i{color:var(--success);margin-right:.5rem}#infoAndPricingSection .card .btn{margin-top:auto}#infoAndPricingSection .popular-plan{border:2px solid var(--warning);position:relative;transform:scale(1.03);z-index:1}#infoAndPricingSection .popular-badge{position:absolute;top:-15px;left:50%;transform:translateX(-50%);background-color:var(--warning);color:#333;font-size:.9rem;font-weight:500;padding:5px 15px;border-radius:var(--border-radius-pill);box-shadow:var(--shadow-sm)}.billing-toggle-container{display:inline-flex;align-items:center;justify-content:center;gap:10px;background-color:var(--white);padding:5px;border-radius:var(--border-radius-pill);box-shadow:var(--shadow-sm);margin-bottom:2.5rem}.billing-toggle-container .btn{padding:8px 20px;font-size:1rem;border-radius:var(--border-radius-pill);color:var(--primary);background-color:transparent;border:1px solid transparent;transition:background-color .3s ease,color .3s ease,border-color .3s ease}.billing-toggle-container .btn.active{background-color:var(--primary);border-color:var(--primary);color:#fff;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}.billing-toggle-container .billing-option{font-size:1rem;color:var(--medium-grey);cursor:pointer;transition:color .3s ease;padding:8px 15px;border-radius:var(--border-radius-pill)}.billing-toggle-container .billing-option:hover{color:var(--primary)}.billing-toggle-container .billing-option.active{color:var(--primary);font-weight:700}.billing-toggle-container .badge{font-size:.75rem;padding:3px 6px;border-radius:var(--border-radius-lg);background-color:var(--success);vertical-align:middle;margin-left:5px}#pricingPlans.text-center{display:block}#pricingPlans:not(.text-center)>.spinner-border{display:none}.modal{z-index:1055}.modal-backdrop{z-index:1050}.modal-content{border-radius:var(--border-radius-lg);border:none;box-shadow:var(--shadow-lg);position:relative;z-index:1056}.modal-header{border-bottom:1px solid var(--border-color);padding:1rem 1.5rem}.modal-title{font-weight:600;color:var(--dark-grey)}#createComplaintModal .modal-header{background-color:var(--primary);color:var(--white)}#editComplaintModal .modal-header{background-color:var(--warning);color:var(--dark-grey)}#adminCommentModal .modal-header{background-color:var(--info);color:var(--white)}.modal-header .btn-close-white{filter:invert(1) grayscale(100%) brightness(200%)}.modal-body{padding:1.5rem;word-break:break-word}.modal-footer{border-top:1px solid var(--border-color);padding:1rem 1.5rem;background-color:var(--light-grey);border-bottom-left-radius:var(--border-radius-lg);border-bottom-right-radius:var(--border-radius-lg);display:flex;justify-content:flex-end;gap:.5rem}#complaintDetailModal .modal-footer{justify-content:space-between}#complaintDetailModal .modal-dialog{max-width:900px}#complaintDetailBody .spinner-border{display:block;margin:3rem auto}#complaintDetailBody:not(:has(.spinner-border)) .spinner-border{display:none}#complaintDetailBody h4{color:var(--primary);margin-bottom:15px;font-weight:600}#complaintDetailBody .detail-brand{font-weight:700;font-size:1.2rem}#complaintDetailBody .detail-category{font-size:.9rem;background-color:var(--border-color);padding:3px 10px;border-radius:var(--border-radius-pill);margin-left:10px;display:inline-block;vertical-align:middle}#complaintDetailBody .detail-date{font-size:.9rem;color:var(--secondary)}#complaintDetailBody .detail-description{margin-top:15px;line-height:1.6;white-space:pre-wrap}#complaintDetailBody .detail-image{max-width:100%;height:auto;max-height:300px;margin-top:15px;border-radius:var(--border-radius-sm);display:block;border:1px solid var(--border-color)}#complaintDetailBody .comment-section{margin-top:25px;padding-top:20px;border-top:1px solid var(--border-color)}#complaintDetailBody .comments-container{max-height:300px;overflow-y:auto;padding-right:10px}#complaintDetailBody .comment{background-color:var(--light-grey);border:1px solid var(--border-color);border-radius:var(--border-radius-md);padding:10px 15px;margin-bottom:10px}#complaintDetailBody .comment p{margin-bottom:5px;white-space:pre-wrap;word-break:break-word}#complaintDetailBody .comment .comment-meta{font-size:.85rem;color:var(--secondary)}#complaintDetailBody .comment .comment-user{font-weight:700;color:var(--dark-grey)}#complaintDetailBody #newCommentText,#complaintDetailBody #replyCommentText{resize:vertical;min-height:60px}#createComplaintModal .modal-body{padding:1.5rem}#createComplaintModal #detailedRatings .rating-row{display:flex;align-items:center;justify-content:flex-start;gap:15px;background-color:var(--light-grey);padding:8px 12px;border-radius:var(--border-radius-md);margin-bottom:10px}#createComplaintModal #detailedRatings .rating-row span{flex:1 1 auto;min-width:80px;font-size:.95rem;color:var(--dark-grey);margin-right:10px;flex-shrink:0}#createComplaintModal #detailedRatings .rating-row .rating-select{flex:0 0 auto;min-width:130px;border-radius:var(--border-radius-md);padding:5px 10px;font-size:.9rem;border:1px solid var(--border-color-light);background-color:var(--white);position:relative}#createComplaintModal #detailedRatings .rating-row .rating-select:focus{border-color:var(--primary);box-shadow:0 0 0 .25rem var(--focus-ring-color-primary);outline:0}#createComplaintModal form.was-validated #detailedRatings .rating-row .rating-select:invalid{border-color:var(--danger)}#createComplaintModal form.was-validated #detailedRatings .rating-row .rating-select:invalid~.invalid-feedback{display:block;width:100%;text-align:right;font-size:.8em;margin-top:.25rem;color:var(--danger)}#imagePreviewContainer{margin-top:10px}#imagePreview{border:1px solid var(--border-color-light);padding:5px;max-width:100%;height:auto;display:none;border-radius:var(--border-radius-sm)}#imagePreview.show{display:block}#editComplaintModal .modal-body{padding:1.5rem}#adminCommentModal .modal-body textarea{resize:vertical}#adminModal .table-responsive{max-height:70vh;overflow-y:auto}#adminComplaintTable{width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:.9rem;background-color:#fff;box-shadow:var(--shadow-sm);border-radius:var(--border-radius-md);overflow:hidden}#adminComplaintTable th,#adminComplaintTable td{vertical-align:middle;text-align:center;padding:.75rem .5rem;border:1px solid var(--border-color)}#adminComplaintTable thead th{background-color:var(--light-grey);font-weight:600;white-space:nowrap;border-color:var(--border-color);border-bottom-width:2px;position:sticky;top:0;z-index:1}#adminComplaintTable tbody tr:hover{background-color:rgba(0,123,255,.03)}#adminComplaintTable td{overflow:hidden;text-overflow:ellipsis;max-width:150px}#adminComplaintTable td.text-start{text-align:left}#adminComplaintTable td:nth-child(2),#adminComplaintTable td:nth-child(3){max-width:200px;white-space:nowrap}#adminComplaintTable th:last-child,#adminComplaintTable td:last-child{min-width:240px;white-space:nowrap;max-width:none;overflow:visible}.action-buttons{display:flex;flex-wrap:nowrap;gap:.25rem;justify-content:center}.action-buttons .btn{padding:6px 10px!important;font-size:.8rem!important;border-radius:var(--border-radius-md)}.action-buttons .btn i{margin-right:.25rem!important;font-size:.9em}#noPendingComplaintsMsg{display:none}.toast{border-radius:var(--border-radius-md);box-shadow:var(--shadow-lg);border:none;background-color:var(--white)}.toast-header{transition:background-color .3s ease,color .3s ease;border-bottom:1px solid rgba(0,0,0,.05);border-top-left-radius:var(--border-radius-md);border-top-right-radius:var(--border-radius-md);padding:.75rem 1rem}.toast-header.bg-success{background-color:var(--success)!important;color:#fff}.toast-header.bg-danger{background-color:var(--danger)!important;color:#fff}.toast-header.bg-info{background-color:var(--info)!important;color:#fff}.toast-header.bg-warning{background-color:var(--warning)!important;color:#333}.toast-header .btn-close{filter:none}.toast-header.bg-success .btn-close,.toast-header.bg-danger .btn-close,.toast-header.bg-info .btn-close{filter:invert(1) grayscale(100%) brightness(200%)}.toast-body{padding:1rem}.complaint-card{background-color:var(--white);border:1px solid var(--border-color);border-radius:var(--border-radius-md);border-left-width:3px;border-left-style:solid;transition:box-shadow var(--transition),border-left-color var(--transition);margin-bottom:1rem}.complaint-card:hover{box-shadow:var(--shadow-md)}.complaint-card.status-açık{border-left-color:var(--primary)}.complaint-card.status-çözüldü{border-left-color:var(--success)}.complaint-card.status-kapalı{border-left-color:var(--secondary)}.complaint-card.status-beklemede{border-left-color:var(--warning)}.complaint-card.status-unknown{border-left-color:var(--info)}.complaint-card .card-content-wrapper{padding:1rem 1.25rem}.complaint-card .brand-tag{font-weight:700;color:var(--dark-grey);display:inline-block;margin-right:.5rem}.complaint-card .badge.bg-light{font-size:.8rem;padding:.25em .6em;vertical-align:middle;background-color:var(--light-grey)!important;color:var(--dark-grey)!important;border:1px solid var(--border-color)}.complaint-card .complaint-date{font-size:.85rem;color:var(--medium-grey)}.complaint-card .complaint-title{font-size:1.1rem;font-weight:600;color:var(--brand-color);margin-bottom:.5rem!important;cursor:pointer;transition:color .2s ease;display:block;text-decoration:none}.complaint-card .complaint-title:hover{color:var(--primary)}.complaint-card .complaint-excerpt{font-size:.95rem;color:var(--medium-grey);line-height:1.5;margin-bottom:1rem!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;min-height:calc(1.5em * 3)}.complaint-card .card-footer-info{border-top:1px solid var(--border-color);padding:.75rem 1.25rem!important;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}.complaint-card .badge.status-badge{font-size:.8rem;padding:.3em .6em;border-radius:var(--border-radius-pill)}.complaint-card .badge.status-açık{background-color:var(--primary);color:var(--white)}.complaint-card .badge.status-çözüldü{background-color:var(--success);color:var(--white)}.complaint-card .badge.status-kapalı{background-color:var(--secondary);color:var(--white)}.complaint-card .badge.status-beklemede{background-color:var(--warning);color:#333}.complaint-card .badge.status-unknown{background-color:var(--info);color:var(--white)}.complaint-card .average-box{background-color:#e6f0fa;color:var(--brand-color);font-size:1.6rem;font-weight:700;padding:.5rem .8rem;border-radius:var(--border-radius-md);display:inline-flex;align-items:center;justify-content:center;line-height:1;min-width:55px;min-height:40px;text-align:center;vertical-align:middle;box-shadow:inset 0 1px 2px rgba(0,0,0,.05)}.complaint-card .like-dislike-section{display:flex;align-items:center;gap:.5rem}.complaint-card .like-dislike-section .btn{color:var(--medium-grey);transition:color .2s ease,transform .2s ease;background:none;border:none;padding:.25rem .5rem;font-size:1rem}.complaint-card .like-dislike-section .btn:hover{color:var(--dark-grey);transform:scale(1.1)}.complaint-card .like-dislike-section .btn.active-like{color:var(--primary)}.complaint-card .like-dislike-section .btn.active-dislike{color:var(--danger)}.complaint-card .like-dislike-section .btn .count{font-size:.85rem;margin-left:.25rem;color:var(--secondary);font-weight:normal}.complaint-card .like-dislike-section .btn.active-like .count{color:var(--primary);font-weight:500}.complaint-card .like-dislike-section .btn.active-dislike .count{color:var(--danger);font-weight:500}footer{background-color:var(--white);color:var(--medium-grey);padding:40px 0;width:100%;border-top:1px solid var(--border-color)}footer .footer-title{font-size:1.1rem;font-weight:600;color:var(--dark-grey);margin-bottom:1rem}footer .footer-link-placeholder{color:var(--medium-grey);font-size:.95rem;display:block;margin-bottom:.5rem;opacity:.7;cursor:not-allowed}footer .footer-link{color:var(--medium-grey);text-decoration:none;font-size:.95rem;transition:color var(--transition);display:block;margin-bottom:.5rem}footer .footer-link:last-child{margin-bottom:0}footer .footer-link:is(:hover,:focus){color:var(--primary);text-decoration:none;outline:0}footer .social-icons a{color:var(--medium-grey);font-size:1.2rem;transition:color var(--transition),transform var(--transition);margin:0 .5rem;display:inline-block;text-decoration:none}footer .social-icons a:is(:hover,:focus){color:var(--primary);transform:translateY(-3px);outline:0}footer .text-muted{font-size:.9rem}@media (min-width:768px){.how-it-works-section .row>.col-md-4:not(:last-child)::after{display:block}.how-it-works-section .row{display:flex}.how-it-works-section .col-md-4{display:flex;flex-direction:column}.how-it-works-section .step-card{flex-grow:1}#adminComplaintTable td{max-width:200px}#adminComplaintTable td:nth-child(2),#adminComplaintTable td:nth-child(3){max-width:300px}#adminComplaintTable th:last-child,#adminComplaintTable td:last-child{min-width:240px}}@media (max-width:991.98px){section{padding:3rem 0}.section-divider-bottom-diagonal{padding-bottom:80px}.section-divider-bottom-diagonal::after{height:80px}#hero-advanced{padding-top:80px}#adminComplaintTable th:last-child,#adminComplaintTable td:last-child{min-width:240px}.billing-toggle-container{flex-wrap:wrap;justify-content:center}.explore-section .widget-card{margin-bottom:1.5rem}.explore-section .row>div:last-child .widget-card{margin-bottom:0}#latestComplaintList .complaint-card{flex:0 0 300px;width:300px;min-width:300px;max-width:300px;margin-right:1rem}#latestComplaintList::before,#latestComplaintList::after{width:50px}}@media (max-width:767.98px){section{padding:2.5rem 0}.section-divider-bottom-diagonal{padding-bottom:60px}.section-divider-bottom-diagonal::after{height:60px}#hero-advanced{padding-top:60px}.hero-title{font-size:2.2rem;text-align:center}.hero-subtitle{text-align:center}.hero-illustration-container{margin-bottom:2rem}.section-title{font-size:1.8rem}.section-subtitle{margin-bottom:2rem}.how-it-works-section .row>.col-md-4:not(:last-child)::after{display:none}.billing-toggle-container{flex-direction:column;gap:10px;padding:10px;display:flex;width:100%;max-width:300px;margin-left:auto;margin-right:auto}.billing-toggle-container .btn,.billing-toggle-container .billing-option{width:100%;text-align:center;justify-content:center}footer{padding:30px 0;text-align:center}footer .col-lg-3.col-md-6{text-align:center!important}footer .footer-title{margin-bottom:.8rem}footer .footer-link,footer .footer-link-placeholder{font-size:.9rem;margin-bottom:.4rem}footer .social-icons{margin-top:1rem}footer .social-icons a{font-size:1.3rem;margin:0 .6rem}#createComplaintModal #detailedRatings .rating-row{flex-direction:column;align-items:flex-start;gap:5px}#createComplaintModal #detailedRatings .rating-row span{flex-basis:auto;width:100%;margin-right:0}#createComplaintModal #detailedRatings .rating-row .rating-select{flex-basis:auto;width:100%;min-width:auto}#createComplaintModal form.was-validated #detailedRatings .rating-row .rating-select:invalid~.invalid-feedback{text-align:left}#adminComplaintTable{font-size:.85rem}#adminComplaintTable th,#adminComplaintTable td{padding:.5rem .4rem}#adminComplaintTable th:last-child,#adminComplaintTable td:last-child{min-width:220px}#latestComplaintList .complaint-card{flex:0 0 300px;width:300px;min-width:300px;max-width:300px;margin-right:1rem}#latestComplaintList::before,#latestComplaintList::after{width:50px}}@media (max-width:575.98px){section{padding:2rem 0}.section-divider-bottom-diagonal{padding-bottom:50px}.section-divider-bottom-diagonal::after{height:50px}#hero-advanced{padding-top:50px}.hero-title{font-size:2rem}.hero-subtitle{font-size:1rem}#hero-advanced .d-flex.flex-column.flex-sm-row{flex-direction:column!important;align-items:stretch!important;gap:.75rem!important}#hero-advanced .d-flex.flex-column.flex-sm-row a.modern-btn{width:100%}#adminComplaintTable th,#adminComplaintTable td{white-space:normal;text-align:left!important;max-width:none!important Carver College and Career Academy }#adminComplaintTable th:first-child,#adminComplaintTable td:first-child{text-align:center!important}#adminComplaintTable th:last-child,#adminComplaintTable td:last-child{text-align:center!important;min-width:100px}.action-buttons{flex-wrap:wrap;justify-content:center;gap:.3rem}.action-buttons .btn{padding:5px 8px!important;font-size:.75rem!important}.section-title{font-size:1.6rem}.search-widget form{gap:.75rem}.search-widget .form-control,.search-widget .form-select,.search-widget .btn{font-size:.9rem;padding:10px 18px}.explore-section .widget-card{padding:1.5rem}.explore-section .widget-title{font-size:1.3rem}.popular-brands-widget .list-group-item{padding:.5rem 1rem}.featured-complaints-widget .complaint-summary-title{font-size:.9rem}.featured-complaints-widget .complaint-summary-brand{font-size:.8rem}.featured-complaints-widget .chart-container{max-width:180px!important}.complaint-card .card-content-wrapper{padding:.75rem}.complaint-card .brand-tag{font-size:.9rem}.complaint-card .complaint-title{font-size:1.05rem}.complaint-card .complaint-excerpt{font-size:.9rem;-webkit-line-clamp:2;min-height:calc(1.5em * 2)}.complaint-card .average-box{font-size:1.4rem;padding:.4rem .6rem;min-width:45px;min-height:35px}.complaint-card .card-footer-info{flex-direction:column;align-items:flex-start;gap:.5rem}.complaint-card .like-dislike-section{margin-left:0!important;margin-top:.5rem}#latestComplaintList .complaint-card{flex:0 0 280px;width:280px;min-width:280px;max-width:280px;margin-right:1rem}#latestComplaintList::before,#latestComplaintList::after{width:40px}}@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}#latestComplaintList .slider-track{animation:none;display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:1rem;width:auto;transform:none!important}#latestComplaintList .complaint-card{scroll-snap-align:start}#latestComplaintList::before,#latestComplaintList::after{display:none}}
+/*---------------------------------------
+ * 1. GENEL DEĞIŞKENLER VE TEMALAR
+ * Açıklama: Renkler, gölgeler, kenarlık yarıçapları gibi temel stil değişkenleri burada tanımlanır.
+ * Açık ve koyu mod için ayrı değişken setleri bulunur.
+---------------------------------------*/
+:root {
+    /* Ana renk paleti */
+    --primary: #4a7dfa;
+    --secondary: #6c757d;
+    --success: #2dce89;
+    --danger: #f5365c;
+    --warning: #fb6340;
+    --info: #11cdef;
+
+    /* Marka renkleri (Özelleştirilmiş) */
+    --brand-color: #28447d;
+    --brand-color-dark: #031f57;
+
+    /* Temel Renkler (Açık Mod - Varsayılan) */
+    --bg-color: #f8f9fa; /* Sayfa arka planı */
+    --text-color: #344767; /* Ana metin rengi */
+    --text-color-medium: #67748e; /* İkincil metin rengi */
+    --card-bg: #ffffff; /* Kartların arka planı */
+    --border-color: #e9ecef; /* Genel kenarlık rengi */
+    --border-color-light: #ced4da; /* Form elemanları gibi yerlerde kullanılan daha belirgin kenarlık */
+    --link-color-hover: #0056b3; /* Bağlantı üzerine gelme rengi */
+    --white: #fff; /* Saf beyaz (nadiren doğrudan kullanılır) */
+    --black: #000; /* Saf siyah (nadiren doğrudan kullanılır) */
+
+    /* Gölge Efektleri */
+    --shadow-sm: 0 2px 5px rgba(0, 0, 0, .08);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, .1);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, .12);
+    --shadow-soft: 0 0 15px rgba(0, 0, 0, .05); /* Daha yumuşak gölge */
+
+    /* Kenarlık Yarıçapları */
+    --border-radius-sm: .25rem;
+    --border-radius-md: .375rem;
+    --border-radius-lg: .5rem;
+    --border-radius-xl: 1rem;
+    --border-radius-pill: 50rem;
+    --border-radius-round: 50%;
+
+    /* Geçiş Efekti */
+    --transition: all .3s ease;
+
+    /* Odaklanma Halkası */
+    --focus-ring-color-primary: rgba(74, 125, 250, 0.25);
+
+    /* RGB Renk Değişkenleri (rgba() içinde kullanım için) */
+    --primary-rgb: 74, 125, 250;
+    --success-rgb: 45, 206, 137;
+    --info-rgb: 17, 205, 239;
+    --warning-rgb: 251, 99, 64;
+    --danger-rgb: 245, 54, 92;
+    --secondary-rgb: 108, 117, 125;
+    --bg-color-rgb: 248, 249, 250; /* Açık mod arka plan */
+}
+
+/* Karanlık Mod Değişkenleri */
+body.dark-mode {
+    --bg-color: #1a1f36;
+    --text-color: #e9ecef;
+    --text-color-medium: #adb5bd;
+    --card-bg: #252f40;
+    --border-color: #344767;
+    --border-color-light: #455474;
+    --link-color-hover: #6ca0ff;
+    --brand-color: #a1bfff; /* Karanlık modda daha açık marka rengi */
+    --brand-color-dark: #7a9fff; /* Karanlık modda daha açık koyu marka rengi */
+    --bg-color-rgb: 26, 31, 54; /* Koyu mod arka plan */
+
+    /* Karanlık mod için gölgeler daha belirgin olabilir */
+    --shadow-sm: 0 2px 5px rgba(0, 0, 0, .2);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, .25);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, .3);
+    --shadow-soft: 0 0 15px rgba(0, 0, 0, .15);
+
+    /* Bazı özel eleman renkleri */
+    .complaint-card .average-box {
+        background-color: rgba(var(--primary-rgb), 0.1); /* Daha uyumlu arka plan */
+        color: var(--primary);
+    }
+
+    .billing-toggle-container {
+        background-color: var(--card-bg); /* Koyu modda kart arka planını kullan */
+    }
+
+    .billing-toggle-container .btn {
+        color: var(--primary); /* Koyu modda da mavi kalsın */
+    }
+
+    .billing-toggle-container .btn.active {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: var(--white); /* Aktif buton metni beyaz */
+    }
+
+     .billing-toggle-container .billing-option {
+        color: var(--text-color-medium);
+     }
+     .billing-toggle-container .billing-option.active {
+        color: var(--primary);
+     }
+
+     /* Koyu modda modal kapatma butonu */
+     .modal-header .btn-close {
+         filter: invert(1) grayscale(100%) brightness(200%);
+     }
+
+     /* Koyu modda tablo başlığı */
+    #adminComplaintTable thead th {
+        background-color: #344767; /* Daha koyu başlık */
+        color: var(--text-color);
+        border-color: var(--border-color-light);
+    }
+
+    /* Koyu modda tablo satırı üzerine gelme */
+    #adminComplaintTable tbody tr:hover {
+        background-color: rgba(74, 125, 250, .1); /* Hafif mavi vurgu */
+    }
+
+    /* Koyu modda widget kartları */
+    .widget-card {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+    }
+
+    /* Koyu modda form elemanları */
+    .form-control, .form-select {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        border-color: var(--border-color-light);
+    }
+    .form-control::placeholder {
+        color: var(--text-color-medium);
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        background-color: var(--card-bg); /* Odaklanınca arka planı koru */
+        color: var(--text-color);
+        box-shadow: 0 0 0 0.25rem var(--focus-ring-color-primary);
+    }
+
+    /* Koyu modda toast bildirimleri */
+    .toast {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+    }
+    .toast-header {
+        border-bottom-color: var(--border-color);
+    }
+    .toast-header.bg-success,
+    .toast-header.bg-danger,
+    .toast-header.bg-info {
+        color: var(--white); /* Beyaz metin */
+    }
+    .toast-header.bg-warning {
+        color: #111; /* Uyarı için koyu metin */
+    }
+    .toast-header .btn-close {
+        filter: none; /* Varsayılan filtreyi kaldır */
+    }
+    .toast-header.bg-success .btn-close,
+    .toast-header.bg-danger .btn-close,
+    .toast-header.bg-info .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%); /* Beyaz buton */
+    }
+
+    /* Koyu modda dalga ayırıcı */
+    .wave-divider .shape-fill {
+        fill: var(--bg-color); /* Arka plan rengiyle eşleşmeli */
+    }
+
+    /* Koyu modda özellik kartı ikonları */
+    .feature-card i.fa-3x {
+        background-color: rgba(255, 255, 255, 0.1); /* Daha açık arka plan */
+    }
+
+    /* Koyu modda adım kartları */
+    .step-card .step-icon {
+        background-color: rgba(var(--primary-rgb), 0.2); /* Ana rengin hafif tonu */
+        color: var(--primary);
+    }
+    .step-card .step-icon span {
+        color: var(--primary);
+    }
+
+    /* Koyu modda şikayet kartı rozetleri */
+    .complaint-card .badge.bg-light {
+        background-color: var(--border-color) !important;
+        color: var(--text-color) !important;
+        border-color: var(--border-color-light);
+    }
+
+    /* Koyu modda slider fade efekti */
+    #latestComplaintList::before {
+        background: linear-gradient(to right, var(--bg-color), rgba(var(--bg-color-rgb), 0)); /* Koyu arka plana geçiş */
+    }
+    #latestComplaintList::after {
+        background: linear-gradient(to left, var(--bg-color), rgba(var(--bg-color-rgb), 0)); /* Koyu arka plana geçiş */
+    }
+
+    /* Koyu modda footer */
+    footer {
+        background-color: #1f2937; /* Biraz daha açık koyu */
+        border-top-color: var(--border-color);
+    }
+    footer .footer-title {
+        color: var(--text-color);
+    }
+    footer .footer-link, footer .footer-link-placeholder {
+        color: var(--text-color-medium);
+    }
+    footer .footer-link:hover {
+        color: var(--primary);
+    }
+    footer .text-muted {
+        color: var(--text-color-medium) !important;
+    }
+    footer .footer-social-icon {
+        background-color: var(--border-color);
+        color: var(--text-color);
+    }
+    footer .footer-social-icon:hover {
+        background-color: var(--primary);
+        color: var(--white);
+    }
+    footer .border-top {
+      border-top-color: var(--border-color) !important;
+    }
+
+    /* Koyu modda Select elemanı oku */
+    .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    }
+
+    /* === Koyu Tema Puanlama Kutusu Renkleri === */
+    .rating-box {
+        background-color: #4e5d78; /* Başlangıç rengi (Koyu Mod) */
+        border-color: transparent;
+    }
+    .rating-box:hover {
+        background-color: #667694; /* Koyu mod hover rengi */
+    }
+    /* Koyu Mod - Düşük Puan (1 veya 2 seçildiğinde) */
+    .rating-boxes.current-rating-1 .rating-box.selected,
+    .rating-boxes.current-rating-2 .rating-box.selected {
+        background-color: var(--danger);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    /* Koyu Mod - Orta Puan (3 seçildiğinde) */
+    .rating-boxes.current-rating-3 .rating-box.selected {
+        background-color: var(--warning);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    /* Koyu Mod - Yüksek Puan (4 veya 5 seçildiğinde) */
+    .rating-boxes.current-rating-4 .rating-box.selected,
+    .rating-boxes.current-rating-5 .rating-box.selected {
+        background-color: var(--success);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Koyu Mod - Puanlama Satırları */
+    .rating-row {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+    }
+    .rating-row:hover {
+        border-color: var(--primary);
+        background-color: rgba(var(--primary-rgb), 0.1);
+    }
+    .rating-row > span {
+        color: var(--text-color);
+    }
+}
+
+
+/*---------------------------------------
+ * 2. GENEL STIL AYARLAMALARI
+ * Açıklama: Body, başlıklar, linkler gibi temel HTML elemanlarının stilleri.
+---------------------------------------*/
+body {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow-x: hidden; /* Yatay kaydırmayı engelle */
+    transition: background-color var(--transition), color var(--transition);
+    padding-top: 70px; /* Fixed navbar için boşluk bırak */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-color); /* Başlık renklerini de tema ile uyumlu yap */
+    font-weight: 700; /* Daha belirgin başlıklar */
+    margin-bottom: 1rem;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+a:hover {
+    color: var(--link-color-hover);
+}
+
+/* Genel Bölüm Stilleri */
+section {
+    padding: 60px 0; /* Bölümler arası dikey boşluk */
+    position: relative; /* Ayırıcılar için */
+    overflow: hidden; /* Animasyon taşmalarını engelle */
+}
+
+.section-title {
+    font-size: clamp(1.8rem, 5vw, 2.5rem); /* Ekran boyutuna göre ayarlı başlık boyutu */
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: var(--brand-color); /* Marka rengini kullan */
+}
+
+.section-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+    color: var(--text-color-medium);
+    text-align: center;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 3rem; /* Başlık ve içerik arası boşluk */
+}
+
+/* Bölüm Ayırıcıları (Diagonal - Örnek) */
+.section-divider-bottom-diagonal {
+    position: relative;
+}
+
+.section-divider-bottom-diagonal::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; /* Kenarlık çakışmasını önle */
+    left: 0;
+    width: 100%;
+    height: 50px; /* Ayırıcı yüksekliği */
+    background-color: var(--bg-color); /* Üstteki bölümün arka planı */
+    clip-path: polygon(0 100%, 100% 0, 100% 100%); /* Diagonal kesim */
+    z-index: 1;
+}
+
+/*---------------------------------------
+ * 3. NAVBAR
+ * Açıklama: Sayfanın üst kısmındaki navigasyon çubuğu stilleri.
+---------------------------------------*/
+.navbar {
+    background-color: transparent; /* Başlangıçta şeffaf */
+    transition: background-color var(--transition), box-shadow var(--transition), padding var(--transition);
+    padding: 15px 0;
+    z-index: 1030; /* Diğer elemanların üzerinde kalması için */
+}
+
+.navbar.fixed-top {
+    /* Body'deki padding-top ile dengelenir */
+}
+
+.navbar.scrolled {
+    background-color: var(--card-bg); /* Kaydırılınca kart arka plan rengi */
+    box-shadow: var(--shadow-md);
+    padding: 10px 0;
+}
+
+/* Navbar Marka */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--white); /* Başlangıçta beyaz */
+    transition: color var(--transition);
+}
+.navbar-brand i {
+    color: var(--primary); /* İkon rengi */
+}
+.navbar.scrolled .navbar-brand {
+    color: var(--text-color); /* Kaydırılınca metin rengi */
+}
+.navbar.scrolled .navbar-brand i {
+     color: var(--primary); /* İkon rengi sabit kalabilir veya değişebilir */
+}
+
+/* Navbar Linkleri */
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.8); /* Başlangıçta hafif soluk beyaz */
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: color var(--transition);
+    position: relative; /* Aktif link alt çizgisi için */
+}
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+    color: var(--white); /* Üzerine gelince tam beyaz */
+}
+.navbar-nav .nav-link.active {
+    color: var(--white); /* Aktif link tam beyaz */
+    font-weight: 600;
+}
+/* Aktif link için alt çizgi efekti (Opsiyonel) */
+.navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 1rem;
+    right: 1rem;
+    height: 2px;
+    background-color: var(--primary);
+}
+
+/* Kaydırılmış Navbar Linkleri */
+.navbar.scrolled .navbar-nav .nav-link {
+    color: var(--text-color-medium); /* Kaydırılınca ikincil metin rengi */
+}
+.navbar.scrolled .navbar-nav .nav-link:hover,
+.navbar.scrolled .navbar-nav .nav-link:focus {
+    color: var(--text-color); /* Üzerine gelince ana metin rengi */
+}
+.navbar.scrolled .navbar-nav .nav-link.active {
+    color: var(--primary); /* Aktif link ana renk */
+    font-weight: 600;
+}
+.navbar.scrolled .navbar-nav .nav-link.active::after {
+    background-color: var(--primary); /* Alt çizgi rengi */
+}
+
+/* Navbar Toggler (Mobil) */
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+.navbar.scrolled .navbar-toggler {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+.navbar.scrolled .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.6%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Mobil menü açıldığında arka plan */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background-color: var(--card-bg); /* Açık/Koyu moda uygun */
+        border-radius: var(--border-radius-md);
+        padding: 1rem;
+        margin-top: 0.5rem;
+        box-shadow: var(--shadow-lg);
+    }
+    .navbar-nav .nav-link {
+        color: var(--text-color-medium); /* Mobil menü link rengi */
+        padding: 0.75rem 0; /* Daha fazla dikey boşluk */
+    }
+     .navbar-nav .nav-link:hover,
+     .navbar-nav .nav-link:focus,
+     .navbar-nav .nav-link.active {
+        color: var(--primary); /* Mobil menü aktif/hover rengi */
+    }
+     .navbar-nav .nav-link.active::after {
+        display: none; /* Mobilde alt çizgiyi kaldır */
+    }
+    .navbar .navbar-nav .btn { /* Butonları tam genişlik yap */
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    .navbar .theme-toggle-btn { /* Tema butonunu sağa hizala */
+       margin-left: auto;
+    }
+}
+
+/* Tema Değiştirme Butonu */
+.theme-toggle-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1); /* Başlangıçta hafif şeffaf */
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1rem; /* İkon boyutu */
+}
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+.navbar.scrolled .theme-toggle-btn {
+    background-color: var(--bg-color); /* Kaydırılınca sayfa arka planı */
+    color: var(--text-color); /* Kaydırılınca metin rengi */
+    box-shadow: var(--shadow-sm);
+}
+@media (min-width: 992px) { /* Sadece büyük ekranlarda sağa yasla */
+    .navbar .theme-toggle-btn {
+        margin-left: 0.5rem;
+    }
+}
+
+
+/*---------------------------------------
+ * 4. HERO SECTION (Gelişmiş)
+ * Açıklama: Sayfanın en üstündeki dikkat çekici ana bölüm.
+---------------------------------------*/
+.hero-advanced {
+    position: relative; /* Floating shapes için */
+    overflow: hidden;
+    padding: 100px 0 120px; /* Üstte navbar boşluğu + içerik, altta dalga için boşluk */
+    background-image: linear-gradient(135deg, var(--brand-color), var(--brand-color-dark));
+    color: var(--white);
+    z-index: 1; /* Diğer bölümlerin altında kalabilir */
+}
+
+/* Floating shapes - animasyonlu elementler */
+.floating-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1; /* İçeriğin arkasında */
+    pointer-events: none; /* Tıklamayı engelle */
+}
+
+.floating-shape {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+    animation: float 15s ease-in-out infinite alternate; /* Daha yumuşak animasyon */
+}
+/* Farklı boyut ve pozisyonlar */
+.floating-shape:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 5%; animation-duration: 12s; }
+.floating-shape:nth-child(2) { width: 120px; height: 120px; top: 70%; left: 80%; animation-duration: 18s; animation-delay: 1s; }
+.floating-shape:nth-child(3) { width: 60px; height: 60px; top: 30%; right: 15%; animation-duration: 16s; animation-delay: 0.5s; }
+.floating-shape:nth-child(4) { width: 100px; height: 100px; bottom: 10%; left: 15%; animation-duration: 20s; animation-delay: 1.5s; }
+.floating-shape:nth-child(5) { width: 50px; height: 50px; top: 50%; left: 40%; animation-duration: 14s; animation-delay: 2s; }
+.floating-shape:nth-child(6) { width: 90px; height: 90px; top: 85%; right: 5%; animation-duration: 19s; animation-delay: 2.5s; }
+
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    100% { transform: translate(15px, -20px) rotate(15deg) scale(1.05); } /* Daha belirgin hareket */
+}
+
+/* Bildirim Rozeti */
+.notification-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: var(--border-radius-pill);
+    padding: 8px 18px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(5px); /* Arka planı bulanıklaştır (destekleyen tarayıcılarda) */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.badge-icon {
+    width: 24px;
+    height: 24px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+.badge-icon i {
+    color: var(--white);
+    font-size: 12px;
+}
+.badge-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--white);
+}
+
+/* Hero Başlık ve Altbaşlık */
+.hero-title {
+    font-size: clamp(2.5rem, 6vw, 3.8rem); /* Daha büyük ve duyarlı başlık */
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--white); /* Rengi explicit olarak beyaz yap */
+}
+.hero-subtitle {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: 400;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    opacity: 0.9; /* Hafif şeffaflık */
+    color: rgba(255, 255, 255, 0.9); /* Rengi explicit olarak ayarla */
+}
+
+/* Hero Butonları */
+.hero-buttons {
+    display: flex;
+    flex-wrap: wrap; /* Küçük ekranlarda alt alta gelmesi için */
+    gap: 15px; /* Butonlar arası boşluk */
+    margin-bottom: 3rem; /* Altındaki elemanlarla boşluk */
+}
+
+/* Hero İstatistikleri */
+.hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Öğeler arası boşluk */
+    margin-bottom: 2rem;
+}
+.stat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px; /* Biraz daha geniş */
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    backdrop-filter: blur(5px);
+    transition: var(--transition);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex-basis: calc(50% - 10px); /* İki sütunlu görünüm için */
+    max-width: calc(50% - 10px);
+}
+.stat-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px); /* Hafif yukarı kalkma efekti */
+    box-shadow: var(--shadow-md);
+}
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    flex-shrink: 0; /* Küçülmesini engelle */
+}
+.stat-icon i {
+    font-size: 1.2rem;
+    color: var(--white);
+}
+.stat-text {
+    font-size: 0.9rem; /* Biraz daha küçük */
+    line-height: 1.3;
+    color: var(--white);
+}
+.stat-text strong {
+    display: block;
+    font-size: 1.1rem; /* Biraz daha küçük */
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+/* Güven Göstergeleri */
+.trust-indicators {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px 25px; /* Dikey ve yatay boşluklar */
+    margin-bottom: 2rem;
+    padding-top: 1rem; /* Üstteki elemanla biraz boşluk */
+    border-top: 1px solid rgba(255, 255, 255, 0.15); /* Hafif ayırıcı çizgi */
+}
+.trust-indicator {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.85);
+}
+.trust-indicator i {
+    color: var(--primary); /* İkon rengi */
+    font-size: 1.1em;
+    margin-right: 8px; /* İkon ve metin arası boşluk */
+}
+
+/* Hero Görseli */
+.hero-image-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px; /* 3D efekt için */
+}
+.hero-image {
+    width: 100%;
+    max-width: 450px; /* Biraz daha küçük */
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35); /* Daha belirgin gölge */
+    transition: transform 0.5s ease-out, box-shadow var(--transition); /* Yumuşak geçiş */
+    position: relative;
+    z-index: 1;
+    transform: rotateY(-5deg) rotateX(3deg); /* Hafif 3D eğim */
+}
+.hero-image-container:hover .hero-image {
+    transform: rotateY(0deg) rotateX(0deg) scale(1.03); /* Üzerine gelince düzelt ve büyüt */
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Dalga Ayırıcı */
+.wave-divider {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0; /* SVG altındaki boşluğu kaldır */
+    z-index: 0; /* Hero içeriğinin arkasında ama floating shapes'in önünde */
+    transform: rotate(180deg); /* SVG'yi ters çevir */
+}
+.wave-divider svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px); /* Kenarlarda boşluk kalmaması için hafif taşır */
+    height: 70px; /* Dalga yüksekliği */
+}
+.wave-divider .shape-fill {
+    fill: var(--bg-color); /* Alt bölümün arka plan rengiyle eşleşmeli */
+    transition: fill var(--transition); /* Tema değişimi için */
+}
+
+/*---------------------------------------
+ * 5. BUTONLAR
+ * Açıklama: Genel ve özel buton stilleri.
+---------------------------------------*/
+.modern-btn, [class*="modern-btn-"] { /* Daha genel seçici */
+    display: inline-flex; /* İkonlarla hizalama için */
+    align-items: center;
+    justify-content: center;
+    padding: 10px 22px; /* İç boşluk */
+    font-weight: 600;
+    font-size: 0.95rem; /* Standart boyut */
+    border-radius: var(--border-radius-pill); /* Yuvarlak kenarlar */
+    border: 1px solid transparent; /* Kenarlık için yer tutucu */
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none; /* Linkler için alt çizgiyi kaldır */
+    line-height: 1.5;
+    white-space: nowrap; /* Metnin alta kaymasını engelle */
+    vertical-align: middle; /* Diğer inline elemanlarla hizala */
+}
+
+.modern-btn i, [class*="modern-btn-"] i {
+    margin-right: .5rem; /* İkon ve metin arası boşluk */
+    font-size: .95em; /* İkonu metne göre ayarla */
+    line-height: 0; /* İkonun dikey hizalamasını iyileştir */
+}
+
+.modern-btn:hover:not(:disabled), [class*="modern-btn-"]:hover:not(:disabled) {
+    transform: translateY(-2px); /* Hafif yukarı kalkma */
+    box-shadow: var(--shadow-md); /* Daha belirgin gölge */
+}
+.modern-btn:active:not(:disabled), [class*="modern-btn-"]:active:not(:disabled) {
+    transform: translateY(0px); /* Tıklama efekti */
+    box-shadow: var(--shadow-sm);
+}
+.modern-btn:disabled, [class*="modern-btn-"]:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Ana Buton */
+.modern-btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+}
+.modern-btn-primary:hover:not(:disabled) {
+    background-color: var(--link-color-hover); /* Hover rengi */
+    border-color: var(--link-color-hover);
+    color: var(--white);
+}
+
+/* İkincil Buton */
+.modern-btn-secondary {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    color: var(--white);
+}
+.modern-btn-secondary:hover:not(:disabled) {
+    background-color: #5a6268; /* Daha koyu gri */
+    border-color: #545b62;
+    color: var(--white);
+}
+
+/* Dış Çizgili Buton (Hero için) */
+.modern-btn-outline {
+    background-color: transparent;
+    color: var(--white); /* Hero içindeki rengi */
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    box-shadow: none;
+}
+.modern-btn-outline:hover:not(:disabled) {
+    border-color: var(--white);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+    box-shadow: none; /* Hover'da gölge eklemeyebiliriz */
+}
+
+/* Dış Çizgili İkincil Buton (Genel kullanım) */
+.modern-btn-outline-secondary {
+    background-color: transparent;
+    color: var(--secondary);
+    border-color: var(--secondary);
+    box-shadow: none;
+}
+.modern-btn-outline-secondary:hover:not(:disabled) {
+    background-color: var(--secondary);
+    color: var(--white);
+    box-shadow: none;
+}
+
+/* Diğer Renk Butonları (Opsiyonel) */
+.modern-btn-success { background-color: var(--success); border-color: var(--success); color: var(--white); }
+.modern-btn-success:hover:not(:disabled) { background-color: #23a571; border-color: #209364; }
+.modern-btn-danger { background-color: var(--danger); border-color: var(--danger); color: var(--white); }
+.modern-btn-danger:hover:not(:disabled) { background-color: #e82a4e; border-color: #d81b40; }
+.modern-btn-warning { background-color: var(--warning); border-color: var(--warning); color: var(--white); }
+.modern-btn-warning:hover:not(:disabled) { background-color: #fa512e; border-color: #f9401c; }
+.modern-btn-info { background-color: var(--info); border-color: var(--info); color: var(--white); }
+.modern-btn-info:hover:not(:disabled) { background-color: #0da9c2; border-color: #0c97ae; }
+
+/* Küçük Butonlar */
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+}
+
+/*---------------------------------------
+ * Şikayet yazma modalı adımları
+---------------------------------------*/
+
+.complaint-steps {
+    margin-bottom: 30px;
+}
+
+.step-progress-bar {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 0 auto;
+    padding: 0 20px;
+    max-width: 700px;
+}
+
+.step-progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 60px;
+    right: 60px;
+    height: 3px;
+    background-color: var(--border-color);
+    z-index: 1;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+}
+
+.step-count {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-color);
+    border: 3px solid var(--border-color);
+    color: var(--text-color-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 8px;
+    transition: var(--transition);
+}
+
+.step-label {
+    font-size: 0.875rem;
+    color: var(--text-color-medium);
+    text-align: center;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.step-item.active .step-count {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+}
+
+.step-item.active .step-label {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.step-item.completed .step-count {
+    background-color: var(--success);
+    border-color: var(--success);
+    color: var(--white);
+}
+
+.step-item.completed .step-label {
+    color: var(--success);
+}
+
+/* Adım başlığı */
+.step-title {
+    color: var(--brand-color);
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Mobil uyumluluk */
+@media (max-width: 767px) {
+    .step-progress-bar::before {
+        left: 40px;
+        right: 40px;
+    }
+
+    .step-label {
+        font-size: 0.75rem;
+    }
+
+    .step-count {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/*---------------------------------------
+ * 6. KARTLAR
+ * Açıklama: Feature, Step, Widget gibi çeşitli kart bileşenleri.
+---------------------------------------*/
+.feature-card, .step-card, .widget-card, .stat-box, .card { /* .card'ı da dahil et */
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg); /* Daha belirgin yuvarlaklık */
+    box-shadow: var(--shadow-soft); /* Daha yumuşak başlangıç gölgesi */
+    transition: transform var(--transition), box-shadow var(--transition);
+    border: 1px solid var(--border-color);
+    height: 100%; /* Eşit yükseklik için (grid içinde) */
+    display: flex; /* İçerik dikeyde yayılsın */
+    flex-direction: column;
+    overflow: hidden; /* İçerik taşmasını engelle */
+}
+
+.feature-card:hover, .step-card:hover, .widget-card:hover, .stat-box:hover, .card:hover {
+    transform: translateY(-5px); /* Hover'da yukarı kalkma */
+    box-shadow: var(--shadow-lg); /* Hover'da daha belirgin gölge */
+}
+
+/* Özellik Kartları */
+.feature-card {
+    padding: 2rem 1.5rem; /* İç boşluk */
+    text-align: center; /* İçeriği ortala */
+}
+.feature-card i.fa-3x {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem auto; /* Üstten ve alttan margin, sağdan soldan otomatik - ortalama için */
+    background-color: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+    transition: var(--transition);
+}
+/* Farklı renkler (nth-child yerine daha sağlam class'lar kullanılabilir) */
+.feature-card.color-primary i { background-color: rgba(var(--primary-rgb), 0.1); color: var(--primary); }
+.feature-card.color-success i { background-color: rgba(var(--success-rgb), 0.1); color: var(--success); }
+.feature-card.color-info i { background-color: rgba(var(--info-rgb), 0.1); color: var(--info); }
+
+.feature-card:hover i.fa-3x {
+    transform: scale(1.1) rotate(5deg); /* Hover'da ikonu büyüt ve döndür */
+}
+.feature-card h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+.feature-card p {
+    color: var(--text-color-medium);
+    font-size: 0.95rem;
+}
+
+/* Adım Kartları */
+.step-card {
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+.step-icon {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 70px;
+   height: 70px;
+   border-radius: 50%;
+   background-color: rgba(var(--primary-rgb), 0.15);
+   color: var(--primary);
+   margin: 0 auto 1.2rem auto; /* Ortalama */
+   position: relative;
+   transition: var(--transition);
+}
+.step-icon span { /* Adım numarası */
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: var(--primary);
+    color: var(--white);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.step-card:hover .step-icon {
+    transform: scale(1.1);
+    background-color: var(--primary);
+    color: var(--white);
+}
+.step-card:hover .step-icon span {
+    background-color: var(--white);
+    color: var(--primary);
+}
+.step-card h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+.step-card p {
+    color: var(--text-color-medium);
+    font-size: 0.9rem;
+}
+
+/* İstatistik Kutuları */
+.stat-box {
+    padding: 1.5rem;
+    text-align: center;
+}
+.stat-box h3 { /* Sayı */
+    font-size: clamp(2rem, 6vw, 3rem); /* Duyarlı boyut */
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    line-height: 1.1;
+}
+/* Renkler HTML'deki class'larla (text-primary, text-success vb.) veriliyor */
+.stat-box p { /* Açıklama */
+    color: var(--text-color-medium);
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+/* Widget Kartları (Explorer Section) */
+.widget-card {
+    padding: 1.5rem; /* Daha kompakt padding */
+    display: flex;
+    flex-direction: column;
+}
+.widget-title {
+    font-size: 1.3rem; /* Biraz daha küçük başlık */
+    font-weight: 600;
+    color: var(--brand-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* İkon ve başlık arası boşluk */
+}
+.widget-title i {
+    font-size: 1.1em;
+}
+
+/* Arama Widget'ı */
+.search-widget form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.search-widget .form-control,
+.search-widget .form-select {
+    border-radius: var(--border-radius-md); /* Daha standart kenarlık */
+    border: 1px solid var(--border-color-light);
+    padding: 10px 15px; /* Daha kompakt padding */
+    font-size: 0.95rem;
+    box-shadow: none; /* İç gölgeyi kaldır */
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+.search-widget .form-control:focus,
+.search-widget .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 .25rem var(--focus-ring-color-primary);
+    outline: 0;
+}
+.search-widget .btn {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+}
+#searchResultsContainer {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+#searchResultsContainer h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color-medium);
+    margin-bottom: 1rem;
+}
+.complaint-list-group { /* Arama sonuçları listesi */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px; /* Kaydırılabilir alan */
+    overflow-y: auto;
+}
+.complaint-list-group .list-group-item { /* Her bir sonuç öğesi */
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 0.5rem;
+    background-color: var(--bg-color); /* Hafif farklı arka plan */
+    transition: background-color var(--transition);
+}
+.complaint-list-group .list-group-item:hover {
+    background-color: rgba(var(--primary-rgb), 0.05); /* Hafif vurgu */
+}
+
+/* Popüler Markalar Widget'ı */
+.popular-brands-widget .list-group { /* Bootstrap list-group kullanılıyor */
+    margin-bottom: 1rem; /* Link ile arasında boşluk */
+    max-height: 300px; /* Kaydırılabilir */
+    overflow-y: auto;
+}
+.popular-brands-widget .list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-color: var(--border-color);
+    background-color: transparent; /* Arka planı kaldır */
+    color: var(--text-color);
+    transition: background-color var(--transition), color var(--transition);
+    cursor: pointer;
+}
+.popular-brands-widget .list-group-item:hover {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    color: var(--primary);
+}
+.popular-brands-widget .badge { /* Şikayet sayısı rozeti */
+    background-color: var(--border-color);
+    color: var(--text-color-medium);
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+}
+.popular-brands-widget .list-group-item:hover .badge {
+    background-color: var(--primary);
+    color: var(--white);
+}
+.view-all-link { /* Tümünü Gör Linki */
+    display: block;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--primary);
+    margin-top: auto; /* Kartın en altına iter */
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+.view-all-link:hover {
+    text-decoration: underline;
+}
+
+/* Öne Çıkan Şikayetler & Chart Widget'ı */
+.featured-complaints-widget #featuredComplaintsContent {
+    min-height: 100px;
+    margin-bottom: 1rem;
+}
+.featured-complaints-widget .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 200px; /* Daha küçük grafik */
+    margin: 0 auto 1rem; /* Ortalama ve alt boşluk */
+    padding: 0.5rem;
+    background-color: var(--bg-color); /* Hafif farklı arka plan */
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+}
+.featured-complaints-widget .chart-container canvas {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 160px; /* Daha küçük */
+}
+.featured-complaints-widget .chart-container p { /* Grafik altı açıklama */
+    margin-top: 5px;
+    font-size: .75rem; /* Daha küçük */
+    line-height: 1.2;
+    text-align: center;
+    color: var(--text-color-medium);
+    margin-bottom: 0;
+}
+#brandStatsCharts {
+    margin-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+#brandStatsInfo {
+    font-size: 0.85rem;
+    margin-top: 1rem;
+}
+
+/*---------------------------------------
+ * 7. MODAL STYLES
+ * Açıklama: Pop-up pencerelerin (modals) stilleri.
+---------------------------------------*/
+.modal-content {
+    border-radius: var(--border-radius-lg); /* Daha yuvarlak */
+    border: none;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden; /* İçerik taşmasını engelle */
+    background-color: var(--card-bg); /* Tema uyumlu arka plan */
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--primary); /* Ana renk başlık */
+    color: var(--white); /* Beyaz başlık metni */
+    padding: 1rem 1.5rem; /* İç boşluk */
+    border-top-left-radius: var(--border-radius-lg); /* Köşeleri uydur */
+    border-top-right-radius: var(--border-radius-lg);
+}
+.modal-header .modal-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--white); /* Başlık rengini explicit yap */
+}
+.modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Beyaz kapatma ikonu */
+    opacity: 0.8;
+    transition: opacity var(--transition);
+}
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 1.5rem; /* Daha fazla iç boşluk */
+    color: var(--text-color); /* Tema uyumlu metin */
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem; /* İç boşluk */
+    background-color: var(--bg-color); /* Hafif farklı altbilgi arka planı */
+    border-bottom-left-radius: var(--border-radius-lg); /* Köşeleri uydur */
+    border-bottom-right-radius: var(--border-radius-lg);
+}
+
+/* Şikayet Detay Modalı Özel Stilleri */
+#complaintDetailModal .modal-dialog {
+    max-width: 900px; /* Daha geniş modal */
+}
+#complaintDetailBody .spinner-border { /* Yükleniyor ikonu */
+    display: block;
+    margin: 3rem auto;
+    width: 3rem;
+    height: 3rem;
+    color: var(--primary);
+}
+#complaintDetailBody:not(:has(.spinner-border)) .spinner-border { /* İçerik yüklendiğinde ikonu gizle */
+    display: none;
+}
+#complaintDetailBody h4 { /* Detay içindeki başlıklar */
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 1.3rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+#complaintDetailBody .detail-meta { /* Marka, Kategori, Tarih alanı */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+#complaintDetailBody .detail-brand {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+#complaintDetailBody .detail-category {
+    font-size: .8rem;
+    background-color: var(--border-color);
+    color: var(--text-color-medium);
+    padding: 4px 10px;
+    border-radius: var(--border-radius-pill);
+    display: inline-block;
+    vertical-align: middle;
+    font-weight: 500;
+}
+#complaintDetailBody .detail-date {
+    font-size: .85rem;
+    color: var(--secondary);
+    margin-left: auto; /* Sağa yasla */
+}
+#complaintDetailBody .detail-description {
+    margin-top: 1.5rem;
+    line-height: 1.7; /* Daha okunaklı satır aralığı */
+    white-space: pre-wrap; /* Satır sonlarını koru */
+    color: var(--text-color);
+    font-size: 1rem;
+}
+#complaintDetailBody .detail-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 350px; /* Maksimum yükseklik */
+    margin-top: 1.5rem;
+    border-radius: var(--border-radius-md);
+    display: block;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+/* Yorumlar Bölümü */
+#complaintDetailBody .comment-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+#complaintDetailBody .comments-container {
+    max-height: 350px; /* Yorumlar için kaydırılabilir alan */
+    overflow-y: auto;
+    padding-right: 10px; /* Kaydırma çubuğu için boşluk */
+    margin-bottom: 1.5rem; /* Yorum ekleme formu ile boşluk */
+}
+#complaintDetailBody .comment {
+    background-color: var(--bg-color); /* Hafif farklı arka plan */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 1rem 1.25rem; /* İç boşluk */
+    margin-bottom: 1rem;
+    position: relative; /* Admin yorumu için */
+}
+#complaintDetailBody .comment p { /* Yorum metni */
+    margin-bottom: 0.5rem;
+    white-space: pre-wrap;
+    word-break: break-word; /* Uzun kelimeleri kır */
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+#complaintDetailBody .comment .comment-meta { /* Yorum bilgisi (kullanıcı, tarih) */
+    font-size: .8rem;
+    color: var(--text-color-medium);
+    margin-top: 0.5rem;
+}
+#complaintDetailBody .comment .comment-user {
+    font-weight: 600; /* Kullanıcı adını belirginleştir */
+    color: var(--text-color);
+    margin-right: 0.5rem;
+}
+#complaintDetailBody .comment .comment-role-admin { /* Admin yorumu rozeti */
+    background-color: var(--info);
+    color: var(--white);
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+    font-weight: 500;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+/* Yorum Ekleme Formu */
+#addCommentForm textarea {
+    resize: vertical; /* Sadece dikeyde boyutlandırma */
+}
+#addCommentForm button {
+    margin-top: 0.5rem;
+}
+
+/* Admin Panel Modalı Özel Stilleri */
+#adminModal .modal-dialog {
+    max-width: 1140px; /* Daha da geniş modal */
+}
+#adminModal .table-responsive {
+    max-height: 75vh; /* Daha fazla dikey alan */
+    overflow-y: auto;
+    border: 1px solid var(--border-color); /* Tablo etrafına kenarlık */
+    border-radius: var(--border-radius-md);
+}
+#adminComplaintTable {
+    width: 100%;
+    border-collapse: collapse; /* Kenarlıkları birleştir */
+    margin-bottom: 0; /* Responsive div'den dolayı */
+    font-size: .85rem; /* Daha küçük font */
+    background-color: var(--card-bg);
+}
+#adminComplaintTable th,
+#adminComplaintTable td {
+    vertical-align: middle;
+    text-align: left; /* Varsayılan sola hizalı */
+    padding: .6rem .75rem; /* Daha kompakt padding */
+    border: none; /* İç kenarlıkları kaldır */
+    border-bottom: 1px solid var(--border-color); /* Sadece alt kenarlık */
+    white-space: nowrap; /* Satırların alta kaymasını engelle */
+}
+#adminComplaintTable td {
+     color: var(--text-color-medium);
+}
+#adminComplaintTable thead th {
+    background-color: var(--bg-color); /* Başlık arka planı */
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom-width: 2px; /* Başlık altı daha belirgin */
+    border-color: var(--border-color);
+    position: sticky; /* Başlıkları sabitle */
+    top: 0;
+    z-index: 1;
+}
+#adminComplaintTable tbody tr:hover {
+    background-color: rgba(var(--primary-rgb), .05); /* Hafif vurgu */
+}
+#adminComplaintTable tbody tr:last-child td {
+    border-bottom: none; /* Son satırın alt kenarlığını kaldır */
+}
+/* Belirli Sütunlar İçin Ayarlar */
+#adminComplaintTable th:first-child,
+#adminComplaintTable td:first-child { /* ID */
+    text-align: center;
+    width: 60px;
+}
+#adminComplaintTable th:nth-child(2),
+#adminComplaintTable td:nth-child(2) { /* Başlık */
+    white-space: normal; /* Başlık alta kayabilir */
+    min-width: 200px;
+    max-width: 300px; /* Maksimum genişlik */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#adminComplaintTable th:nth-child(5),
+#adminComplaintTable td:nth-child(5) { /* Durum */
+    text-align: center;
+    width: 100px;
+}
+#adminComplaintTable th:last-child,
+#adminComplaintTable td:last-child { /* İşlemler */
+    text-align: right; /* İşlemleri sağa hizala */
+    width: 250px; /* Sabit genişlik */
+}
+/* İşlem Butonları */
+.action-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: .3rem; /* Buton arası boşluk */
+    justify-content: flex-end; /* Sağa hizala */
+}
+.action-buttons .btn {
+    padding: 5px 8px !important; /* Daha küçük butonlar */
+    font-size: .75rem !important;
+    border-radius: var(--border-radius-sm);
+}
+.action-buttons .btn i {
+    margin-right: .25rem !important;
+    font-size: .9em;
+}
+
+/*---------------------------------------
+ * 8. FORM ELEMENTS
+ * Açıklama: Input, select, textarea gibi form elemanları.
+---------------------------------------*/
+.form-control, .form-select {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem; /* Standart iç boşluk */
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--card-bg); /* Tema uyumlu arka plan */
+    background-clip: padding-box;
+    border: 1px solid var(--border-color-light); /* Belirgin kenarlık */
+    appearance: none; /* Tarayıcı varsayılan görünümünü kaldır */
+    border-radius: var(--border-radius-md); /* Standart yuvarlaklık */
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+.form-control::placeholder {
+    color: var(--text-color-medium);
+    opacity: 0.7;
+}
+.form-control:focus, .form-select:focus {
+    color: var(--text-color);
+    background-color: var(--card-bg);
+    border-color: var(--primary);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem var(--focus-ring-color-primary);
+}
+/* Geçersiz Form Elemanı */
+.form-control.is-invalid, .form-select.is-invalid,
+.was-validated .form-control:invalid, .was-validated .form-select:invalid {
+    border-color: var(--danger);
+    padding-right: calc(1.5em + 0.75rem); /* Hata ikonu için yer aç */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23f5365c'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23f5365c' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+.form-control.is-invalid:focus, .form-select.is-invalid:focus,
+.was-validated .form-control:invalid:focus, .was-validated .form-select:invalid:focus {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 0.25rem rgba(245, 54, 92, 0.25); /* Kırmızı odak halkası */
+}
+/* Geçerli Form Elemanı */
+.form-control.is-valid, .form-select.is-valid,
+.was-validated .form-control:valid, .was-validated .form-select:valid {
+     border-color: var(--success);
+     padding-right: calc(1.5em + 0.75rem);
+     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%232dce89' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4L1 2.7l-.8.65-.6-.7L3 1l2.7.8.7.7-.8-.65L6 3.7l.4.7-.6.8L4.4 7l-.7.7-1.4-.9z'/%3e%3c/svg%3e");
+     background-repeat: no-repeat;
+     background-position: right calc(.375em + .1875rem) center;
+     background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+}
+.form-control.is-valid:focus, .form-select.is-valid:focus,
+.was-validated .form-control:valid:focus, .was-validated .form-select:valid:focus {
+     border-color: var(--success);
+     box-shadow: 0 0 0 .25rem rgba(45, 206, 137, .25); /* Yeşil odak halkası */
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+/* Select elemanı için ok ikonu */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2367748e' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px 12px;
+}
+
+/* Dosya Yükleme */
+.form-control[type="file"] {
+    overflow: hidden; /* Dosya adı taşmasını engelle */
+}
+.form-control[type="file"]:not(:disabled):not([readonly]) {
+    cursor: pointer;
+}
+#imagePreviewContainer img {
+    max-height: 150px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+}
+
+
+/* === Puanlama Kutuları İçin Güncellenmiş Stiller === */
+
+.rating-boxes {
+    position: relative;
+    display: inline-block;
+}
+
+.rating-boxes-container {
+    display: flex;
+    gap: 5px;
+}
+
+.rating-box {
+    width: 35px;
+    height: 35px;
+    border-radius: 5px;
+    background-color: var(--border-color); /* Başlangıç rengi (Açık Mod) */
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border: 1px solid transparent;
+}
+
+/* Üzerine gelinen kutu için hover efekti */
+.rating-boxes-container .rating-box:hover {
+     background-color: #e0e0e0; /* Daha nötr bir hover rengi */
+}
+
+/* Düşük Puan (1 veya 2 seçildiğinde) */
+.rating-boxes.current-rating-1 .rating-box.selected,
+.rating-boxes.current-rating-2 .rating-box.selected {
+    background-color: var(--danger); /* Kırmızı */
+    border-color: rgba(0, 0, 0, 0.1);
+}
+/* Orta Puan (3 seçildiğinde) */
+.rating-boxes.current-rating-3 .rating-box.selected {
+    background-color: var(--warning); /* Sarı/Turuncu */
+    border-color: rgba(0, 0, 0, 0.1);
+}
+/* Yüksek Puan (4 veya 5 seçildiğinde) */
+.rating-boxes.current-rating-4 .rating-box.selected,
+.rating-boxes.current-rating-5 .rating-box.selected {
+    background-color: var(--success); /* Yeşil */
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.rating-box:active {
+    transform: scale(0.95);
+}
+
+.rating-boxes.is-invalid .rating-box {
+    border: 1px solid var(--danger);
+}
+.rating-boxes.is-invalid + .invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+/* === Puanlama Satırları === */
+.rating-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius-md);
+    padding: 10px 15px;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-color);
+    transition: border-color var(--transition), background-color var(--transition);
+    gap: 1rem;
+}
+.rating-row:hover {
+    border-color: var(--primary);
+    background-color: rgba(var(--primary-rgb), 0.05);
+}
+.rating-row > span {
+    flex: 1 1 auto;
+    min-width: 150px;
+    font-size: .9rem;
+    color: var(--text-color);
+    font-weight: 500;
+    padding-right: 1rem;
+}
+.rating-row .rating-boxes {
+     flex-shrink: 0;
+}
+
+
+
+
+
+/* Marka Profil Sayfası CSS - Mevcut style.css dosyasına eklenecek */
+
+/* Marka Profil Başlık Bölümü */
+.brand-profile-header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: background-color var(--transition);
+    position: relative;
+}
+
+.brand-logo {
+    width: 80px;
+    height: 80px;
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    color: var(--primary);
+    border: 1px solid var(--border-color);
+}
+
+.rating-box-small {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(var(--primary-rgb), 0.1);
+    border-radius: var(--border-radius-sm);
+    padding: 0.25rem 0.5rem;
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.rating-box-small i {
+    margin-left: 0.25rem;
+    font-size: 0.85rem;
+}
+
+/* Marka Şikayet Kartları */
+.complaint-card {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+}
+
+.complaint-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.complaint-card .card-footer {
+    background-color: var(--bg-color);
+    border-top: 1px solid var(--border-color);
+    padding: 0.75rem;
+}
+
+.complaint-excerpt {
+    min-height: 60px;
+    max-height: 80px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+/* Sayfalama Stilleri */
+.pagination .page-link {
+    color: var(--primary);
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--text-color-medium);
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.pagination .page-link:hover {
+    background-color: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Karanlık Mod İçin Ek Düzenlemeler */
+body.dark-mode .brand-profile-header {
+    background-color: var(--card-bg);
+}
+
+body.dark-mode .brand-logo {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .complaint-card .card-footer {
+    background-color: var(--bg-color);
+}
+
+body.dark-mode .pagination .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+body.dark-mode .pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    color: white;
+}
+
+body.dark-mode .pagination .page-item.disabled .page-link {
+    color: var(--text-color-medium);
+    background-color: var(--card-bg);
+}
+
+body.dark-mode .rating-box-small {
+    background-color: rgba(var(--primary-rgb), 0.2);
+}
+
+/* Grafikler ve Veri Görselleştirmeleri */
+.chart-container {
+    position: relative;
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem;
+    transition: background-color var(--transition);
+}
+
+body.dark-mode .chart-container {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+
+
+/* Marka Sıralama Sayfası CSS - Mevcut style.css dosyasına eklenecek */
+
+/* Sayfa başlık alanı */
+.ranking-header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: background-color var(--transition);
+    position: relative;
+}
+
+/* Tablo stilleri */
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    cursor: pointer;
+}
+
+/* Karanlık temada tablo stilleri */
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+body.dark-mode .table thead th {
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .table tbody td {
+    color: var(--text-color-medium);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+/* Sayfalama */
+.pagination .page-link {
+    color: var(--primary);
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--text-color-medium);
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.pagination .page-link:hover {
+    background-color: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Sıralama Tablosu */
+#brandRankingsTable thead th,
+#topBrandsTable thead th,
+#categoryLeadersTable thead th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-color);
+    z-index: 10;
+    font-weight: 600;
+}
+
+body.dark-mode #brandRankingsTable thead th,
+body.dark-mode #topBrandsTable thead th,
+body.dark-mode #categoryLeadersTable thead th {
+    background-color: var(--card-bg);
+}
+
+#brandRankingsTable td,
+#topBrandsTable td,
+#categoryLeadersTable td {
+    vertical-align: middle;
+}
+
+/* Özellikler Listesi */
+.features-list .feature-item {
+    transition: transform var(--transition);
+}
+
+.features-list .feature-item:hover {
+    transform: translateY(-2px);
+}
+
+.features-list .feature-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(var(--primary-rgb), 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.features-list .feature-icon i {
+    font-size: 0.9rem;
+}
+
+/* Markalar için CTA bölümü */
+.brand-cta {
+    background-color: var(--card-bg);
+    padding: 60px 0;
+    margin-top: 30px;
+}
+
+.brand-cta .list-unstyled li {
+    margin-bottom: 10px;
+}
+
+/* Grafikler */
+.chart-container {
+    position: relative;
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem;
+    transition: background-color var(--transition);
+}
+
+body.dark-mode .chart-container {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Yanıt hızı izi renkleri */
+.response-fast {
+    color: var(--success) !important;
+}
+
+.response-medium {
+    color: var(--warning) !important;
+}
+
+.response-slow {
+    color: var(--danger) !important;
+}
+
+/* Tablo içi grafikler */
+.progress-bar-mini {
+    height: 6px;
+    border-radius: 3px;
+}
+
+/* Genel İstatistikler Kartları Aralarında Boşluk */
+@media (max-width: 767.98px) {
+    .ranking-summary .col-lg-5 {
+        margin-top: 1.5rem;
+    }
+}
+
+
+
+/*---------------------------------------
+ * 9. SON EKLENEN ŞİKAYETLER (SLIDER)
+ * Açıklama: Yatay kayan şikayet kartları bölümü.
+---------------------------------------*/
+#latestComplaintList.slider-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 1rem 0;
+    background: transparent;
+    cursor: grab;
+}
+#latestComplaintList.slider-container:active {
+    cursor: grabbing;
+}
+
+#latestComplaintList .slider-track {
+    display: flex;
+    width: fit-content;
+    animation: scroll 40s linear infinite;
+    will-change: transform;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+#latestComplaintList:hover .slider-track {
+    animation-play-state: paused;
+}
+
+/* Slider içindeki şikayet kartı */
+#latestComplaintList .complaint-card {
+    flex: 0 0 440px;
+    width: 340px;
+    max-width: 340px;
+    margin-right: 1.5rem;
+    transition: transform .3s ease, box-shadow .3s ease;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius-lg);
+    height: auto;
+    min-height: 280px;
+    background-color: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#latestComplaintList .complaint-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: var(--shadow-lg);
+    z-index: 10;
+}
+
+/* Slider kenarlarındaki fade efekti */
+#latestComplaintList::before,
+#latestComplaintList::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    z-index: 5;
+    pointer-events: none;
+    transition: background var(--transition);
+}
+#latestComplaintList::before {
+    left: -1px;
+    background: linear-gradient(to right, var(--bg-color) 0%, rgba(var(--bg-color-rgb), 0) 100%);
+}
+#latestComplaintList::after {
+    right: -1px;
+    background: linear-gradient(to left, var(--bg-color) 0%, rgba(var(--bg-color-rgb), 0) 100%);
+}
+
+
+/*---------------------------------------
+ * 10. ŞİKAYET KARTLARI (Genel) - DÜZELTME
+ * Açıklama: Mevcut kart yapısına uygun şekilde güncellenmiş stiller.
+---------------------------------------*/
+.complaint-card {
+    background-color: var(--card-bg, #fff);
+    border-radius: var(--border-radius-lg, 16px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
+    text-align: center;
+}
+
+.complaint-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+}
+
+/* Kart İçeriği */
+.complaint-card .card-content-wrapper {
+    padding: 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Üst bilgi alanı */
+.complaint-card .card-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+/* Marka alanı */
+.complaint-card .brand-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.complaint-card .brand-tag {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-color, #344767);
+    margin: 0;
+    text-align: left;
+}
+
+/* Kategori etiketi */
+.complaint-card .badge.bg-light {
+    background-color: rgba(var(--primary-rgb, 74, 125, 250), 0.1) !important;
+    color: var(--primary, #4a7dfa) !important;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    border: none;
+    text-transform: uppercase;
+}
+
+/* Tarih */
+.complaint-card .complaint-date {
+    font-size: 0.85rem;
+    color: var(--text-color-medium, #67748e);
+    opacity: 0.8;
+}
+
+/* Şikayet başlığı */
+.complaint-card .complaint-title {
+    color: var(--primary, #4a7dfa);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0.75rem 0;
+    line-height: 1.4;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+
+.complaint-card .complaint-title:hover {
+    color: var(--link-color-hover, #0056b3);
+}
+
+/* Şikayet içeriği */
+.complaint-card .complaint-excerpt {
+    color: var(--text-color, #344767);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    flex-grow: 1;
+    text-align: left;
+}
+
+/* Alt bilgi alanı */
+.complaint-card .card-footer-info {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
+    background-color: var(--bg-color, #f8f9fa);
+    margin-top: auto;
+    gap: 0.75rem;
+}
+
+/* Durum Rozeti */
+.complaint-card .status-badge {
+    background-color: var(--secondary, #6c757d);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Durum ikonunu ekle */
+.complaint-card .status-badge::before {
+    content: "•";
+    margin-right: 5px;
+    font-size: 1.2em;
+    line-height: 0;
+    position: relative;
+    top: 1px;
+}
+
+/* Puan kutusu */
+.complaint-card .average-box {
+    background-color: rgba(var(--primary-rgb, 74, 125, 250), 0.15);
+    color: var(--primary, #4a7dfa);
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    min-width: 2.5rem;
+    display: inline-flex;
+    justify-content: center;
+}
+
+/* Beğeni/Beğenmeme Butonları */
+.complaint-card .like-dislike-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.complaint-card .like-dislike-section .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    background-color: var(--bg-color, #f8f9fa);
+    border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+}
+
+.complaint-card .like-dislike-section .btn:hover {
+    background-color: rgba(var(--primary-rgb, 74, 125, 250), 0.05);
+}
+
+.complaint-card .like-dislike-section .btn.active-like {
+    background-color: rgba(var(--primary-rgb, 74, 125, 250), 0.1);
+    color: var(--primary, #4a7dfa);
+}
+
+.complaint-card .like-dislike-section .btn.active-dislike {
+    background-color: rgba(var(--danger-rgb, 245, 54, 92), 0.1);
+    color: var(--danger, #f5365c);
+}
+
+/* Karanlık Mod Düzeltmesi */
+body.dark-mode {
+    /* Temel değişkenleri override et */
+    --bg-color: #1a1f36 !important;
+    --card-bg: #252f40 !important;
+    --text-color: #e9ecef !important;
+    --text-color-medium: #adb5bd !important;
+    --border-color: #344767 !important;
+}
+
+body.dark-mode .complaint-card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .complaint-card .brand-tag {
+    color: var(--text-color);
+}
+
+body.dark-mode .complaint-card .complaint-date {
+    color: var(--text-color-medium);
+}
+
+body.dark-mode .complaint-card .complaint-title {
+    color: var(--primary, #4a7dfa);
+}
+
+body.dark-mode .complaint-card .complaint-excerpt {
+    color: var(--text-color);
+}
+
+body.dark-mode .complaint-card .card-footer-info {
+    background-color: var(--bg-color);
+    border-top-color: var(--border-color);
+}
+
+body.dark-mode .complaint-card .like-dislike-section .btn {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-color-medium);
+}
+
+/*---------------------------------------
+ * 11. PRICING SECTION
+ * Açıklama: Fiyatlandırma planları ve geçiş butonu.
+---------------------------------------*/
+#infoAndPricingSection .card {
+    box-shadow: var(--shadow-md); /* Daha belirgin başlangıç gölgesi */
+}
+#infoAndPricingSection .card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-8px); /* Daha fazla kalkma */
+}
+
+/* Aylık/Yıllık Geçiş */
+.billing-toggle-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: var(--card-bg); /* Tema uyumlu */
+    padding: 5px;
+    border-radius: var(--border-radius-pill);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2.5rem;
+    border: 1px solid var(--border-color); /* Hafif kenarlık */
+}
+.billing-toggle-container .btn { /* Bootstrap butonu kullanılıyor */
+    padding: 8px 20px;
+    font-size: 0.95rem; /* Biraz daha küçük */
+    border-radius: var(--border-radius-pill);
+    color: var(--primary);
+    background-color: transparent;
+    border: 1px solid transparent;
+    transition: background-color .3s ease, color .3s ease, border-color .3s ease;
+    font-weight: 600;
+}
+.billing-toggle-container .btn.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .1);
+}
+.billing-toggle-container .billing-option { /* Yıllık seçeneği */
+    font-size: 0.95rem;
+    color: var(--text-color-medium);
+    cursor: pointer;
+    transition: color .3s ease;
+    padding: 8px 15px;
+    border-radius: var(--border-radius-pill);
+    font-weight: 500;
+}
+.billing-toggle-container .billing-option:hover {
+    color: var(--primary);
+}
+.billing-toggle-container .billing-option.active { /* JS ile aktif class'ı eklenecek */
+    color: var(--primary);
+    font-weight: 700;
+}
+.billing-toggle-container .badge { /* İndirim rozeti */
+    font-size: .7rem;
+    padding: 3px 6px;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--success);
+    color: var(--white);
+    vertical-align: middle;
+    margin-left: 5px;
+}
+
+/* Fiyatlandırma Kartları */
+#pricingPlans .card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden; /* Rozet taşmasını engelle */
+    position: relative; /* Popüler rozeti için */
+}
+#pricingPlans .card-body {
+    padding: 2rem 1.5rem; /* İç boşluk */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Eşit yükseklik */
+}
+#pricingPlans .card-title { /* Plan Adı */
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+#pricingPlans .card-subtitle { /* Fiyat */
+    font-size: clamp(2rem, 6vw, 2.8rem); /* Duyarlı fiyat boyutu */
+    font-weight: 700;
+    color: var(--primary); /* Ana renk fiyat */
+    margin-bottom: 1.5rem;
+    line-height: 1;
+}
+#pricingPlans .card-subtitle .small { /* /ay veya /yıl */
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text-color-medium);
+}
+#pricingPlans .list-group { /* Özellikler listesi */
+    text-align: left;
+    margin-bottom: 1.5rem;
+    flex-grow: 1; /* Kalan alanı doldur */
+}
+#pricingPlans .list-group-item {
+    border: none; /* Kenarlıkları kaldır */
+    padding: 0.5rem 0; /* Dikey boşluk */
+    font-size: 0.9rem;
+    color: var(--text-color);
+    background-color: transparent; /* Arka planı kaldır */
+}
+#pricingPlans .list-group-item i { /* Tik ikonu */
+    color: var(--success);
+    margin-right: 0.75rem;
+    width: 16px; /* Hizalama için sabit genişlik */
+    text-align: center;
+}
+#pricingPlans .card .btn { /* Kart içindeki buton */
+    margin-top: auto; /* En alta iter */
+    width: 100%; /* Tam genişlik */
+}
+/* Popüler Plan Rozeti */
+.popular-plan {
+    border-color: var(--warning) !important; /* Vurgu kenarlığı */
+    box-shadow: 0 0 25px rgba(var(--warning-rgb), 0.2); /* Hafif parlama */
+}
+.popular-badge {
+    position: absolute;
+    top: 15px;
+    right: -35px; /* Dışarı taşır */
+    background-color: var(--warning);
+    color: var(--white);
+    padding: 5px 30px; /* Geniş padding */
+    font-size: 0.8rem;
+    font-weight: 700;
+    transform: rotate(45deg); /* Döndür */
+    z-index: 1;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/*---------------------------------------
+ * 12. FOOTER
+ * Açıklama: Sayfanın en altındaki bölüm.
+---------------------------------------*/
+footer {
+    background-color: #e9ecef; /* Açık modda hafif gri */
+    padding: 40px 0 20px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-color-medium);
+    margin-top: 50px; /* Son bölümle arasında boşluk (diagonal ayırıcı varsa ayarlanmalı) */
+    transition: background-color var(--transition), border-top-color var(--transition);
+}
+.footer-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    text-transform: uppercase; /* Büyük harf */
+    letter-spacing: 0.5px; /* Harf aralığı */
+}
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+footer ul li {
+    margin-bottom: 0.6rem;
+}
+footer .footer-link, footer .footer-link-placeholder {
+    font-size: 0.9rem;
+    color: var(--text-color-medium);
+    transition: color var(--transition);
+    text-decoration: none;
+}
+footer .footer-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+footer .footer-link-placeholder {
+    opacity: 0.7;
+    cursor: default;
+}
+footer .border-top { /* Alt bölümdeki ayırıcı çizgi */
+    border-top-color: var(--border-color-light) !important; /* Daha belirgin */
+    padding-top: 1.5rem !important;
+    margin-top: 1.5rem !important;
+}
+footer .text-muted {
+    color: var(--text-color-medium) !important;
+    font-size: 0.85rem;
+}
+/* Sosyal Medya İkonları */
+.social-icons a.footer-social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--border-color); /* Tema uyumlu */
+    color: var(--text-color-medium); /* Tema uyumlu */
+    margin-left: 0.5rem;
+    transition: var(--transition);
+    font-size: 1rem;
+}
+.social-icons a.footer-social-icon:hover {
+    background-color: var(--primary);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+
+/*---------------------------------------
+ * 13. TOAST BİLDİRİMLERİ
+ * Açıklama: Sağ altta çıkan küçük bildirim kutuları.
+---------------------------------------*/
+.toast-container { /* Bootstrap'in position-fixed class'ı ile birlikte kullanılır */
+    z-index: 1100 !important; /* Modalların üzerinde */
+}
+.toast {
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    border: none;
+    background-color: var(--card-bg); /* Tema uyumlu */
+    color: var(--text-color); /* Tema uyumlu */
+    opacity: 0.95; /* Hafif şeffaflık */
+    min-width: 300px; /* Minimum genişlik */
+}
+.toast-header {
+    border-bottom: 1px solid var(--border-color);
+    border-top-left-radius: var(--border-radius-md);
+    border-top-right-radius: var(--border-radius-md);
+    padding: .75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Başlık ve kapatma butonu arası */
+}
+.toast-header i { /* Başlıktaki ikon */
+    margin-right: 0.5rem;
+}
+.toast-header .me-auto { /* Başlık metni */
+    font-weight: 600;
+}
+/* Renkli Toast Başlıkları */
+.toast-header.bg-success { background-color: var(--success) !important; color: var(--white); }
+.toast-header.bg-danger { background-color: var(--danger) !important; color: var(--white); }
+.toast-header.bg-info { background-color: var(--info) !important; color: var(--white); }
+.toast-header.bg-warning { background-color: var(--warning) !important; color: #333; } /* Uyarıda koyu metin */
+/* Renkli başlıklarda kapatma butonu rengi */
+.toast-header.bg-success .btn-close,
+.toast-header.bg-danger .btn-close,
+.toast-header.bg-info .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+.toast-body {
+    padding: 1rem;
+    font-size: 0.95rem;
+}
+
+/*---------------------------------------
+ * 14. YARDIMCI CLASS'LAR VE RESPONSIVE AYARLAR
+ * Açıklama: Çeşitli küçük ayarlamalar ve ekran boyutlarına göre düzenlemeler.
+---------------------------------------*/
+/* Spinner */
+.spinner-border {
+    color: var(--primary); /* Ana renk spinner */
+}
+
+/* Genel Responsive Ayarlamalar */
+@media (max-width: 991.98px) {
+    body {
+        padding-top: 65px; /* Navbar yüksekliği değiştiyse ayarla */
+    }
+    section {
+        padding: 50px 0; /* Daha az dikey boşluk */
+    }
+    .hero-advanced {
+        padding: 80px 0 100px; /* Daha az padding */
+        text-align: center; /* İçeriği ortala */
+    }
+    .hero-subtitle {
+        margin-left: auto;
+        margin-right: auto; /* Ortalamak için */
+    }
+    .hero-buttons {
+        justify-content: center; /* Butonları ortala */
+    }
+    .hero-stats {
+        justify-content: center; /* İstatistikleri ortala */
+    }
+     .stat-item {
+        flex-basis: calc(50% - 10px); /* İki sütun */
+        max-width: calc(50% - 10px);
+    }
+    .trust-indicators {
+        justify-content: center; /* Güven göstergelerini ortala */
+        border-top: none; /* Çizgiyi kaldır */
+        padding-top: 0;
+    }
+    .hero-image-container {
+        display: none; /* Orta boyutta resmi gizle */
+    }
+    .section-title {
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
+    }
+    .section-subtitle {
+        margin-bottom: 2rem;
+    }
+    /* Explorer widget'ları alt alta */
+    .explore-section .widget-card {
+        margin-bottom: 1.5rem;
+    }
+    #pricingPlans .col-md-6 { /* Fiyat kartları ikişerli */
+        margin-bottom: 1.5rem;
+    }
+    footer .text-md-end { /* Footer sosyal ikonları ortala */
+        text-align: center !important;
+    }
+    footer .text-md-start { /* Footer copyright ortala */
+        text-align: center !important;
+        margin-bottom: 1rem !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    body {
+        padding-top: 60px; /* Navbar yüksekliği değiştiyse ayarla */
+    }
+    .hero-advanced {
+        padding: 60px 0 80px;
+    }
+    .hero-title {
+        font-size: clamp(2rem, 7vw, 2.8rem);
+    }
+    .hero-subtitle {
+        font-size: clamp(0.9rem, 3vw, 1.1rem);
+    }
+     .stat-item {
+        flex-basis: 100%; /* Tek sütun */
+        max-width: 100%;
+    }
+    /* Özellik ve Adım kartları tek sütun */
+    .features-section .col-md-4,
+    .how-it-works-section .col-md-4 {
+        margin-bottom: 1.5rem;
+    }
+    /* İstatistik kutuları ikişerli */
+    .stats-section .col-md-4 {
+         flex: 0 0 50%;
+         max-width: 50%;
+         margin-bottom: 1rem;
+    }
+    #latestComplaintList .complaint-card {
+        flex-basis: 300px; /* Kartları biraz daha daralt */
+        width: 300px;
+        max-width: 300px;
+    }
+    /* Fiyat kartları tek sütun */
+     #pricingPlans .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+     .popular-badge { /* Popüler rozetini daha iyi konumlandır */
+        right: -10px;
+        top: 10px;
+        transform: rotate(0deg);
+        padding: 3px 8px;
+        font-size: 0.7rem;
+     }
+    /* Puanlama satırları mobil */
+     .rating-row {
+         flex-direction: column;
+         align-items: flex-start;
+     }
+     .rating-row > span {
+         margin-bottom: 0.5rem; /* Etiket ve kutular arası boşluk mobilde */
+         padding-right: 0;
+     }
+}
+
+@media (max-width: 575.98px) {
+    .hero-buttons {
+        flex-direction: column; /* Butonları alt alta */
+        width: 100%;
+        align-items: center; /* Ortala */
+    }
+    .hero-buttons .modern-btn {
+        width: 80%; /* Tam genişlik olmasın */
+        max-width: 300px;
+    }
+    .trust-indicator {
+        flex-basis: 100%; /* Güven göstergeleri alt alta */
+        justify-content: center;
+    }
+    /* İstatistik kutuları tek sütun */
+    .stats-section .col-md-4 {
+         flex: 0 0 100%;
+         max-width: 100%;
+    }
+    #latestComplaintList::before,
+    #latestComplaintList::after {
+        width: 40px; /* Fade efektini daralt */
+    }
+    .modal-body, .modal-footer, .modal-header {
+        padding: 1rem; /* Modallarda daha az boşluk */
+    }
+    .modal-title {
+        font-size: 1.1rem;
+    }
+    /* Admin tablosunda bazı sütunlar gizlenebilir veya önceliklendirilebilir */
+    #adminComplaintTable th:nth-child(3), /* Marka */
+    #adminComplaintTable td:nth-child(3),
+    #adminComplaintTable th:nth-child(4), /* Tarih */
+    #adminComplaintTable td:nth-child(4) {
+        /* display: none; */ /* Veya daha az önemli hale getirilebilir */
+    }
+     #adminComplaintTable td:last-child { /* İşlemler */
+        white-space: normal; /* Butonlar alta kayabilir */
+     }
+     .action-buttons {
+        flex-wrap: wrap; /* Butonlar alta kaysın */
+        justify-content: center; /* Ortala */
+     }
+}

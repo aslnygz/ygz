@@ -1,14 +1,14 @@
-// data.js - Veri Yönetimi (localStorage Tabanlı - DİKKAT: Güvenli ve kalıcı değil!)
-import { formatDate } from './utils.js'; // Tarih kontrolü için
+// data.js - Veri Yönetimi (localStorage Tabanlı - Düzeltilmiş)
+// import { formatDate } from './utils.js'; // Artık utils.js'den import etmeye gerek yok, burada kullanılmıyor.
 
 const STORAGE_KEY = 'complaintsData';
 
-// Başlangıç verileri (Örnek)
+// Başlangıç verileri (Örnek) - Tarihleri ISO string olarak sakla
 const initialComplaints = [
-    { id: 1, title: "Kargo çok geç geldi", category: "Teslimat Sorunu", description: "Sipariş ettiğim ürün 2 hafta sonra elime ulaştı.", brand: "Hızlı Kargo", image: null, userId: "user_abc", date: new Date(2025, 2, 15, 10, 30).toISOString(), status: "Açık", pendingApproval: false, comments: [], ratings: { Hizmet: 1, "Ürün Kalitesi": 3, İletişim: 2, Teslimat: 1, Fiyat: 3 }, likes: {}, dislikes: {} },
-    { id: 2, title: "Telefonun ekranı çizik geldi", category: "Ürün Kalitesi", description: "Yeni aldığım telefonun ekranında çizik vardı.", brand: "TeknoMarket", image: null, userId: "user_def", date: new Date(2025, 2, 20, 14, 0).toISOString(), status: "Çözüldü", pendingApproval: false, comments: [{ id: 1, text: "Değişim sağlandı.", userId: "admin", date: new Date(2025, 2, 22, 9, 0).toISOString(), replies: [] }], ratings: { Hizmet: 4, "Ürün Kalitesi": 2, İletişim: 4, Teslimat: 3, Fiyat: 4 }, likes: {}, dislikes: {} },
-    { id: 3, title: "Müşteri hizmetleri kaba", category: "Müşteri Hizmetleri", description: "Sorunumu çözmek yerine yüzüme kapattılar.", brand: "İletişim Hattı", image: null, userId: "user_ghi", date: new Date(2025, 2, 25, 11, 15).toISOString(), status: "Açık", pendingApproval: false, comments: [], ratings: { Hizmet: 1, "Ürün Kalitesi": 3, İletişim: 1, Teslimat: 3, Fiyat: 2 }, likes: {}, dislikes: {} },
-    { id: 4, title: "Onay Bekleyen Şikayet", category: "Diğer", description: "Admin onayı bekliyor.", brand: "Test Marka", image: null, userId: "user_jkl", date: new Date().toISOString(), status: "Beklemede", pendingApproval: true, comments: [], ratings: { Hizmet: 3, "Ürün Kalitesi": 3, İletişim: 3, Teslimat: 3, Fiyat: 3 }, likes: {}, dislikes: {} }
+    { id: 1, title: "Kargo çok geç geldi", category: "Teslimat Sorunu", description: "Sipariş ettiğim ürün 2 hafta sonra elime ulaştı.", brand: "Hızlı Kargo", image: null, userId: "user_abc", date: new Date(Date.now() - 86400000 * 14).toISOString(), status: "Açık", pendingApproval: false, comments: [], ratings: { Hizmet: 1, "Ürün Kalitesi": 3, İletişim: 2, Teslimat: 1, Fiyat: 3 }, likes: { "user_def": true }, dislikes: {} },
+    { id: 2, title: "Telefonun ekranı çizik geldi", category: "Ürün Kalitesi", description: "Yeni aldığım telefonun ekranında çizik vardı.", brand: "TeknoMarket", image: null, userId: "user_def", date: new Date(Date.now() - 86400000 * 10).toISOString(), status: "Çözüldü", pendingApproval: false, comments: [{ id: 101, text: "Değişim sağlandı.", userId: "admin", date: new Date(Date.now() - 86400000 * 8).toISOString(), replies: [] }], ratings: { Hizmet: 4, "Ürün Kalitesi": 2, İletişim: 4, Teslimat: 3, Fiyat: 4 }, likes: { "user_abc": true, "user_ghi": true }, dislikes: {} },
+    { id: 3, title: "Müşteri hizmetleri kaba", category: "Müşteri Hizmetleri", description: "Sorunumu çözmek yerine yüzüme kapattılar.", brand: "İletişim Hattı", image: null, userId: "user_ghi", date: new Date(Date.now() - 86400000 * 5).toISOString(), status: "Açık", pendingApproval: false, comments: [], ratings: { Hizmet: 1, "Ürün Kalitesi": 3, İletişim: 1, Teslimat: 3, Fiyat: 2 }, likes: {}, dislikes: { "user_abc": true } },
+    { id: 4, title: "Onay Bekleyen Şikayet", category: "Diğer", description: "Bu şikayet admin onayı beklemektedir.", brand: "Test Marka", image: null, userId: "user_jkl", date: new Date(Date.now() - 86400000 * 1).toISOString(), status: "Beklemede", pendingApproval: true, comments: [], ratings: { Hizmet: 3, "Ürün Kalitesi": 3, İletişim: 3, Teslimat: 3, Fiyat: 3 }, likes: {}, dislikes: {} }
 ];
 
 // Mevcut şikayetleri yükle
@@ -19,44 +19,66 @@ let complaints = loadComplaints();
  * Hata durumunda başlangıç verilerini döndürür.
  * @returns {Array} Şikayetler dizisi.
  */
-function loadComplaints() {
+export function loadComplaints() {
+    let loadedData = [];
     try {
         const storedData = localStorage.getItem(STORAGE_KEY);
         if (storedData) {
             const parsedData = JSON.parse(storedData);
             // Veri yapısını kontrol et ve dönüştür
-            return parsedData.map(c => {
-                const complaintDate = new Date(c.date);
-                const validComplaintDate = !isNaN(complaintDate.getTime()) ? complaintDate : new Date(); // Geçersizse şimdiki zaman
+            if (Array.isArray(parsedData)) {
+                 loadedData = parsedData.map(c => {
+                    // Her şikayet için gerekli alanların varlığını ve türünü kontrol et
+                    const complaintDate = new Date(c.date); // Önce Date objesine çevir
+                    const validComplaintDate = !isNaN(complaintDate.getTime()) ? complaintDate : new Date(); // Geçersizse şimdiki zaman
 
-                return {
-                    ...c,
-                    id: c.id || Date.now(), // ID yoksa oluştur
-                    date: validComplaintDate.toISOString(), // ISO string olarak sakla
-                    comments: (c.comments || []).map(comment => {
-                        const commentDate = new Date(comment.date);
-                        const validCommentDate = !isNaN(commentDate.getTime()) ? commentDate : new Date();
-                        return {
-                            ...comment,
-                            id: comment.id || Date.now(),
-                            date: validCommentDate.toISOString(),
-                            replies: comment.replies || [] // Replies dizisi hep var olsun
-                        };
-                    }),
-                    ratings: c.ratings || {}, // Ratings objesi hep var olsun
-                    likes: c.likes || {},     // Likes objesi hep var olsun
-                    dislikes: c.dislikes || {} // Dislikes objesi hep var olsun
-                };
-            });
+                    // Yorumları ve yanıtları işle, tarihleri Date yap
+                    const processComments = (commentsArray) => {
+                        if (!Array.isArray(commentsArray)) return [];
+                        return commentsArray.map(comment => {
+                            const commentDate = new Date(comment.date);
+                            const validCommentDate = !isNaN(commentDate.getTime()) ? commentDate : new Date();
+                            return {
+                                ...comment,
+                                id: comment.id || Date.now() + Math.random(), // ID yoksa oluştur
+                                date: validCommentDate.toISOString(),
+                                replies: processComments(comment.replies || []) // İç içe yanıtları işle
+                            };
+                        });
+                    };
+
+                    return {
+                        id: typeof c.id === 'number' ? c.id : Date.now() + Math.random(), // ID kontrolü
+                        title: typeof c.title === 'string' ? c.title : 'Başlık Yok',
+                        category: typeof c.category === 'string' ? c.category : 'Kategori Yok',
+                        description: typeof c.description === 'string' ? c.description : '',
+                        brand: typeof c.brand === 'string' ? c.brand : 'Marka Yok',
+                        image: c.image || null,
+                        userId: c.userId || 'unknown_user',
+                        date: validComplaintDate.toISOString(), // ISO string olarak sakla
+                        status: typeof c.status === 'string' ? c.status : 'Bilinmiyor',
+                        pendingApproval: typeof c.pendingApproval === 'boolean' ? c.pendingApproval : false,
+                        comments: processComments(c.comments), // Yorumları işle
+                        ratings: typeof c.ratings === 'object' && c.ratings !== null ? c.ratings : {},
+                        likes: typeof c.likes === 'object' && c.likes !== null ? c.likes : {},
+                        dislikes: typeof c.dislikes === 'object' && c.dislikes !== null ? c.dislikes : {}
+                    };
+                });
+            } else {
+                 console.warn("localStorage'daki veri dizi formatında değil. Başlangıç verileri kullanılıyor.");
+                 loadedData = initialComplaints.map(c => ({...c})); // Kopyasını al
+            }
+        } else {
+            console.log("localStorage boş. Başlangıç verileri kullanılıyor.");
+            loadedData = initialComplaints.map(c => ({...c})); // Kopyasını al
         }
     } catch (e) {
         console.error("LocalStorage'dan veri yükleme/parse etme hatası:", e);
-        // Hata durumunda başlangıç verilerini kullan, ancak kopyasını al
-        // ve tarihleri ISO string yap
-        return initialComplaints.map(c => ({...c}));
+        loadedData = initialComplaints.map(c => ({...c})); // Hata durumunda kopyasını al
     }
-    // localStorage boşsa başlangıç verilerini kullan
-     return initialComplaints.map(c => ({...c}));
+     // ID'ye göre sırala (en yeni en üstte)
+    loadedData.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return loadedData;
 }
 
 /**
@@ -64,7 +86,7 @@ function loadComplaints() {
  */
 function saveComplaints() {
     try {
-        // Tarihleri string'e çevirmeye gerek yok, JSON.stringify halleder.
+        // Tarihler zaten ISO string formatında olmalı
         localStorage.setItem(STORAGE_KEY, JSON.stringify(complaints));
     } catch (e) {
         console.error("LocalStorage'a veri kaydetme hatası:", e);
@@ -73,12 +95,23 @@ function saveComplaints() {
 }
 
 /**
- * Mevcut şikayetlerin bir kopyasını döndürür.
- * @returns {Array} Şikayetler dizisi.
+ * Mevcut şikayetlerin bir kopyasını döndürür (Date objeleri ile).
+ * @returns {Array} Şikayetler dizisi (Date objeleri ile).
  */
 export function getComplaints() {
-    // Dışarıya verinin kopyasını vererek orijinalinin değiştirilmesini engelle
-    return JSON.parse(JSON.stringify(complaints));
+    // Dışarıya verinin kopyasını ve tarihleri Date objesi olarak ver
+    return complaints.map(c => ({
+        ...c,
+        date: new Date(c.date), // ISO string'i Date objesine çevir
+        comments: (c.comments || []).map(comment => ({ // Yorum tarihlerini de çevir
+            ...comment,
+            date: new Date(comment.date),
+            replies: (comment.replies || []).map(reply => ({ // Yanıt tarihlerini de çevir
+                ...reply,
+                date: new Date(reply.date)
+            }))
+        }))
+    }));
 }
 
 /**
@@ -90,37 +123,46 @@ export function getComplaints() {
  * @param {string|null} imageBase64 Görsel (Base64).
  * @param {string} userId Kullanıcı ID.
  * @param {object} ratings Değerlendirmeler.
- * @returns {object} Eklenen yeni şikayet objesi.
- * @throws {Error} Gerekli alanlar eksikse hata fırlatır.
+ * @returns {object|null} Eklenen yeni şikayet objesi veya hata durumunda null.
  */
 export function addComplaint(title, category, description, brand, imageBase64, userId, ratings) {
-    // Girdi doğrulaması
-    if (!title?.trim() || !category?.trim() || !description?.trim() || !brand?.trim() || !userId) {
-        throw new Error("Başlık, Kategori, Açıklama, Marka ve Kullanıcı ID alanları zorunludur.");
-    }
-     if (!ratings || typeof ratings !== 'object' || Object.keys(ratings).length === 0) {
-        throw new Error("Değerlendirme puanları eksik veya geçersiz.");
-     }
+    try {
+        // Girdi doğrulaması
+        if (!title?.trim() || !category?.trim() || !description?.trim() || !brand?.trim() || !userId) {
+            throw new Error("Başlık, Kategori, Açıklama, Marka ve Kullanıcı ID alanları zorunludur.");
+        }
+        if (!ratings || typeof ratings !== 'object' || Object.keys(ratings).length === 0 || Object.values(ratings).some(r => r === 0 || r === null || r === undefined)) {
+             throw new Error("Değerlendirme puanları eksik veya geçersiz.");
+        }
 
-    const newComplaint = {
-        id: Date.now(), // Benzersiz ID için daha iyi bir yöntem (örn: uuid) düşünülebilir
-        title: title.trim(),
-        category: category.trim(),
-        description: description.trim(),
-        brand: brand.trim(),
-        image: imageBase64, // Base64 string veya null
-        userId,
-        date: new Date().toISOString(), // ISO string olarak kaydet
-        status: "Beklemede", // Yeni şikayetler onay bekler
-        pendingApproval: true,
-        comments: [],
-        ratings, // Doğrudan gelen objeyi kullan
-        likes: {},
-        dislikes: {}
-    };
-    complaints.unshift(newComplaint); // Yeni şikayeti başa ekle
-    saveComplaints();
-    return newComplaint;
+        // Yeni ID oluştur (mevcut en büyük ID'nin bir fazlası veya 1)
+        const newId = complaints.length > 0 ? Math.max(...complaints.map(c => c.id)) + 1 : 1;
+
+        const newComplaint = {
+            id: newId,
+            title: title.trim(),
+            category: category.trim(),
+            description: description.trim(),
+            brand: brand.trim(),
+            image: imageBase64, // Base64 string veya null
+            userId,
+            date: new Date().toISOString(), // ISO string olarak kaydet
+            status: "Beklemede", // Yeni şikayetler onay bekler
+            pendingApproval: true,
+            comments: [],
+            ratings, // Doğrudan gelen objeyi kullan
+            likes: {},
+            dislikes: {}
+        };
+        complaints.unshift(newComplaint); // Yeni şikayeti başa ekle
+        saveComplaints();
+        // Ekleme sonrası Date objesi ile döndür
+        return { ...newComplaint, date: new Date(newComplaint.date) };
+    } catch (error) {
+        console.error("Şikayet ekleme hatası:", error);
+        // Hata durumunda null döndür, çağıran taraf kontrol etsin
+        return null;
+    }
 }
 
 /**
@@ -144,23 +186,23 @@ export function addCommentToComplaint(complaintId, commentText, userId, parentCo
         console.warn("Onay bekleyen şikayete yorum eklenemez.");
         return false;
     }
-     if (!commentText?.trim() || !userId) {
+    if (!commentText?.trim() || !userId) {
         console.error("Yorum metni veya kullanıcı ID eksik.");
         return false;
-     }
+    }
 
     const newComment = {
-        id: Date.now(), // Benzersiz ID
+        id: Date.now() + Math.random(), // Daha benzersiz ID
         text: commentText.trim(),
         userId,
         date: new Date().toISOString(),
-        replies: [] // Yeni yorumun yanıtları başlangıçta boş
+        replies: []
     };
 
     complaint.comments = complaint.comments || []; // Yorum dizisi yoksa oluştur
 
     if (parentCommentId) {
-        // Yanıt ekleme mantığı
+        // Yanıt ekleme mantığı (iç içe olabilir)
         const findParentComment = (comments, targetId) => {
             for (let i = 0; i < comments.length; i++) {
                 const comment = comments[i];
@@ -192,21 +234,36 @@ export function addCommentToComplaint(complaintId, commentText, userId, parentCo
     return true;
 }
 
+
 /**
  * Belirtilen ID'li şikayeti onaylar.
  * @param {number} complaintId Onaylanacak şikayet ID'si.
  * @returns {boolean} İşlem başarılıysa true.
  */
 export function approveComplaint(complaintId) {
-    const complaint = complaints.find(c => c.id === complaintId);
-    // Sadece onay bekleyen şikayetler onaylanabilir
-    if (complaint?.pendingApproval) {
-        complaint.pendingApproval = false;
-        complaint.status = 'Açık'; // Onaylanınca durumu 'Açık' yap
-        saveComplaints();
-        return true;
+    if (!complaintId || isNaN(complaintId)) {
+        console.error("Geçersiz Şikayet ID:", complaintId);
+        return false;
     }
-    return false;
+    
+    const complaint = complaints.find(c => c.id === complaintId);
+    
+    if (!complaint) {
+        console.error(`Onaylama başarısız: Şikayet ID ${complaintId} bulunamadı.`);
+        return false;
+    }
+    
+    if (!complaint.pendingApproval) {
+        console.warn(`Onaylama başarısız: Şikayet ID ${complaintId} zaten onaylanmış.`);
+        return false;
+    }
+    
+    // Şikayet bulundu ve onay bekliyor
+    complaint.pendingApproval = false;
+    complaint.status = 'Açık'; // Onaylanınca durumu 'Açık' yap
+    saveComplaints();
+    console.log(`Şikayet ID ${complaintId} başarıyla onaylandı.`);
+    return true;
 }
 
 /**
@@ -215,14 +272,28 @@ export function approveComplaint(complaintId) {
  * @returns {boolean} İşlem başarılıysa true.
  */
 export function rejectComplaint(complaintId) {
-    const index = complaints.findIndex(c => c.id === complaintId);
-    // Sadece onay bekleyen şikayetler reddedilebilir/silinebilir
-    if (index !== -1 && complaints[index].pendingApproval) {
-        complaints.splice(index, 1); // Şikayeti diziden çıkar
-        saveComplaints();
-        return true;
+    if (!complaintId || isNaN(complaintId)) {
+        console.error("Geçersiz Şikayet ID:", complaintId);
+        return false;
     }
-    return false;
+    
+    const index = complaints.findIndex(c => c.id === complaintId);
+    
+    if (index === -1) {
+        console.error(`Reddetme başarısız: Şikayet ID ${complaintId} bulunamadı.`);
+        return false;
+    }
+    
+    if (!complaints[index].pendingApproval) {
+        console.warn(`Reddetme başarısız: Şikayet ID ${complaintId} onay beklemiyor.`);
+        return false;
+    }
+    
+    // Şikayet bulundu ve onay bekliyor
+    complaints.splice(index, 1); // Şikayeti diziden çıkar
+    saveComplaints();
+    console.log(`Şikayet ID ${complaintId} başarıyla reddedildi ve silindi.`);
+    return true;
 }
 
 /**
@@ -234,32 +305,35 @@ export function rejectComplaint(complaintId) {
 export function updateComplaint(complaintId, updatedData) {
     const complaint = complaints.find(c => c.id === complaintId);
     if (complaint) {
-        // Sadece belirli ve geçerli alanları güncelle
+        let changed = false;
         const allowedUpdates = ['title', 'description', 'status', 'category', 'brand'];
         for (const key in updatedData) {
-            if (allowedUpdates.includes(key) && updatedData[key] !== undefined) {
-                 // Özel durum: Status 'Beklemede' yapılamaz (sadece onay ile)
-                 if (key === 'status' && updatedData[key] === 'Beklemede' && !complaint.pendingApproval) {
-                     console.warn("Onaylanmış bir şikayetin durumu manuel olarak 'Beklemede' yapılamaz.");
-                     continue;
-                 }
-                 // Özel durum: Onay bekleyen şikayetin durumu değiştirilemez
-                 if (key === 'status' && complaint.pendingApproval) {
-                     console.warn("Onay bekleyen şikayetin durumu değiştirilemez.");
-                     continue;
-                 }
-                 complaint[key] = typeof updatedData[key] === 'string' ? updatedData[key].trim() : updatedData[key];
+            if (allowedUpdates.includes(key) && updatedData[key] !== undefined && complaint[key] !== updatedData[key]) {
+                // Özel durum: Status 'Beklemede' yapılamaz (sadece onay ile)
+                if (key === 'status' && updatedData[key] === 'Beklemede' && !complaint.pendingApproval) {
+                    console.warn("Onaylanmış bir şikayetin durumu manuel olarak 'Beklemede' yapılamaz.");
+                    continue;
+                }
+                // Özel durum: Onay bekleyen şikayetin durumu değiştirilemez (onayla/reddet hariç)
+                if (key === 'status' && complaint.pendingApproval) {
+                    console.warn("Onay bekleyen şikayetin durumu buradan değiştirilemez.");
+                    continue;
+                }
+                complaint[key] = typeof updatedData[key] === 'string' ? updatedData[key].trim() : updatedData[key];
+                changed = true;
             }
         }
-        saveComplaints();
-        return true;
+        if (changed) {
+            saveComplaints();
+        }
+        return true; // Şikayet bulunduysa true dön (değişiklik olmasa bile)
     }
+    console.warn(`Güncelleme başarısız: Şikayet ${complaintId} bulunamadı.`);
     return false;
 }
 
 /**
  * Belirtilen ID'li şikayeti durumuna bakmaksızın siler.
- * DİKKAT: Bu işlem geri alınamaz.
  * @param {number} complaintId Silinecek şikayet ID'si.
  * @returns {boolean} İşlem başarılıysa true.
  */
@@ -270,6 +344,7 @@ export function deleteComplaint(complaintId) {
         saveComplaints();
         return true;
     }
+     console.warn(`Silme başarısız: Şikayet ${complaintId} bulunamadı.`);
     return false;
 }
 
@@ -281,8 +356,10 @@ export function deleteComplaint(complaintId) {
  */
 export function likeComplaint(complaintId, userId) {
     const complaint = complaints.find(c => c.id === complaintId);
-    // Onaylanmamış şikayetler beğenilemez
-    if (!complaint || complaint.pendingApproval || !userId) return false;
+    if (!complaint || complaint.pendingApproval || !userId) {
+         console.warn(`Like başarısız: Şikayet ${complaintId} uygun değil veya userId eksik.`);
+         return false;
+    }
 
     complaint.likes = complaint.likes || {};
     complaint.dislikes = complaint.dislikes || {};
@@ -292,7 +369,7 @@ export function likeComplaint(complaintId, userId) {
         delete complaint.dislikes[userId];
     }
 
-    // Like durumunu tersine çevir (varsa kaldır, yoksa ekle)
+    // Like durumunu tersine çevir
     if (complaint.likes[userId]) {
         delete complaint.likes[userId]; // Beğeniyi kaldır
     } else {
@@ -311,8 +388,10 @@ export function likeComplaint(complaintId, userId) {
  */
 export function dislikeComplaint(complaintId, userId) {
     const complaint = complaints.find(c => c.id === complaintId);
-     // Onaylanmamış şikayetler beğenilemez
-    if (!complaint || complaint.pendingApproval || !userId) return false;
+     if (!complaint || complaint.pendingApproval || !userId) {
+         console.warn(`Dislike başarısız: Şikayet ${complaintId} uygun değil veya userId eksik.`);
+         return false;
+     }
 
     complaint.likes = complaint.likes || {};
     complaint.dislikes = complaint.dislikes || {};

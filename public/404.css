@@ -1,152 +1,215 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet");
+/* 404 Sayfası İyileştirmeleri */
 
-@import url("https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap");
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+body {
+  overflow: hidden;
+  font-family: 'Outfit', sans-serif;
+  background-image: linear-gradient(125deg, #4361ee, #3a0ca3);
+  color: white;
 }
 
-body{
-  overflow:hidden;
-    font-family: sans-serif;
-background-image: linear-gradient(0.70turn, #28447d, #031f57);
+h1 {
+  font-family: 'Outfit', sans-serif;
+  color: white;
 }
 
- h1{
-    font-family: 'Montserrat', sans-serif;
-    color: white;
-
-}
-
-.container{
-  width:100vw;
-  height:100vh;
+.container {
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Poppins", sans-serif;
   position: relative;
-  left:6vmin;
+  left: 6vmin;
   text-align: center;
 }
 
-.cog-wheel1, .cog-wheel2{
-  transform:scale(0.7);
+.cog-wheel1, .cog-wheel2 {
+  transform: scale(0.7);
 }
 
-.cog1, .cog2{
-  width:40vmin;
-  height:40vmin;
-  border-radius:50%;
-  border:6vmin solid #FFFFFF;
+.cog1, .cog2 {
+  width: 40vmin;
+  height: 40vmin;
+  border-radius: 50%;
+  border: 6vmin solid #FFFFFF;
   position: relative;
 }
 
-
-.cog2{
-  border:6vmin solid #FFFFFF;
+.cog2 {
+  border: 6vmin solid #FFFFFF;
 }
 
-.top, .down, .left, .right, .left-top, .left-down, .right-top, .right-down{
-  width:10vmin;
-  height:10vmin;
+.top, .down, .left, .right, .left-top, .left-down, .right-top, .right-down {
+  width: 10vmin;
+  height: 10vmin;
   background-color: #FFFFFF;
   position: absolute;
 }
 
-.cog2 .top,.cog2  .down,.cog2  .left,.cog2  .right,.cog2  .left-top,.cog2  .left-down,.cog2  .right-top,.cog2  .right-down{
+.cog2 .top, .cog2 .down, .cog2 .left, .cog2 .right, .cog2 .left-top, .cog2 .left-down, .cog2 .right-top, .cog2 .right-down {
   background-color: #FFFFFF;
 }
 
-.top{
-  top:-14vmin;
-  left:9vmin;
+.top {
+  top: -14vmin;
+  left: 9vmin;
 }
 
-.down{
-  bottom:-14vmin;
-  left:9vmin;
+.down {
+  bottom: -14vmin;
+  left: 9vmin;
 }
 
-.left{
-  left:-14vmin;
-  top:9vmin;
+.left {
+  left: -14vmin;
+  top: 9vmin;
 }
 
-.right{
-  right:-14vmin;
-  top:9vmin;
+.right {
+  right: -14vmin;
+  top: 9vmin;
 }
 
-.left-top{
-  transform:rotateZ(-45deg);
-  left:-8vmin;
-  top:-8vmin;
+.left-top {
+  transform: rotateZ(-45deg);
+  left: -8vmin;
+  top: -8vmin;
 }
 
-.left-down{
-  transform:rotateZ(45deg);
-  left:-8vmin;
-  top:25vmin;
+.left-down {
+  transform: rotateZ(45deg);
+  left: -8vmin;
+  top: 25vmin;
 }
 
-.right-top{
-  transform:rotateZ(45deg);
-  right:-8vmin;
-  top:-8vmin;
+.right-top {
+  transform: rotateZ(45deg);
+  right: -8vmin;
+  top: -8vmin;
 }
 
-.right-down{
-  transform:rotateZ(-45deg);
-  right:-8vmin;
-  top:25vmin;
+.right-down {
+  transform: rotateZ(-45deg);
+  right: -8vmin;
+  top: 25vmin;
 }
 
-.cog2{
+.cog2 {
   position: relative;
-  left:-10.2vmin;
-  bottom:10vmin;
+  left: -10.2vmin;
+  bottom: 10vmin;
 }
 
-h1{
-  color:#000000;
-}
-
-.first-four{
+.first-four {
   position: relative;
-  left:6vmin;
-  font-size:40vmin;
+  left: 6vmin;
+  font-size: 40vmin;
+  font-weight: 700;
+  text-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
-.second-four{
+.second-four {
   position: relative;
-  right:18vmin;
+  right: 18vmin;
   z-index: -1;
-  font-size:40vmin;
+  font-size: 40vmin;
+  font-weight: 700;
+  text-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
-.wrong-para{
-  font-family: "Montserrat", sans-serif;
+.wrong-para {
+  font-family: "Outfit", sans-serif;
   position: absolute;
-  bottom:15vmin;
-  padding:3vmin 12vmin 3vmin 3vmin;
-  font-weight:600;
-  color:#FFFFFF;
+  bottom: 15vmin;
+  padding: 3vmin 12vmin 3vmin 3vmin;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: 0.2px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-
-
-a{
-    color:#000000;
-    text-decoration: none;
+a {
+  color: #FFFFFF;
+  text-decoration: none;
+  background-color: rgba(255,255,255,0.15);
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-block;
+  margin-top: 10px;
+  backdrop-filter: blur(5px);
 }
 
+a:hover {
+  background-color: rgba(255,255,255,0.25);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
 
+/* Animasyon Efekti */
+@keyframes rotate-gear {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 
+.cog-wheel1 {
+  animation: rotate-gear 8s linear infinite;
+}
 
+.cog-wheel2 {
+  animation: rotate-gear 8s linear infinite reverse;
+}
 
+/* Responsiveness */
+@media (max-width: 768px) {
+  .first-four, .second-four {
+    font-size: 30vmin;
+  }
+  
+  .wrong-para {
+    font-size: 16px;
+    padding: 3vmin 8vmin 3vmin 3vmin;
+  }
+}
 
+/* Floating particles */
+.container::before,
+.container::after {
+  content: '';
+  position: absolute;
+  width: 15vmin;
+  height: 15vmin;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  z-index: -1;
+}
 
+.container::before {
+  top: 10%;
+  left: 20%;
+  animation: float 8s infinite ease-in-out;
+}
 
+.container::after {
+  bottom: 20%;
+  right: 10%;
+  width: 20vmin;
+  height: 20vmin;
+  animation: float 12s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}

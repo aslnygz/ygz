@@ -1,4 +1,4 @@
-// utils.js - Yardımcı Fonksiyonlar
+// utils.js - Yardımcı Fonksiyonlar (Düzeltilmiş)
 
 /**
  * Toast bildirimini gösterir.
@@ -9,42 +9,53 @@
 export function showToast(message, title = 'Bildirim', type = 'info') {
     const toastEl = document.getElementById('liveToast');
     if (!toastEl) {
-        console.error("Toast elementi bulunamadı!");
+        console.error("Toast elementi (#liveToast) bulunamadı!");
+        // Fallback olarak alert gösterilebilir ama çok önerilmez.
+        // alert(`${title}: ${message}`);
         return;
     }
 
-    const toastBody = toastEl.querySelector('#toastBody');
-    const toastTitle = toastEl.querySelector('#toastTitle');
+    const toastBody = toastEl.querySelector('.toast-body'); // ID yerine class ile seçmek daha esnek olabilir
+    const toastTitle = toastEl.querySelector('.toast-header .me-auto'); // Başlık için daha spesifik seçici
     const toastHeader = toastEl.querySelector('.toast-header');
-    if (!toastBody || !toastTitle || !toastHeader) {
-         console.error("Toast iç elementleri bulunamadı!");
+    const toastIcon = toastHeader?.querySelector('i.fas'); // İkonu bul
+
+    if (!toastBody || !toastTitle || !toastHeader || !toastIcon) {
+         console.error("Toast iç elementleri (.toast-body, .toast-header .me-auto, .toast-header, .toast-header i.fas) bulunamadı!");
          return;
     }
 
-    toastBody.textContent = message;
+    toastBody.innerHTML = sanitizeHTML(message); // Mesajı sanitize et
     toastTitle.textContent = title;
 
     // Önceki sınıfları temizle
     toastHeader.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-info', 'text-white', 'text-dark');
-    const icon = toastHeader.querySelector('i'); // İkonu bul veya oluşturmaya gerek yok, HTML'de sabit
+    toastIcon.className = 'fas me-2'; // İkon sınıflarını sıfırla
 
     const styles = {
         success: { bg: 'bg-success', text: 'text-white', icon: 'fa-check-circle' },
-        error:   { bg: 'bg-danger',  text: 'text-white', icon: 'fa-times-circle' },
+        error:   { bg: 'bg-danger',  text: 'text-white', icon: 'fa-times-circle' }, // 'error' yerine 'danger' Bootstrap class'ı
         warning: { bg: 'bg-warning', text: 'text-dark',  icon: 'fa-exclamation-triangle' },
         info:    { bg: 'bg-info',    text: 'text-white', icon: 'fa-info-circle' }
     };
 
     const selectedStyle = styles[type] || styles.info;
 
-    toastHeader.classList.add(selectedStyle.bg, selectedStyle.text);
-    if (icon) {
-        icon.className = `fas me-2 ${selectedStyle.icon}`; // İkon sınıfını güncelle
+    toastHeader.classList.add(selectedStyle.bg);
+    // Metin rengini sadece warning için ekle, diğerleri zaten beyaz varsayılır (Bootstrap bg-* ile)
+    if (type === 'warning') {
+        toastHeader.classList.add(selectedStyle.text);
     }
 
+    toastIcon.classList.add(selectedStyle.icon); // İkon sınıfını ekle
+
     // Bootstrap 5 Toast instance
-    const toastInstance = bootstrap.Toast.getOrCreateInstance(toastEl);
-    toastInstance.show();
+    try {
+        const toastInstance = bootstrap.Toast.getOrCreateInstance(toastEl);
+        toastInstance.show();
+    } catch (e) {
+        console.error("Bootstrap Toast gösterme hatası:", e);
+    }
 }
 
 /**
@@ -54,7 +65,10 @@ export function showToast(message, title = 'Bildirim', type = 'info') {
 export function autoResizeTextarea(textareaElement) {
     if (textareaElement instanceof HTMLTextAreaElement) {
         textareaElement.style.height = 'auto'; // Önce sıfırla
-        textareaElement.style.height = `${textareaElement.scrollHeight}px`; // İçerik yüksekliğine ayarla
+        // scrollHeight hesaplaması için kısa bir gecikme gerekebilir
+        setTimeout(() => {
+             textareaElement.style.height = `${textareaElement.scrollHeight}px`;
+        }, 0);
     }
 }
 
@@ -81,44 +95,39 @@ export const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).t
  * @returns {string[]} Hex renk kodları dizisi.
  */
 export const getDistinctColors = (count) => {
-    // Önceden tanımlanmış uyumlu renkler
-    const predefinedColors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#6610f2', '#e83e8c'];
+    const predefinedColors = ['#0d6efd', '#198754', '#dc3545', '#ffc107', '#0dcaf0', '#6f42c1', '#fd7e14', '#20c997', '#6610f2', '#d63384']; // Bootstrap 5 renkleri
+    if (count <= 0) return [];
     if (count <= predefinedColors.length) {
         return predefinedColors.slice(0, count);
     }
-    // Daha fazla renk gerekirse rastgele ekle (çok efektif olmayabilir)
     const colors = [...predefinedColors];
     while (colors.length < count) {
-        colors.push(getRandomColor()); // Basitçe rastgele ekle, çakışma kontrolü maliyetli olabilir
+        colors.push(getRandomColor());
     }
     return colors;
 };
 
-// Renk mesafesi ve hex->rgb fonksiyonları getDistinctColors'un daha iyi çalışması için kullanılabilir,
-// ancak basitlik adına yukarıdaki implementasyonda direkt kullanılmadı.
-// function hexToRgb(hex) { ... }
-// function colorDistance(hex1, hex2) { ... }
-
 /**
- * Verilen tarih girdisini locali kullanarak formatlar.
+ * Verilen tarih girdisini locali kullanarak formatlar (dd.MM.yyyy HH:mm).
  * @param {Date|string|number} dateInput Formatlanacak tarih.
  * @returns {string} Formatlanmış tarih string'i veya hata mesajı.
  */
 export function formatDate(dateInput) {
     try {
         const date = new Date(dateInput);
-        // Geçerli bir tarih olup olmadığını kontrol et
         if (isNaN(date.getTime())) {
-            // throw new Error("Geçersiz tarih girdisi"); // Hata fırlatmak yerine
-             return 'Geçersiz Tarih'; // Kullanıcıya gösterilecek mesaj
+             // console.warn("Geçersiz tarih girdisi:", dateInput);
+             return 'Geçersiz Tarih';
         }
-        return date.toLocaleDateString('tr-TR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        // 'tr-TR' locali ve 2 haneli formatlama
+        const options = {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hour12: false // 24 saat formatı
+        };
+        //toLocaleDateString ve toLocaleTimeString birleştirilebilir
+        // return date.toLocaleDateString('tr-TR', options).replace(/\./g, '.') + ' ' + date.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit', hour12: false});
+         return new Intl.DateTimeFormat('tr-TR', options).format(date);
+
     } catch (error) {
         console.error("Tarih formatlama hatası:", error, "Girdi:", dateInput);
         return 'Tarih Hatası';
@@ -127,20 +136,17 @@ export function formatDate(dateInput) {
 
 /**
  * HTML içeriğini DOMPurify kullanarak temizler (XSS saldırılarına karşı).
- * DOMPurify kütüphanesinin projeye dahil edilmiş olması gerekir (CDN veya npm).
  * @param {string} html Temizlenecek HTML string'i.
  * @returns {string} Temizlenmiş (güvenli) HTML string'i.
  */
 export function sanitizeHTML(html) {
-    // DOMPurify'ın yüklü olup olmadığını kontrol et (CDN ile yüklendiğinde global olur)
     if (typeof DOMPurify === 'undefined') {
-        console.error("DOMPurify kütüphanesi bulunamadı! HTML sanitizasyonu yapılamıyor.");
-        // Güvenlik riski! En azından basit bir kaçış yap veya hatayı bildir.
-        // return html.replace(/</g, "&lt;").replace(/>/g, "&gt;"); // Çok temel kaçış
-        return html; // Veya boş döndür?
+        console.warn("DOMPurify kütüphanesi bulunamadı! HTML sanitizasyonu yapılamıyor. İçerik olduğu gibi kullanılıyor.");
+        // Güvenlik riski! Geliştirme ortamı dışında DOMPurify mutlaka yüklenmeli.
+        return html || ''; // null veya undefined ise boş string döndür
     }
-    // typeof kontrolü yerine doğrudan string kontrolü daha güvenli olabilir
     if (typeof html !== 'string') {
+        // console.warn("sanitizeHTML fonksiyonuna string olmayan bir değer geldi:", html);
         return ''; // String değilse boş döndür
     }
     // DOMPurify ile temizle

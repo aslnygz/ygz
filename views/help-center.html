@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yardım Merkezi | Şikayet Yönetim Sistemi</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" integrity="sha512-c42qTSw/wPZ3/5LBzD+Bw5f7bSF2oxou6wEb+I/lqeaKV5FDIfMvvRp772y4jcJLKuGUOpbJMdg/BTl50fJYAw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Navbar - Ana sayfadaki ile aynı -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="fas fa-exclamation-triangle me-2"></i><span>Şikayet Sistemi</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Navigasyonu aç/kapat">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Anasayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/markalar"><i class="fas fa-building me-1"></i> Markalar</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/yardim"><i class="fas fa-question-circle me-1"></i> Yardım</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#explore"><i class="fas fa-search me-1"></i> Keşfet</a></li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-lg-2 mb-2 mb-lg-0">
+                        <button type="button" class="btn modern-btn-primary w-100 w-lg-auto" data-bs-toggle="modal" data-bs-target="#createComplaintModal">
+                            <i class="fas fa-plus me-1"></i> Şikayet Yaz
+                        </button>
+                    </li>
+                    <li class="nav-item me-lg-2 mb-2 mb-lg-0">
+                        <button id="adminPanelBtn" type="button" class="btn modern-btn-secondary w-100 w-lg-auto" data-bs-toggle="modal" data-bs-target="#adminModal">
+                            <i class="fas fa-user-shield me-1"></i> Admin Paneli
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="themeToggle" class="btn theme-toggle-btn" aria-label="Tema değiştir">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Yardım Merkezi Başlık -->
+    <section class="help-center-header" style="padding-top: 100px; padding-bottom: 40px;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h1 class="display-5 fw-bold mb-3">Yardım Merkezi</h1>
+                    <p class="lead">Şikayet sistemimiz hakkında bilgi almak ve sık sorulan sorulara yanıt bulmak için doğru yerdesiniz.</p>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-4">
+                        <a href="#help-categories" class="modern-btn modern-btn-primary">
+                            <i class="fas fa-list-ul me-2"></i>Kategorilere Göz At
+                        </a>
+                        <a href="#faq" class="modern-btn modern-btn-outline-secondary">
+                            <i class="fas fa-question-circle me-2"></i>Sık Sorulan Sorular
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5 d-none d-lg-block text-center">
+                    <img src="https://placehold.co/500x300/031f57/a1bfff?text=Yard%C4%B1m+Merkezi" alt="Yardım Merkezi İllüstrasyonu" class="img-fluid rounded shadow-sm" style="max-height: 300px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Arama Bölümü -->
+    <section class="help-search-section">
+        <div class="container">
+            <div class="card help-search-card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <h2 class="text-center mb-4 fw-bold">Nasıl Yardımcı Olabiliriz?</h2>
+                            <div class="search-container">
+                                <div class="input-group mb-2">
+                                    <input type="text" id="helpSearchInput" class="form-control" placeholder="Bir soru yaz veya konu ara..." aria-label="Arama" aria-describedby="search-button">
+                                    <button class="btn btn-primary" type="button" id="helpSearchButton">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <p class="text-muted text-center small mb-0">Örnek: "Şikayet nasıl yazılır?", "Şikayet durumu", "Premium üyelik"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hızlı Bağlantılar -->
+    <section class="quick-links-section">
+        <div class="container">
+            <h3 class="section-title text-center mb-4">Hızlı Bağlantılar</h3>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4 col-sm-6">
+                    <a href="/yardim/makale/sikayet-nasil-yazilir" class="quick-link-card">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="quick-link-icon">
+                                    <i class="fas fa-pen-alt"></i>
+                                </div>
+                                <h5 class="card-title mt-3">Şikayet Nasıl Yazılır?</h5>
+                                <p class="card-text small text-muted">Etkili bir şikayet yazmanın adımları ve ipuçları</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <a href="/yardim/makale/sikayetinizi-takip-edin" class="quick-link-card">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="quick-link-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <h5 class="card-title mt-3">Şikayetinizi Takip Edin</h5>
+                                <p class="card-text small text-muted">Şikayetinizin durumunu kontrol etme ve güncelleme alma</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <a href="/yardim/makale/hesap-olusturma" class="quick-link-card">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="quick-link-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <h5 class="card-title mt-3">Hesap Oluşturma</h5>
+                                <p class="card-text small text-muted">Yeni bir hesap oluşturma ve profil yönetimi</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kategori Bölümü -->
+    <section id="help-categories" class="help-categories-section section-divider-bottom-diagonal">
+        <div class="container">
+            <h3 class="section-title text-center mb-4">Yardım Kategorileri</h3>
+            <div class="row g-4" id="helpCategoriesContainer">
+                <!-- Kategori içerikleri JS ile doldurulacak -->
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-2">Kategoriler yükleniyor...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Arama Sonuçları -->
+    <section id="searchResults" class="search-results-section d-none section-divider-bottom-diagonal">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="section-title mb-0">Arama Sonuçları</h3>
+                <button id="closeSearchBtn" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i> Sonuçları Kapat
+                </button>
+            </div>
+            <div id="searchResultsList" class="row g-4">
+                <!-- Arama sonuçları JS ile doldurulacak -->
+            </div>
+            <div id="noResultsMessage" class="text-center py-5 d-none">
+                <div class="mb-3">
+                    <i class="fas fa-search fa-3x text-muted"></i>
+                </div>
+                <h4>Sonuç Bulunamadı</h4>
+                <p class="text-muted">Aramanızla eşleşen sonuç bulunamadı. Lütfen farklı anahtar kelimeler deneyin veya kategorilere göz atın.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sık Sorulan Sorular -->
+    <section id="faq" class="faq-section section-divider-bottom-diagonal">
+        <div class="container">
+            <h3 class="section-title text-center mb-4">Sık Sorulan Sorular</h3>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="accordion" id="faqAccordion">
+                        <!-- FAQ Öğesi 1 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Şikayet yazmak için üye olmam gerekiyor mu?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Evet, şikayet yazabilmek için sistemimize üye olmanız gerekmektedir. Üyelik sayesinde:</p>
+                                    <ul>
+                                        <li>Şikayetlerinizi takip edebilirsiniz</li>
+                                        <li>Marka yanıtlarını görebilirsiniz</li>
+                                        <li>Bildirimler alabilirsiniz</li>
+                                        <li>Diğer şikayetlere yorum yapabilirsiniz</li>
+                                    </ul>
+                                    <p>Üyelik işlemi tamamen ücretsizdir ve sadece birkaç dakika sürer. <a href="/yardim/makale/hesap-olusturma">Hesap oluşturma</a> sayfamızdan daha fazla bilgi alabilirsiniz.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ Öğesi 2 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Şikayetim ne kadar sürede yayınlanır?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Şikayetler genellikle onay sürecinden sonra 24 saat içinde yayınlanmaktadır. Şikayetinizin onaylanması için:</p>
+                                    <ul>
+                                        <li>Şikayet içeriğinin topluluk kurallarına uygun olması gerekir</li>
+                                        <li>Hakaret, ırkçılık veya uygunsuz içerik bulunmamalıdır</li>
+                                        <li>Şikayet konusu net bir şekilde belirtilmelidir</li>
+                                    </ul>
+                                    <p>Premium üyelerimizin şikayetleri öncelikli olarak incelenir ve daha hızlı yayınlanır. Şikayetinizin durumunu <a href="/yardim/makale/sikayetinizi-takip-edin">profil sayfanızdan takip edebilirsiniz</a>.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ Öğesi 3 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Markalar şikayetlere nasıl yanıt verir?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Sistemimizde kayıtlı markalar, kendileri hakkında yapılan şikayetleri görebilir ve bunlara yanıt verebilirler. Marka yanıtları şu şekilde gerçekleşir:</p>
+                                    <ol>
+                                        <li>Şikayetiniz yayınlandığında ilgili markaya bildirim gönderilir</li>
+                                        <li>Marka yetkilileri şikayeti inceleyip resmi bir yanıt yazabilir</li>
+                                        <li>Marka yanıtı şikayet detay sayfasında görünür ve size e-posta ile bildirilir</li>
+                                        <li>Çözüme ulaşan şikayetler "Çözüldü" olarak işaretlenir</li>
+                                    </ol>
+                                    <p>Markalar genellikle 3-5 iş günü içinde yanıt vermeye çalışır, ancak bu süre markanın iş yoğunluğuna göre değişebilir. <a href="/yardim/makale/marka-yanitlari">Daha fazla bilgi için tıklayın</a>.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ Öğesi 4 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    Premium üyelik avantajları nelerdir?
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Premium üyelik, platformumuzda daha etkili bir deneyim sunmak için tasarlanmıştır. Premium üyelerin sahip olduğu avantajlar:</p>
+                                    <ul>
+                                        <li><strong>Öncelikli Yayınlama:</strong> Şikayetleriniz daha hızlı incelenir ve yayınlanır</li>
+                                        <li><strong>Gelişmiş İstatistikler:</strong> Markalar ve şikayetlerle ilgili detaylı analizlere erişim</li>
+                                        <li><strong>Reklamsız Deneyim:</strong> Platform içinde hiçbir reklam görmezsiniz</li>
+                                        <li><strong>Markalarla Doğrudan İletişim:</strong> Belirli durumlarda markalarla özel mesajlaşma imkanı</li>
+                                        <li><strong>Özel Destek:</strong> Premium üyelere özel destek hattı</li>
+                                    </ul>
+                                    <p>Premium üyelik hakkında daha fazla bilgi ve fiyatlandırma için <a href="/#infoAndPricingSection">fiyatlandırma sayfamızı</a> ziyaret edebilirsiniz.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ Öğesi 5 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFive">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                    Şikayetimi geri çekebilir veya düzenleyebilir miyim?
+                                </button>
+                            </h2>
+                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>Evet, belirli koşullar altında şikayetinizi düzenleyebilir veya geri çekebilirsiniz:</p>
+                                    <ul>
+                                        <li><strong>Şikayet Düzenleme:</strong> Şikayetiniz henüz onaylanmadıysa veya yayınlanma üzerinden 24 saat geçmediyse düzenleyebilirsiniz</li>
+                                        <li><strong>Şikayet Geri Çekme:</strong> Şikayetinizi istediğiniz zaman geri çekebilirsiniz, ancak geri çekilen şikayetler tamamen silinmez, sadece görünürlüğü kaldırılır</li>
+                                    </ul>
+                                    <p>Şikayetinizi düzenlemek veya geri çekmek için:</p>
+                                    <ol>
+                                        <li>Profil sayfanıza giriş yapın</li>
+                                        <li>"Şikayetlerim" bölümüne gidin</li>
+                                        <li>İlgili şikayetin yanındaki "Seçenekler" menüsünden işleminizi seçin</li>
+                                    </ol>
+                                    <p>Şikayet yönetimi hakkında daha fazla bilgi için <a href="/yardim/makale/sikayet-duzenleme-silme">şikayet düzenleme ve silme</a> sayfamızı ziyaret edebilirsiniz.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="/yardim/kategori/sss" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-1"></i> Tüm SSS'leri Gör
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Destek Bölümü -->
+    <section class="support-section section-divider-bottom-diagonal">
+        <div class="container">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <h4 class="fw-bold">Cevabını bulamadın mı?</h4>
+                            <p class="mb-lg-0">Aradığınız bilgiyi bulamadıysanız, doğrudan destek ekibimizle iletişime geçebilirsiniz. Size en kısa sürede yardımcı olmaktan memnuniyet duyarız.</p>
+                        </div>
+                        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                            <a href="/yardim/iletisim" class="btn modern-btn-primary">
+                                <i class="fas fa-headset me-1"></i> Destek Ekibine Ulaş
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer - Ana sayfa ile aynı -->
+    <footer>  
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="footer-title">ÜRÜN</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/#features" class="footer-link">Özellikler</a></li>
+                        <li><a href="/#infoAndPricingSection" class="footer-link">Fiyatlandırma</a></li>
+                        <li><a href="#" class="footer-link">Markalar İçin</a></li>
+                        <li><span class="footer-link-placeholder">Güvenlik</span></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="footer-title">ŞİRKET</h5>
+                    <ul class="list-unstyled">
+                        <li><span class="footer-link-placeholder">Hakkımızda</span></li>
+                        <li><span class="footer-link-placeholder">Blog</span></li>
+                        <li><span class="footer-link-placeholder">Kariyer</span></li>
+                        <li><a href="#" class="footer-link">İletişim</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5 class="footer-title">DESTEK</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/yardim" class="footer-link">Yardım Merkezi</a></li>
+                        <li><a href="/yardim/kategori/sss" class="footer-link">SSS</a></li>
+                        <li><span class="footer-link-placeholder">Topluluk Kuralları</span></li>
+                        <li><span class="footer-link-placeholder">Durum</span></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-title">YASAL</h5>
+                    <ul class="list-unstyled">
+                        <li><span class="footer-link-placeholder">Gizlilik Politikası</span></li>
+                        <li><span class="footer-link-placeholder">Kullanım Koşulları</span></li>
+                        <li><span class="footer-link-placeholder">Çerez Politikası</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mt-4 pt-4 border-top">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <p class="text-muted mb-0">© 2025 Şikayet Sistemi. Tüm hakları saklıdır.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="social-icons">
+                        <a href="#" class="footer-social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer-social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="footer-social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="footer-social-icon" aria-label="Linkedin"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-bell me-2"></i> <strong class="me-auto" id="toastTitle">Bildirim</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastBody">
+                Mesaj içeriği buraya gelecek.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/help-center.js"></script>
+</body>
+</html>
